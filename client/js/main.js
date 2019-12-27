@@ -2,6 +2,7 @@ import BootScene from './scenes/bootScene.js';
 import LoadScene from './scenes/loadScene.js';
 import HomeScene from './scenes/homeScene.js';
 import GameScene from './scenes/gameScene.js';
+import ViewLoader from './viewLoader.js';
 import Client from './client.js';
 
 window.onload = function() {
@@ -21,13 +22,17 @@ window.onload = function() {
 
     const game = new Phaser.Game(config);
     const client = new Client();
+    const viewLoader = new ViewLoader();
+
     client.connect();
 
-    $('#loginbutton').click(function() {
-        let username = $('#username').val();
-        let password = $('#password').val();
+    viewLoader.loadView("home", true, function() {
+        $('#loginbutton').click(function() {
+            let username = $('#username').val();
+            let password = $('#password').val();
 
-        client.login(username, password);
+            client.login(username, password);
+        });
     });
 }
 

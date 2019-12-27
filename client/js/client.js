@@ -1,10 +1,19 @@
+import ViewLoader from './viewLoader.js';
+
 export default class Client {
 	constructor() {
 		const self = this;
-		this.latency = 0;
+        this.viewLoader = new ViewLoader();
 
 		this._socket = {};
+
+        this.ip = {
+            address: '127.0.0.1',
+            port: '8443',
+        }
+
 		this.id = "";
+
 		this.events = {
 			'pong': (packet) => self.onPong(packet),
 			'welcome': (packet) => self.connectedToServer(packet),
@@ -15,23 +24,24 @@ export default class Client {
 		};
 
 		this.pingTime = 0;
+        this.latency = 0;
 	}
 
 	connect() {
 		const self = this;
-		this._socket = new WebSocket('ws://127.0.0.1:8443');     
+		this._socket = new WebSocket('ws://' + this.ip.address + ':' + this.ip.port);     
 
         this._socket.onopen = (event) => {
             console.log("ws:: client connected");
-            this._socket.send('hi');
         }   
 
         this._socket.onmessage = function (packet) { 
             const data = JSON.parse(packet.data);
+
             if (self.events.hasOwnProperty(data.event)) {
             	self.events[data.event](data);
             }
-            //console.log(data);
+
         }
 
         this._socket.onclose = function (packet) {
@@ -39,25 +49,25 @@ export default class Client {
             location.reload();	
         }
 
-
 	}
 
 	connectedToServer(packet) {
         this.startPingPong();            
         this.id = packet.id;
         this.addKeyListenersToClient();
-        //this.game.clientConnected(packet);
-        //this.phaser.state.start(client.MAIN_STATE, true, false, packet.mapJson);
     }
 
     startPingPong() {
         const self = this;
+
         setInterval(function() {
             const pingPacket = {
                 'event':'PING',   
             }
+
             self.pingTime = Date.now();
-            self._socket.send(JSON.stringify(pingPacket));
+            self.send(pingPacket);
+
         }, 1000);
     }
 
@@ -82,12 +92,17 @@ export default class Client {
 
 	onLogin(packet) {
 		if (packet.success) {
-			alert('login succeed');
+            if(packet.characters == 0) {
+                this.viewLoader.removeView("home", true);
+                this.viewLoader.loadView("charactercreation", true);
+            } else {
+                //this.viewLoader.removeView("home", true, this.connectedToServer());
+            }
 		} else {
 			alert('login failed');
 		}
 
-		console.error(packet);
+        console.log(packet);
 	}
 
 	register(username, password, email) {
@@ -104,7 +119,7 @@ export default class Client {
 
 	onRegister(packet) {
 		if (packet.success) {
-			alert("registration successful.");
+			//this.viewLoader.removeView("register");
 		} else {
 			alert("registration unsuccessful.");
 		}
