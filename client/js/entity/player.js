@@ -16,11 +16,13 @@ class Player extends Entity {
         this.sex = 0;
         this.race = 0;
 		this.account_name = "";
+
         this.equipment = {
             shirt: {id: '', name: ''},
             pants: {id: '', name: ''},
             weapon: {id: '', name: ''},
         }
+        
         this.hair = {
             style: 0,
             color: 0,

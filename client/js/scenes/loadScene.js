@@ -9,7 +9,6 @@ export default class LoadScene extends Phaser.Scene {
         this.label = this.add.text(this.centerX(), this.centerY(), 'Loading...', { fontFamily: 'Verdana', align: 'center' });
         this.label.setOrigin(0.5);
         this.createProgressbar(this.centerX(), this.centerY() + 50);
-
     }
 
     createProgressbar (x, y) {

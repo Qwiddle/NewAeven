@@ -26,7 +26,7 @@ class Server {
 			'physicsUpdate': (packet) => self.world.updates.push(packet),
 			'register': (packet) => self.onRegisterAttempt(packet),
 			'login': (packet) => self.onLoginAttempt(packet),
-			'ping': (packet) => self.onPing(packet, socket),
+            'create': (packet, socket) => self.onCreateAttempt(packet, socket),
 		};
 	}
 
@@ -52,12 +52,13 @@ class Server {
 		});
 
 		setInterval(() => self.serverUpdate(), global.serverTick);
-		setInterval(() => self.physicsUpdate(), global.physicsTick)
+		setInterval(() => self.physicsUpdate(), global.physicsTick);
 	}
 
 	onConnection(socket) {
         socket.id = uuid.v4();    
         socket.authenticated = true;    
+        socket.isAlive = true;
         console.log("ws:: client connected: " + socket.id);
     
         const self = this;
@@ -79,12 +80,9 @@ class Server {
     }
 
     serverUpdate() {
-    	//save db
+    	this.db.saveWorldState(this.world);
     	const packet = this.bundleServerPacket();
     	const disconnects = this.getDisconnects();
-    	//const mapChnges = this.mapChanges();
-    	//const ePackets = this.bundleEnemtyPackets();
-    	//const equipmentByMap = this.getPlayerEquipmentByMap();
 
     	this.wss.clients.forEach((socket) => {
     		if(!socket.authenticated)
@@ -135,7 +133,7 @@ class Server {
     		}
 
     		PlayerController.updatePosition(player);
-    		player.processedPckats[player.processedPackets.length-1].pos = player.pos;
+    		player.processedPackets[player.processedPackets.length-1].pos = player.pos;
     		player.keyPressed = global.Direction.NONE;
 
     	}
@@ -161,6 +159,7 @@ class Server {
 
     bundleServerPacket() {
         let packet = [];
+
         for (let i = 0; i < global.NUM_MAPS; i++) {
             packet[i] = {};
         }
@@ -204,8 +203,8 @@ class Server {
 	    	player.pos.x = data.x;
 	    	player.pos.y = data.y;
 	    	player.dir = data.dir;
-	    	player.hair.style = data.hair_style;
-	    	player.hair.color = data.hair_color;
+	    	player.hair.style = data.hairStyle
+	    	player.hair.color = data.hairColor;
 
 	    	player.equipment.shirt.name = data.shirtName;
 	    	player.equipment.shirt.id = data.shirtId;
@@ -265,7 +264,7 @@ class Server {
     		playerKeys.delete(socket.id);
     	});
 
-    	return disconnects
+    	return disconnects;
     }
 
     isJsonString(str) {
@@ -279,13 +278,6 @@ class Server {
     
     isJsonObjectEmpty(obj) {
         return Object.keys(obj).length === 0 && obj.constructor === Object;    
-    }
-
-    onPing(packet, socket) {
-        const pongPacket = {
-            event: 'pong'
-        }
-        socket.send(JSON.stringify(pongPacket));
     }
 
     onLoginAttempt(packet) {
@@ -332,7 +324,7 @@ class Server {
 
                         socket.send(JSON.stringify(packet)); 
                     }
-
+                    socket.account_name = username;
                     self.db.getCharacters(username, onCharactersExist, onNoCharacters);
                 } else {	
                     onFailure();
@@ -355,6 +347,7 @@ class Server {
 
     onRegisterAttempt(packet) {
         const self = this;
+
         this.wss.clients.forEach((socket) => {
             if (socket.id === packet.id) {
                 self.attemptRegistration(socket, packet);
@@ -371,6 +364,7 @@ class Server {
                 event: 'on_register',
                 success: true,
             }
+
             socket.send(JSON.stringify(packet)); 
         }
 
@@ -379,11 +373,11 @@ class Server {
                 event: 'on_register',
                 success: false,
             }
+
             socket.send(JSON.stringify(packet));            
         }
 
         const createAccount = function() {
-        	console.error(packet.password);
             bcrypt.hash(packet.password, 10, function(err, hash) {
                 self.db.createAccount(packet, hash, socket._socket.remoteAddress);
                 registrationSuccessful();              
@@ -413,7 +407,7 @@ class Server {
 
         const nameUnavailable = function() {
             const createPacket = {
-                event: 'ON_CREATE',
+                event: 'on_create',
                 success: false,
             }
             socket.send(JSON.stringify(createPacket));  
@@ -425,8 +419,8 @@ class Server {
                 username: packet.username,
                 sex: packet.sex, 
                 race: packet.race,
-                hair_style: packet.hairStyle, 
-                hair_color: packet.hairColor,
+                hairStyle: packet.style, 
+                hairColor: packet.color,
                 map: 0, 
                 x: 0,
                 y: 0, 
@@ -457,8 +451,8 @@ class Server {
                     username: playerData.username,
                     sex: playerData.sex,
                     race: playerData.race,
-                    hairStyle: playerData.hair_style,
-                    hairColor: playerData.hair_color,
+                    hairStyle: playerData.hairStyle,
+                    hairColor: playerData.hairColor,
                 }
                 socket.send(JSON.stringify(createPacket));                
             }

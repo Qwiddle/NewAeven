@@ -78,6 +78,7 @@ body {
   	image-rendering: crisp-edges;
   	background-image: url('../img/1024x768.png');
 }
+
 canvas {
 	border: 1px solid black;
 	
@@ -100,3 +101,11 @@ canvas {
 	height: 31px;
 }
 
+@keyframes animatezoom{
+  from {
+    transform:scale(0)
+  }
+  to{
+    transform:scale(1)
+  }
+}

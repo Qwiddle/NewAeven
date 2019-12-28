@@ -19,7 +19,7 @@ class SaveController {
             }
             mysql.query('INSERT INTO `players` SET ? ON DUPLICATE KEY UPDATE ?', [playerData, playerData], function(err, res) {
                 if (err) {
-                    this.rollback(function() {
+                    mysql.rollback(function() {
                         throw err;
                     })
                 }
@@ -86,8 +86,8 @@ class SaveController {
             username: player.username,
             sex: player.sex,
             race: player.race,
-            hair_color: player.hair.color,
-            hair_style: player.hair.style,
+            hairColor: player.hair.color,
+            hairStyle: player.hair.style,
             map: player.map,
             x: player.pos.x,
             y: player.pos.y,

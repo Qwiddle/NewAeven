@@ -4,7 +4,8 @@
 	justify-content: center;
 	align-items: center;
 	flex-wrap: wrap;
-	display: none;
+	display: flex;
+	animation: animatezoom 0.2s;
 }
 
 #news {
@@ -87,13 +88,12 @@
 	margin-top: 60px;
 	width: 89px;
 	height: 27px;
-	background-image: url('../../assets/menu/login.png');
+	background-image: url('../../assets/menu/buttons/login_button_small.png');
 	border: none;
-	background-size: 100%
 }
 
 #loginbutton:hover {
-	background-image: url('../../assets/menu/login_hover.png');
+	background-position: 89px 0px;	
 }
 
 .posttitle {
@@ -118,52 +118,42 @@
 	align-items: center;
 	flex-wrap: wrap;
 	display: flex;
+	float: bottom;
 }
 
 #create_button {
-	background: url('../../assets/menu/register.png') no-repeat;
+	background-image: url('../../assets/menu/buttons/register_button.png');
 	width: 177px;
 	height: 36px;
-	padding-right: 5px;
-	padding-bottom: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
+
 }
 
 #play_button {
-	background: url('../../assets/menu/login_big.png') no-repeat;
+	background-image: url('../../assets/menu/buttons/login_button.png');
 	width: 177px;
 	height: 36px;
-	padding-right: 5px;
-	padding-bottom: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
 }
 
 #credits_button {
-	background: url('../../assets/menu/credits.png') no-repeat;
+	background-image: url('../../assets/menu/buttons/credits_button.png');
 	width: 177px;
 	height: 36px;
-	padding-right: 5px;
-	padding-bottom: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
 }
 
 #settings_button {
-	background: url('../../assets/menu/settings.png') no-repeat;
+	background-image: url('../../assets/menu/buttons/settings_button.png');
 	width: 177px;
 	height: 36px;
-	padding-right: 5px;
-	padding-bottom: 5px;
+	margin-right: 5px;
+	margin-bottom: 5px;
 }
 
-#create_button:hover {
-	background: url('../../assets/menu/register_hover.png') no-repeat;
-}
-
-#play_button:hover {
-	background: url('../../assets/menu/login_big_hover.png') no-repeat;
-}
-
-#credits_button:hover {
-	background: url('../../assets/menu/credits_hover.png') no-repeat;
-}
-
-#settings_button:hover {
-	background: url('../../assets/menu/settings_hover.png') no-repeat;
+#create_button:hover, #play_button:hover, #credits_button:hover, #settings_button:hover {
+	background-position: 177px 0px;
 }

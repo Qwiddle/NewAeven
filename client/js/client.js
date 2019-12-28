@@ -3,26 +3,24 @@ import ViewLoader from './viewLoader.js';
 export default class Client {
 	constructor() {
 		const self = this;
-        this.viewLoader = new ViewLoader();
-
-		this._socket = {};
 
         this.ip = {
             address: '127.0.0.1',
             port: '8443',
         }
 
-		this.id = "";
-
 		this.events = {
 			'pong': (packet) => self.onPong(packet),
 			'welcome': (packet) => self.connectedToServer(packet),
 			'on_register': (packet) => self.onRegister(packet),
 			'on_login': (packet) => self.onLogin(packet),
-			//'on_create': (packet) => self.onCreate(packet),
+			'on_create': (packet) => self.onCreate(packet),
 			//'server_update': (packet) => self.game.serverUpdate(packet)
 		};
 
+        this.viewLoader = new ViewLoader();
+        this._socket = {};
+        this.id = "";
 		this.pingTime = 0;
         this.latency = 0;
 	}
@@ -41,19 +39,18 @@ export default class Client {
             if (self.events.hasOwnProperty(data.event)) {
             	self.events[data.event](data);
             }
-
         }
 
         this._socket.onclose = function (packet) {
             alert("Disconnected from the server");
             location.reload();	
         }
-
 	}
 
 	connectedToServer(packet) {
-        this.startPingPong();            
         this.id = packet.id;
+
+        this.startPingPong();            
         this.addKeyListenersToClient();
     }
 
@@ -77,7 +74,29 @@ export default class Client {
 
 	send(packet) {
         this._socket.send(JSON.stringify(packet));
-        console.log()
+    }
+
+    createCharacter(username, race, sex, style, color) {
+        const createPacket = {
+            'event': 'create',
+            'username': username,
+            'race': race,
+            'sex': sex,
+            'style': style,
+            'color': color,
+        }
+
+        this.send(createPacket);
+    }
+
+    onCreate(packet) {
+        if(packet.success) {
+            this.removeView("charactercreation", true, function() {
+                this.loadView("home", true);
+            });
+        } else {
+            alert('character creation failed.');
+        }
     }
 
 	login(username, password) {
@@ -91,18 +110,21 @@ export default class Client {
 	}
 
 	onLogin(packet) {
+        const self = this;
+
 		if (packet.success) {
             if(packet.characters == 0) {
-                this.viewLoader.removeView("home", true);
-                this.viewLoader.loadView("charactercreation", true);
+                this.viewLoader.removeView("home", true, function() {
+                    self.viewLoader.loadView("charactercreation", true);
+                    self.viewLoader.removeView("navbuttons");
+                });
+                
             } else {
                 //this.viewLoader.removeView("home", true, this.connectedToServer());
             }
 		} else {
 			alert('login failed');
 		}
-
-        console.log(packet);
 	}
 
 	register(username, password, email) {

@@ -1,0 +1,82 @@
+#charactercreation {
+	width: 100%;
+	height: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	animation: animatezoom 0.2s;
+}
+
+#createbox {
+	width: 700px;
+	height: 400px;
+	background-image: url('../../assets/menu/charactercreation.png');
+	position: absolute;
+}
+
+#container {
+	width: 640px;
+	height: 200px;
+	margin-left: 30px;
+
+}
+
+#playerbox {
+	width: 110px;
+	height: 135px;
+	margin-top: 102px;
+	margin-left: 70px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+#playersprite {
+	width: 37px;
+	height: 81px;
+	background-image: url('../../assets/players/playersprite.png');
+	margin-top: 15px;
+}
+
+#namebox {
+	width: 205px;
+	height: 30px;
+}
+
+#name {
+	margin-top: 18px;
+	margin-left: 79px;
+	width: 140px;
+	height: 22px;
+	background-image: url('../../assets/menu/textback.png');
+	border: 1px solid black;
+	text-align: center;
+	font-size: 16px;
+}
+
+#charactercreation #inputs {
+	width: 275px;
+	height: 27px;
+	float: right;
+	margin-top: 34px;
+}
+
+#charactercreation #inputs #ok_button {
+	width: 89px;
+	height: 27px;
+	background-image: url('../../assets/menu/buttons/ok_button_small.png');
+	display:inline-block;
+}
+
+#charactercreation #inputs #ok_button:hover, #charactercreation #inputs #cancel_button:hover {
+	background-position: 89px 0px;
+}
+
+#charactercreation #inputs #cancel_button {
+	width: 89px;
+	height: 27px;
+	background-image: url('../../assets/menu/buttons/cancel_button_small.png');
+	display:inline-block;
+}

@@ -3,8 +3,6 @@ import Client from '../client.js';
 export default class HomeScene extends Phaser.Scene {
     constructor () {
         super({key: 'home'});
-        this.client = new Client();
-        console.log(this.client);
     }
 
     preload () {
@@ -18,8 +16,6 @@ export default class HomeScene extends Phaser.Scene {
     create () {
         const self = this;
         this.add.image(this.centerX(), this.centerY(), 'bg');
-        $("#home").fadeIn();
-        $('#home').css('display', 'flex');
     }
 
     centerX () {

@@ -56,8 +56,8 @@ class CreateController {
             'username VARCHAR(64) NOT NULL,' +
             'sex INT unsigned NOT NULL,' +
             'race INT unsigned NOT NULL,' +
-            'hair_color INT unsigned NOT NULL,' +
-            'hair_style INT unsigned NOT NULL,' +
+            'hairColor INT unsigned NOT NULL,' +
+            'hairStyle INT unsigned NOT NULL,' +
             'map INT unsigned NOT NULL,' +
             'x INT signed NOT NULL,' +
             'y INT signed NOT NULL,' +

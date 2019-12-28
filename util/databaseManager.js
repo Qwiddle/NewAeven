@@ -1,15 +1,19 @@
 const mysql = require("mysql");
+require('dotenv').config();
 const CreateController = require('./db/createController.js');
 const SaveController = require('./db/saveController.js');
 const GetController = require('./db/getController.js');
 
-
 class DatabaseManager {
 	constructor() {
+        //leave blank if you are using environment variables
+        this.dbuser = "";
+        this.dbpassword = "";
+
 		this.con = mysql.createConnection({
+            user: process.env.DBUSER || this.dbuser,
+            password: process.env.DBPASSWORD || this.dbpassword,
 			host: "localhost",
-			user: "root",
-			password: "passy101",
 			database: "new_aeven",
 		});
 
@@ -19,9 +23,9 @@ class DatabaseManager {
 
 	connect() {
 		this.con.connect(function(err) {
-			console.log("mysql:: connecting");
+			console.log("mysql connecting");
 			if (err) throw err;
-			console.log("mysqL:: connected");
+			console.log("mysql connected");
 		});
 	}
 
@@ -68,10 +72,6 @@ class DatabaseManager {
         for (const key in world.players) {
             SaveController.savePlayerState(this.con, world.players[key]);
         }
-        
-        /*for (const key in world.inventories) {
-            SaveController.saveInventoryState(this.con, world.players[key], world.inventories[key]);
-        }*/
     }
 }
 
