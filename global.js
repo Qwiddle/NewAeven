@@ -1,4 +1,4 @@
-const global = {
+export default global = {
 	numMaps: 1,
 	serverTick: 130,
 	physicsTick: 115,
@@ -22,5 +22,3 @@ const global = {
     tilePlayer: 9,
     tileEmpty: 0,
 };
-
-export default global;

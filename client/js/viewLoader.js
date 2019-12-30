@@ -6,6 +6,10 @@ export default class ViewLoader {
 	}
 
 	loadView(view, fade, callback) {
+		console.log(this.currentView);
+		console.log(view);
+		if(this.currentView == view) { return; }
+
 		$("<div>").load("views/" + view + ".html", function() {
 			if(fade) {
 				$("#game_elements").append($(this).html()).hide().fadeIn(this.fadeInTime);
@@ -16,7 +20,6 @@ export default class ViewLoader {
 			if(callback)
 				callback();
 		});
-
 
 		this.currentView = view;
 	}
@@ -32,16 +35,33 @@ export default class ViewLoader {
 		} else {
 			$("#" + view).detach();
 		}
+
+		this.currentView = view;
 	}
+
+	showView(view, fade, callback) {
+		if(fade) {
+			$("#" + view).fadeIn(this.fadeInTime).promise().done(function() {
+				if(callback)
+					callback();
+			});
+		} else {
+			$("#" + view).show();
+		}
+
+		this.currentView = view;
+ 	}
 
 	hideView(view, fade, callback) {
 		if(fade) {
-			$("#" + view).fadeOut(this.fadeOutTime).done(function() {
+			$("#" + view).fadeOut(this.fadeOutTime).promise().done(function() {
 				if(callback)
 					callback();
 			});
 		} else {
 			$("#" + view).hide();	
 		}
+
+		this.currentView = view;
 	}
 }

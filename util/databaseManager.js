@@ -4,7 +4,7 @@ const CreateController = require('./db/createController.js');
 const SaveController = require('./db/saveController.js');
 const GetController = require('./db/getController.js');
 
-class DatabaseManager {
+export default class DatabaseManager {
 	constructor() {
         //leave blank if you are using environment variables
         this.dbuser = "";
@@ -74,5 +74,3 @@ class DatabaseManager {
         }
     }
 }
-
-module.exports = DatabaseManager;

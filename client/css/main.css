@@ -1,19 +1,9 @@
 html, body, * {
-	margin: 0;
-    padding: 0;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;  
-   	image-rendering: optimizeSpeed;
-    image-rendering: crisp-edges;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: -o-crisp-edges;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: optimize-contrast;
-    -ms-interpolation-mode: nearest-neighbor;
+  margin: 0;
+  padding: 0;
+  -webkit-user-select: none;
+  user-select: none;  
+  image-rendering: optimizeSpeed;
 }
 
 @-webkit-keyframes autofill {
@@ -25,6 +15,7 @@ html, body, * {
 input:-webkit-autofill {
     -webkit-animation-name: autofill;
     -webkit-animation-fill-mode: both;
+    -webkit-text-fill-color: #ffffff;
 }
 
 input:focus {
@@ -42,7 +33,7 @@ body {
 
 #page {
 	text-align:center;
-	opacity:0.9; /* Transparent Background 50% */
+	opacity:0.9;
 	height: 100%;
 	width: 100%;
 	display: flex;
@@ -59,7 +50,7 @@ body {
 #game_elements {
 	width: 100%;
 	height: 100%;
-    position: absolute;
+  position: absolute;
 }
 
 #cvs {
@@ -73,15 +64,11 @@ body {
 	width: 1024px;
 	height: 768px;
 	border: 1px solid black;
-	image-rendering: pixelated;
-  	image-rendering: -moz-crisp-edges;
-  	image-rendering: crisp-edges;
-  	background-image: url('../img/1024x768.png');
+  background-image: url('../img/1024x768.png');
 }
 
 canvas {
 	border: 1px solid black;
-	
 }
 
 .headertext {
@@ -99,6 +86,18 @@ canvas {
 	background-image: url('../img/basicheader.png');
 	width: 581px;
 	height: 31px;
+}
+
+.gameinput {
+	color: white;
+	-webkit-text-stroke-width: 0.1px;
+  	-webkit-text-stroke-color: black;
+  	 text-shadow:
+       3px 3px 0 #000,
+     -1px -1px 0 #000,  
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+       1px 1px 0 #000;
 }
 
 @keyframes animatezoom{

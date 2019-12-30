@@ -1,4 +1,10 @@
 import ViewLoader from './viewLoader.js';
+import ClientController from './clientController.js';
+import BootScene from './scenes/bootScene.js';
+import LoadScene from './scenes/loadScene.js';
+import HomeScene from './scenes/homeScene.js';
+import GameScene from './scenes/gameScene.js';
+import Game from './game.js';
 
 export default class Client {
 	constructor() {
@@ -15,10 +21,28 @@ export default class Client {
 			'on_register': (packet) => self.onRegister(packet),
 			'on_login': (packet) => self.onLogin(packet),
 			'on_create': (packet) => self.onCreate(packet),
-			//'server_update': (packet) => self.game.serverUpdate(packet)
+			'server_update': (packet) => self.game.serverUpdate(packet),
 		};
 
+        this.config = {
+            type: Phaser.CANVAS,
+            width: 1024,
+            height: 768,
+            parent: 'cvs',
+            pixelArt: true,
+            physics: {
+                default: 'arcade',
+            },
+            scene: [
+                BootScene, LoadScene, HomeScene, GameScene
+            ]
+        };
+
+        this.phaser = new Phaser.Game(this.config);
+
         this.viewLoader = new ViewLoader();
+        this.game = new Game(new ClientController(this, this.phaser));
+
         this._socket = {};
         this.id = "";
 		this.pingTime = 0;
@@ -52,6 +76,7 @@ export default class Client {
 
         this.startPingPong();            
         this.addKeyListenersToClient();
+        this.game.clientConnected(packet);  
     }
 
     startPingPong() {
@@ -90,9 +115,11 @@ export default class Client {
     }
 
     onCreate(packet) {
+        const self = this;
         if(packet.success) {
-            this.removeView("charactercreation", true, function() {
-                this.loadView("home", true);
+            this.viewLoader.removeView("charactercreation", true, function() {
+                self.viewLoader.showView("navbuttons", true);
+                self.viewLoader.loadView("home", true);
             });
         } else {
             alert('character creation failed.');
@@ -115,17 +142,27 @@ export default class Client {
 		if (packet.success) {
             if(packet.characters == 0) {
                 this.viewLoader.removeView("home", true, function() {
+                    self.viewLoader.hideView("navbuttons", true);
                     self.viewLoader.loadView("charactercreation", true);
-                    self.viewLoader.removeView("navbuttons");
                 });
                 
             } else {
-                //this.viewLoader.removeView("home", true, this.connectedToServer());
+                this.viewLoader.removeView("home", true, function() {
+                    self.loginPlayer();
+                });
             }
 		} else {
 			alert('login failed');
 		}
 	}
+
+    loginPlayer() {
+        const loginPlayerPacket = {
+            'event': 'loginPlayer',
+        }
+
+        this.send(loginPlayerPacket);
+    }
 
 	register(username, password, email) {
 		const registerPacket = {
@@ -140,12 +177,20 @@ export default class Client {
 	}
 
 	onRegister(packet) {
+        const self = this;
 		if (packet.success) {
-			//this.viewLoader.removeView("register");
+			this.viewLoader.removeView("register", true, function() {
+                self.viewLoader.showView("navbuttons", true);
+                self.viewLoader.loadView("home", true);
+            });
 		} else {
 			alert("registration unsuccessful.");
 		}
 	}
+
+    init() {
+        //this.
+    }
 
 	addKeyListenersToClient() {
         this.keys = [];

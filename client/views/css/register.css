@@ -1,0 +1,61 @@
+#register {
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	display: flex;
+	animation: animatezoom 0.2s;
+}
+
+#registerbox {
+	width: 518px;
+	height: 322px;
+	background-image: url('../../assets/menu/register.png');
+	position: absolute;
+	border: 1px solid black;
+}
+
+#textboxes {
+	width: 292px;
+	height: 162px;
+	margin-left: 177px;
+	margin-top: 72px;
+}
+
+.registertextbox {
+	width: 280px;
+	height: 28px;
+	font-size: 17px;
+	font-family: 'Arial';
+	font-weight: bold;
+	text-align: left;
+	padding-left: 10px;
+	border: none;
+	background: none;
+	margin-bottom: 13px;
+}
+
+#register #inputs {
+	float: right;
+	margin-right: 30px;
+	margin-top: 35px;
+}
+
+#register #inputs #ok_button {
+	width: 89px;
+	height: 27px;
+	background-image: url('../../assets/menu/buttons/ok_button_small.png');
+	display:inline-block;
+}
+
+#register #inputs #ok_button:hover, #register #inputs #cancel_button:hover {
+	background-position: 89px 0px;
+}
+
+#register #inputs #cancel_button {
+	width: 89px;
+	height: 27px;
+	background-image: url('../../assets/menu/buttons/cancel_button_small.png');
+	display:inline-block;
+}

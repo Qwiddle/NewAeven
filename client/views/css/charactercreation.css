@@ -9,58 +9,66 @@
 }
 
 #createbox {
-	width: 700px;
-	height: 400px;
+	width: 600px;
+	height: 322px;
 	background-image: url('../../assets/menu/charactercreation.png');
-	position: absolute;
+
+	border: 1px solid black;
 }
 
-#container {
-	width: 640px;
+#customization {
+	width: 250px;
 	height: 200px;
 	margin-left: 30px;
-
+	margin-top: 50px;
 }
 
 #playerbox {
-	width: 110px;
-	height: 135px;
-	margin-top: 102px;
-	margin-left: 70px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	flex-wrap: wrap;
+	width: 95px;
+	height: 130px;
+	margin-left: 15px;
 }
 
 #playersprite {
 	width: 37px;
 	height: 81px;
 	background-image: url('../../assets/players/playersprite.png');
-	margin-top: 15px;
+	margin: 0 auto;
 }
 
 #namebox {
-	width: 205px;
-	height: 30px;
+	width: 194px;
+	height: 23px;
+	background-image: url('../../assets/menu/textbar_big.png');
+	border: 1px solid black;
+	display:flex;
+	margin-left: 10px;
+	margin-top: 30px
 }
 
 #name {
-	margin-top: 18px;
-	margin-left: 79px;
+	margin-left: 8px;
 	width: 140px;
 	height: 22px;
-	background-image: url('../../assets/menu/textback.png');
-	border: 1px solid black;
+	background-image: url('../../assets/menu/createselect.png');
+	border: none;
 	text-align: center;
-	font-size: 16px;
+}
+
+#name:focus {
+	background-position: 141px 0px;
+}
+
+#name:active {
+	background-position: 141px 0px;
 }
 
 #charactercreation #inputs {
 	width: 275px;
 	height: 27px;
 	float: right;
-	margin-top: 34px;
+	margin-right: -11px;
+	margin-top: 20px;
 }
 
 #charactercreation #inputs #ok_button {
@@ -79,4 +87,23 @@
 	height: 27px;
 	background-image: url('../../assets/menu/buttons/cancel_button_small.png');
 	display:inline-block;
+}
+
+#label {
+	width: 50px;
+	height: 24px;
+}
+
+.boxtext {
+	text-align: center;
+	margin-top: 2px;
+	font-family: 'Forte';
+	font-size: 14px;
+	color: white;
+  	text-shadow:
+       1px 2px 0 #000,
+     -1px -1px 0 #000,  
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+       1px 1px 0 #000;
 }

@@ -4,13 +4,14 @@ const path = require('path');
 const WebSocket = require('ws');
 const uuid = require('node-uuid');
 const bcrypt = require('bcrypt');
+require = require("esm")(module)
 
-const DatabaseManager = require('./util/databaseManager.js');
-const MapManager = require('./util/mapManager.js');
-const World = require('./util/world.js');
-const Player = require('./client/js/entity/player.js');
-const PlayerController = require('./client/js/entity/playercontroller.js');
-const global = require('./client/global.js');
+const DatabaseManager = require('./util/databaseManager.js').default;
+const MapManager = require('./util/mapManager.js').default;
+const World = require('./util/world.js').default;
+const Player = require('./client/js/entity/player.js').default;
+const PlayerController = require('./client/js/entity/playercontroller.js').default;
+const global = require('./global.js').default;
 
 class Server {
 	constructor() {
@@ -20,13 +21,14 @@ class Server {
 		this.mapManager = new MapManager();
 		this.world = new World();
 
-		this.world.maps = this.mapManager.maps;
+        this.world.mapData = this.mapManager.maps;
 
 		this.events = {
 			'physicsUpdate': (packet) => self.world.updates.push(packet),
 			'register': (packet) => self.onRegisterAttempt(packet),
 			'login': (packet) => self.onLoginAttempt(packet),
             'create': (packet, socket) => self.onCreateAttempt(packet, socket),
+            'loginPlayer': (packet, socket) => self.onPlayerLoginAttempt(packet, socket),
 		};
 	}
 
@@ -56,8 +58,8 @@ class Server {
 	}
 
 	onConnection(socket) {
+        
         socket.id = uuid.v4();    
-        socket.authenticated = true;    
         socket.isAlive = true;
         console.log("ws:: client connected: " + socket.id);
     
@@ -82,7 +84,6 @@ class Server {
     serverUpdate() {
     	this.db.saveWorldState(this.world);
     	const packet = this.bundleServerPacket();
-    	const disconnects = this.getDisconnects();
 
     	this.wss.clients.forEach((socket) => {
     		if(!socket.authenticated)
@@ -97,54 +98,23 @@ class Server {
 
     		if(socket.readyState === WebSocket.OPEN)
     			socket.send(JSON.stringify(bundledPacket));
-    			console.log('sent');
     	});
     }
 
     physicsUpdate() {
-    	this.processUpdates();
+        if(!this.initialized) { return; }
 
-    	for (let i = 0; i < global.numMaps; i++) {
-    		//process enemies
-    	}
+        this.processUpdates();  
 
-    	for (const key in this.world.players) {
-    		const player = this.world.players[key];
-    		this.world.players[key].map = this.world.dynamicMap[player.mapId];
-    		this.world.players[key].map[player.pos.x][player.pos.y] = 9;
-    	}
+        for(let i = 0; i < global.numMaps; i++) {
+            //update mapdata
+        }
 
-    	for (const id in this.world.players) {
-    		this.updatePlayer(this.world.players[id], id);
-    	}
+        //update all players
     }
 
     updatePlayer(player, id) {
-    	//update player pos based on input
-    	if (PlayerController.isMovable(player)) {
-    		PlayerController.updateKeyPressed(player);
-    	}
-
-    	if (PlayerController.pressedKey(player)) {
-    		if(PlayerController.hasAttacked(player)) {
-    			//handlecombat
-    		} else if(!PlayerController.hasRotated(player)) {
-    			player.lastMoveTime = Date.now();
-    		}
-
-    		PlayerController.updatePosition(player);
-    		player.processedPackets[player.processedPackets.length-1].pos = player.pos;
-    		player.keyPressed = global.Direction.NONE;
-
-    	}
-
-     	if(player.changedMaps) {
-     		//handle map change
-     	}
-
-     	this.world.dynamicMap[player.prevMap][player.prevPos.x][player.prevPos.y] = global.tileEmpty;
-     	this.world.dynamicMap[player.map][player.pos.x][player.pos.y] = global.tilePlayer;           
-
+    	
     }
 
     processUpdates() {
@@ -160,12 +130,13 @@ class Server {
     bundleServerPacket() {
         let packet = [];
 
-        for (let i = 0; i < global.NUM_MAPS; i++) {
+        for (let i = 0; i < global.numMaps; i++) {
             packet[i] = {};
         }
     
         for (let key in this.world.players) {
             let map = this.world.players[key].map;
+
             packet[map][key] = {
                 processed: this.world.players[key].processedPackets.slice(),
                 pos: this.world.players[key].pos,
@@ -186,16 +157,16 @@ class Server {
     	}
     }
 
-
     initClient(socket, username) {
     	const self = this;
     	const newClient = new Player();
 
     	newClient.username = username;
-    	newClient.mapId = 0;
-    	newClient.map = this.mapManager.maps[newClient.mapId];
+    	newClient.map = 0;
+        newClient.mapData = this.mapManager.maps[0];
 
     	const loadPlayer = function(player, data) {
+            player.account_name = data.account_name;
 	    	player.username = data.username;
 	    	player.sex = data.sex;
 	    	player.race = data.race;
@@ -217,14 +188,15 @@ class Server {
 	    	player.stats.maxHp = data.max_hp;
 	    	player.stats.level = data.level;
 
-	    	this.world.players[socket.id] = player;
+	    	self.world.players[socket.id] = player;
 
 	    	let initPacket = {
 	    		event: 'welcome',
 	    		id: socket.id,
 	    		username: player.username,
-	    		map: self.mapManager.maps[player.map],
-	    		mapId: player.mapId,
+	    		map: player.map,
+                mapData: self.mapManager.maps[player.map],
+                mapJson: self.mapManager.mapsJson[player.map],
 	    		pos: player.pos,
 	    		dir: player.dir,
 	    		race: player.race,
@@ -237,34 +209,11 @@ class Server {
 	    	socket.authenticated = true;
 	    	socket.send(JSON.stringify(initPacket));
 	    }
-
-	    this.db.getPlayerData(newClient, loadPlayer, createPlayer);
+	    this.db.getAllPlayerData(newClient, loadPlayer);
     }
 
     hasMetaData(update, key) {
     	return update.hasOwnProperty(key) && !this.isJsonObjectEmpty(update[key]);
-    }
-
-    getDisconnects() {
-    	let disconnects = [];
-
-    	for (let i = 0; i < global.numMaps; i++)
-    		disconnects[i] = [];
-
-    	let playerKeys = new Set(Object.keys(this.world.players));
-
-    	playerKeys.forEach((key) => {
-    		let player = this.world.players[key];
-    		disconnects[player.map].push(key);
-    		delete this.world.players[key];
-    		console.log(key + " disconnected");
-    	});
-
-    	this.wss.clients.forEach((socket) => {
-    		playerKeys.delete(socket.id);
-    	});
-
-    	return disconnects;
     }
 
     isJsonString(str) {
@@ -303,8 +252,6 @@ class Server {
         const onSuccess = function(data) {
             bcrypt.compare(password, data.password, function(err, match) {
                 if (match) {
-                    socket.authenticated = true;
-
                     const onCharactersExist = function(data) {
                         const packet = {
                             event: 'on_login',
@@ -324,6 +271,7 @@ class Server {
 
                         socket.send(JSON.stringify(packet)); 
                     }
+
                     socket.account_name = username;
                     self.db.getCharacters(username, onCharactersExist, onNoCharacters);
                 } else {	
@@ -343,6 +291,19 @@ class Server {
             if(!online) 
             	this.db.getAccount(username, onSuccess, onFailure);
         }
+    }
+
+    onPlayerLoginAttempt(packet, socket) {
+        const self = this;
+        const onCharactersExist = function(rows) {
+            self.initClient(socket, rows[0].username);            
+        }
+
+        const onNoCharacters = function() {
+
+        }
+
+        this.db.getCharacters(socket.account_name, onCharactersExist, onNoCharacters);
     }
 
     onRegisterAttempt(packet) {

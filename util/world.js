@@ -1,11 +1,11 @@
 const global = require('../client/global.js');
 
-class World {
+export default class World {
 	constructor() {
 		this.updates = [];
 		this.players = {};
-		this.maps = [];
-		this.dynamicMap = [];
+		this.mapData = [];
+		this.dynamicMapData = [];
 		this.reset();
 	}
 
@@ -15,5 +15,3 @@ class World {
 		//}
 	}
 }
-
-module.exports = World;

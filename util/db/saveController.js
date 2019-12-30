@@ -82,7 +82,7 @@ class SaveController {
 
     static _getFormattedPlayerData(player) {
         return {
-			account_name: player.accountname,
+			account_name: player.account_name,
             username: player.username,
             sex: player.sex,
             race: player.race,

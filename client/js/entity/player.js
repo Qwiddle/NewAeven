@@ -1,8 +1,5 @@
-Entity = require('./entitycontroller.js');  
-
-class Player extends Entity {
+export default class Player {
 	constructor(sex, race, username) {
-		super()
 		this.initCosmetics(sex, race);
 		this.initKinematics();
 		this.initPacketMetadata();
@@ -10,6 +7,25 @@ class Player extends Entity {
 		this.initMessageMetadata();
 
 		this.username = username;
+		this.prevPos = {x: 0, y: 0};
+		this.pos = {x: 0, y: 0};
+		this.targetPos = {x: 0, y: 0};
+		
+		this.stats = { 
+            curr_hp: 30,
+            max_hp: 30,
+            level: 1
+        };
+
+        this.map = 0;
+		this.prevMap = this.map;
+
+		this.packets = [];
+
+		this.lastMoveTime = 0;
+		this.walkTime = 450;
+		this.attackTime = 500;
+		this.dir = 0;
 	}
 
 	initCosmetics(sex, race) {
@@ -22,7 +38,7 @@ class Player extends Entity {
             pants: {id: '', name: ''},
             weapon: {id: '', name: ''},
         }
-        
+
         this.hair = {
             style: 0,
             color: 0,
@@ -53,5 +69,3 @@ class Player extends Entity {
         this.messageDelay = 0;
     }
 }
-
-module.exports = Player;
