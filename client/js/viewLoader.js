@@ -6,7 +6,6 @@ export default class ViewLoader {
 	}
 
 	loadView(view, fade, callback) {
-		console.log(this.currentView);
 		console.log(view);
 		if(this.currentView == view) { return; }
 
@@ -26,7 +25,8 @@ export default class ViewLoader {
 
 	removeView(view, fade, callback) {
 		if(fade) {
-			$("#" + view).fadeOut(this.fadeOutTime).promise().done(function() {
+			console.log(view);
+			$('#' + view).fadeOut(this.fadeOutTime).promise().done(function() {
 				$("#" + view).detach();
 
 				if(callback)
@@ -36,7 +36,6 @@ export default class ViewLoader {
 			$("#" + view).detach();
 		}
 
-		this.currentView = view;
 	}
 
 	showView(view, fade, callback) {

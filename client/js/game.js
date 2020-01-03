@@ -28,6 +28,7 @@ export default class Game {
         this.player.map = packet.map;
         this.player.mapData = this.mapData;
         this.clientController.updateEquipment(this.player, packet.equipment);
+        this.updateDisconnectedPlayers(packet.disconnects);
     }
 
     physicsUpdate() {
@@ -77,14 +78,14 @@ export default class Game {
         for (let i = 0; i < disconnects.length; i++) {
             if (this.players.hasOwnProperty(disconnects[i])) {
                 delete this.players[disconnects[i]];
-                this.clientController.deleteSprite(disconnects[i]);
+                //this.clientController.deleteSprite(disconnects[i]);
             }
         }
     }
 
     deleteDisconnectedPlayerData(key) {
         delete this.players[key];
-        this.clientController.deleteSprite(key);
+        //this.clientController.deleteSprite(key);
     }
 
     updatePlayers() {

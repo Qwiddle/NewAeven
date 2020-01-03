@@ -11,7 +11,7 @@ const MapManager = require('./util/mapManager.js').default;
 const World = require('./util/world.js').default;
 const Player = require('./client/js/entity/player.js').default;
 const PlayerController = require('./client/js/entity/playercontroller.js').default;
-const global = require('./global.js').default;
+const global = require('./client/global.js').default;
 
 class Server {
 	constructor() {
@@ -67,7 +67,9 @@ class Server {
 
         socket.on('message', function(packet) {
         	if (self.isJsonString(packet)) {
-        		const data = JSON.parse(packet);
+        		const data = JSON.parse(packet)
+
+                console.log(data);
 
         		if(self.events.hasOwnProperty(data.event)) {
         			data.id = socket.id;
@@ -83,16 +85,24 @@ class Server {
 
     serverUpdate() {
     	this.db.saveWorldState(this.world);
+
     	const packet = this.bundleServerPacket();
+        const disconnects = this.getDisconnects();
 
     	this.wss.clients.forEach((socket) => {
-    		if(!socket.authenticated)
-    			return;
+    		if(!socket.authenticated) { return; }
 
     		let player = this.world.players[socket.id];
 
+            if(typeof player === 'undefined') { return; }
+
     		const bundledPacket = {
     			event: 'serverUpdate',
+                disconnects: disconnects[player.map],
+                map: player.map,
+                mapData: this.world.dynamicMapData[player.map],
+                equipment: player.equipment,
+                stats: player.stats,
     			time: Date.now(),
     		};
 
@@ -110,7 +120,11 @@ class Server {
             //update mapdata
         }
 
-        //update all players
+        for (const key in this.world.players) {
+            const player = this.world.players[key];
+            this.world.players[key].mapData = this.world.dynamicMapData[player.map];
+            this.world.players[key].mapData[player.pos.x][player.pos.y] = global.tile.player;
+        };
     }
 
     updatePlayer(player, id) {
@@ -140,15 +154,42 @@ class Server {
             packet[map][key] = {
                 processed: this.world.players[key].processedPackets.slice(),
                 pos: this.world.players[key].pos,
-                time: Date.now(),
+                map: map,
                 race: this.world.players[key].race,
-                map: map
+                username: this.world.players[key].username,
+                sex: this.world.players[key].sex,
+                dir: this.world.players[key].dir,
+                hair: this.world.players[key].hair,
+                time: Date.now(),
             };
     
             this.world.players[key].processedPackets = [];
         }
     
         return packet;
+    }
+
+    getDisconnects() {
+        let disconnects = [];
+
+        for (let i = 0; i < global.numMaps; i++) {
+            disconnects[i] = [];
+        }
+
+        let playerKeys = new Set(Object.keys(this.world.players));   
+
+        this.wss.clients.forEach((socket) => {
+            playerKeys.delete(socket.id);
+        });
+
+        playerKeys.forEach((key) => {
+            let player = this.world.players[key];
+            disconnects[player.map].push(key)
+            delete this.world.players[key];
+            console.log(key + " disconnected");
+        });
+
+        return disconnects;
     }
 
     processMovement(update, player) {
@@ -448,6 +489,14 @@ class Server {
     isValidPassword(password, passwordConfirm) {
         // Will add more requirements later on.
         return password.length > 0 && password === passwordConfirm;
+    }
+
+    onPing(packet, socket) {
+        const pongPacket = {
+            event: 'pong'
+        }
+
+        socket.send(JSON.stringify(pongPacket));
     }
 }
 

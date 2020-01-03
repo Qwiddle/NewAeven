@@ -39,6 +39,7 @@ export default class Client {
         };
 
         this.phaser = new Phaser.Game(this.config);
+        this.phaser.scene.start('boot', { client: this});
 
         this.viewLoader = new ViewLoader();
         this.game = new Game(new ClientController(this, this.phaser));
@@ -60,6 +61,8 @@ export default class Client {
         this._socket.onmessage = function (packet) { 
             const data = JSON.parse(packet.data);
 
+            console.log(data);
+
             if (self.events.hasOwnProperty(data.event)) {
             	self.events[data.event](data);
             }
@@ -76,7 +79,9 @@ export default class Client {
 
         this.startPingPong();            
         this.addKeyListenersToClient();
-        this.game.clientConnected(packet);  
+        this.game.clientConnected(packet); 
+
+        this.viewLoader.loadView("uicontainer", true);
     }
 
     startPingPong() {
@@ -116,6 +121,7 @@ export default class Client {
 
     onCreate(packet) {
         const self = this;
+
         if(packet.success) {
             this.viewLoader.removeView("charactercreation", true, function() {
                 self.viewLoader.showView("navbuttons", true);
@@ -145,9 +151,9 @@ export default class Client {
                     self.viewLoader.hideView("navbuttons", true);
                     self.viewLoader.loadView("charactercreation", true);
                 });
-                
             } else {
                 this.viewLoader.removeView("home", true, function() {
+                    self.viewLoader.removeView("navbuttons", true);
                     self.loginPlayer();
                 });
             }
@@ -178,6 +184,7 @@ export default class Client {
 
 	onRegister(packet) {
         const self = this;
+
 		if (packet.success) {
 			this.viewLoader.removeView("register", true, function() {
                 self.viewLoader.showView("navbuttons", true);
@@ -187,10 +194,6 @@ export default class Client {
 			alert("registration unsuccessful.");
 		}
 	}
-
-    init() {
-        //this.
-    }
 
 	addKeyListenersToClient() {
         this.keys = [];

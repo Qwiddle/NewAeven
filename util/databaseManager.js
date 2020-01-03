@@ -6,25 +6,43 @@ const GetController = require('./db/getController.js');
 
 export default class DatabaseManager {
 	constructor() {
-        //leave blank if you are using environment variables
         this.dbuser = "";
         this.dbpassword = "";
 
-		this.con = mysql.createConnection({
+        this.dbconfig = {
+            //leave blank if you are using environment variables
             user: process.env.DBUSER || this.dbuser,
             password: process.env.DBPASSWORD || this.dbpassword,
-			host: "localhost",
-			database: "new_aeven",
-		});
+            host: "localhost",
+            database: "new_aeven",
+        };
 
 		this.connect();
 		CreateController.createTables(this.con);
 	}
 
 	connect() {
+        this.con = mysql.createConnection(this.dbconfig);
+
 		this.con.connect(function(err) {
 			console.log("mysql connecting");
-			if (err) throw err;
+
+			if (err) {
+                console.error(err);
+                setTimeout(this.connect, 2000);
+
+            } 
+        });
+
+        this.con.on('error', function(err) {
+            console.error(err);
+
+            if(err.code === 'PROTOCOL_CONNECTION_LOST') {
+                this.connect();
+            } else {
+                throw err;
+            }
+
 			console.log("mysql connected");
 		});
 	}

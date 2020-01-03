@@ -4,6 +4,10 @@ export default class LoadScene extends Phaser.Scene {
         this.label = "text";
     }
 
+    init(data) {
+        this.client = data.client;
+    }
+
     preload () {
         this.loadAssets(this.cache.json.get('assets'));
         this.label = this.add.text(this.centerX(), this.centerY(), 'Loading...', { fontFamily: 'Verdana', align: 'center' });
@@ -53,7 +57,7 @@ export default class LoadScene extends Phaser.Scene {
 
         this.load.once('complete', function () {
             this.load.off('progress', updateProgressbar);
-            this.scene.start('home');
+            this.scene.start('home', { client: self.client} );
         }, this);
     }
 

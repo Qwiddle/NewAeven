@@ -1,13 +1,10 @@
 import ViewLoader from './viewLoader.js';
 import Client from './client.js';
-import Game from './game.js';
 
 const client = new Client();
 const viewLoader = new ViewLoader();
 
 window.onload = function() {
-    client.connect();
-
     viewLoader.loadView("home", true);
     loadHandlers();
 }
