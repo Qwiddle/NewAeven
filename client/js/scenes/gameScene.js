@@ -78,6 +78,7 @@ export default class GameScene extends Phaser.Scene {
     		x: player.targetPos.x,
     		y: player.targetPos.y,
     		duration: player.walkTime,
+    		ease: 'Power0',
     		onComplete: function() {  
     			player.positionUpdated = false;
     			player.isMoving = false;

@@ -213,7 +213,7 @@ export default class Client {
 
         addEventListener("keydown", function (key) {
             if (!self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 70;
+                self.keyTimer = Date.now() + 95;
             }
             self.keys[key.keyCode] = true;
         
@@ -222,7 +222,7 @@ export default class Client {
 
         addEventListener("keyup", function (key) {
             if (self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 70;
+                self.keyTimer = Date.now() + 95;
             }
             self.keys[key.keyCode] = false;
         });
