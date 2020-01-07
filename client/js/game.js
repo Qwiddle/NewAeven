@@ -27,15 +27,16 @@ export default class Game {
 
         this.player.map = packet.map;
         this.player.mapData = this.mapData;
-        this.clientController.updateEquipment(this.player, packet.equipment);
+        //this.clientController.updateEquipment(this.player, packet.equipment);
         this.updateDisconnectedPlayers(packet.disconnects);
+        this.updateOtherClients(packet.moves, packet.map);
     }
 
     physicsUpdate() {
         this.updateKeyPressed();
         this.updateCommands();
-        this.updatePlayers();
         this.sendPhysicsPacket();
+        this.updatePlayers();
     }
 
     initClientPlayer(packet) {
@@ -51,13 +52,13 @@ export default class Game {
         this.player.equipment = packet.equipment;
         this.player.hair = packet.hair;
         this.player.stats = packet.stats;
-
         PlayerController.updateTargetPos(this.player);
     }
 
     initWorld(packet) {
         this.mapData = packet.mapData;
         this.player.mapData = this.mapData;
+        this.player.mapJson = packet.mapJson;
         this.player.map = packet.map;
         this.pathStack = [];
     }
@@ -68,6 +69,7 @@ export default class Game {
         this.physicsInterval = setInterval(function() {
             self.physicsUpdate();
         }, global.physicsTick);
+
     }
 
     updateCommands() {
@@ -97,16 +99,10 @@ export default class Game {
                 continue;
             }
 
-            PlayerController.updatePosition(this.player);
-
-
             if (PlayerController.isMovable(player) && player.packets.length > 0) {
-                let front = player.packets[0];
-                const delay = Date.now() - front.time;
-
                 let packet = player.packets.shift();
 
-                if (packet.input == global.Key.ATTACK) {
+                if (packet.input == global.key.attack) {
                     player.lastMoveTime = Date.now();
                     player.isAttacking = true;
                     continue;
@@ -120,13 +116,13 @@ export default class Game {
 
                 player.dir = packet.input;        
 
-                PlayerController.updateTargetPos(player);
-
                 const rotated =
                     player.pos.x == player.prevPos.x &&
                     player.pos.y == player.prevPos.y;
 
                 if (!rotated) {
+                    PlayerController.updatePosition(this.player);
+                    PlayerController.updateTargetPos(player);
                     player.lastMoveTime = Date.now();
                 }
             }
@@ -136,7 +132,7 @@ export default class Game {
     updateKeyPressed() {
         if (PlayerController.isMovable(this.player)) {
             this.player.keyPressed = this.clientController.getKeyboardInput(this.player.keyPressed);
-            
+
             if (this.player.keyPressed != global.direction.none) {
                 this.pathStack = [];
             } else if (this.pathStack.length > 0) {
@@ -149,15 +145,17 @@ export default class Game {
         if (PlayerController.hasAttacked(this.player)) {
             this.player.lastMoveTime = Date.now();
             this.player.isAttacking = true;
-         } else if (!PlayerController.hasRotated(this.player)) {
-             this.player.lastMoveTime = Date.now();
-         }
+        } else if (!PlayerController.hasRotated(this.player)) {
+            this.player.lastMoveTime = Date.now();
+        }
 
-         const metadata = this.bundleMovementMetadata();
+        PlayerController.updatePosition(this.player);
 
-         this.player.keyPressed = global.direction.none;
+        const metadata = this.bundleMovementMetadata();
 
-         return metadata;
+        this.player.keyPressed = global.direction.none;
+
+        return metadata;
     }
 
     equipmentUpdate() {
@@ -184,17 +182,13 @@ export default class Game {
 
     sendPhysicsPacket() {
         const packet = {
-            'event':'PHYSICS_UPDATE', 
-            'MOVEMENT': this.getMovementUpdate(), 
-            'EQUIPMENT': this.getEquipmentUpdate(),
+            'event':'physicsUpdate', 
+            'movement': this.getMovementUpdate(), 
+            'equipment': this.getEquipmentUpdate(),
         };
 
         this.clientController.sendPacket(packet);
-    }
-
-    getMovementUpdate() {
-        return PlayerController.pressedKey(this.player) ? this.movementUpdate() : {};
-    }
+    }   
 
     bundleMovementMetadata() {
         this.player.seq++;
@@ -204,7 +198,7 @@ export default class Game {
             input: this.player.keyPressed,
             pos: this.player.pos,
             map: this.player.map, 
-            mapData: this.player.mapData.map((a) => a.slice()),
+            mapData: this.player.mapData,
             time: Date.now(),
         };
 
@@ -256,6 +250,26 @@ export default class Game {
         this.player.pos = pos;
 
         PlayerController.updateTargetPos(this.player);
+    }
+
+    updateMyClient(packet, equipment) {
+        delete equipment[this.clientController.getClientId()];
+        const me = packet.moves[this.clientController.getClientId()];
+        this.reconcileClientPredictionsWithServer(me);
+        delete packet.moves[this.clientController.getClientId()];
+    }
+
+    updateOtherClients(packet, map) {
+        for (let key in packet) {
+            if (this.players.hasOwnProperty(key)) {
+                while (packet[key].processed.length > 0) {
+                    this.players[key].packets.push(packet[key].processed.shift());
+                }
+            } else {
+                this.createNewPlayer(key, packet, map) 
+           }
+
+        }
     }
 
     hasMapUpdated(oldMap, newMap) {

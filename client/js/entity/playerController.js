@@ -4,7 +4,7 @@ export default class PlayerController {
 	static updateKeyPressed(player) {
 		if(player.packets.length > 0) {
 			let packet = player.packets.shift();
-
+			packet.mapData = player.mapData;
 			player.keyPressed = packet.input;
 			player.processedPackets.push(packet);
 		} else {
@@ -27,10 +27,10 @@ export default class PlayerController {
                 pos.x++;
                 break;
             case (global.direction.up):
-                pos.y++;
+                pos.y--;
                 break;
             case (global.direction.down):
-                pos.y--;
+                pos.y++;
                 break;
             default:
                 break;
@@ -64,12 +64,13 @@ export default class PlayerController {
 	}
 
 	static updateTargetPos(entity) {
-		entity.targetPos.x = (entity.pos.x + entity.pos.y) * 32;
-		entity.targetPos.y = (entity.pos.x - entity.pos.y) * 16;
+		entity.targetPos.x = (entity.pos.x - entity.pos.y) * 32;
+		entity.targetPos.y = (entity.pos.x + entity.pos.y) * 16;
 	}
 
 	 static updatePosition(player) {
         let playerRotated = player.keyPressed > 4;
+
         if (!playerRotated) {
             player.prevPos.x = player.pos.x;
             player.prevPos.y = player.pos.y;
@@ -85,28 +86,18 @@ export default class PlayerController {
                     break;
                 case (global.direction.up):
                     player.dir = global.direction.up;
-                    player.pos.y++;
+                    player.pos.y--;
                     break;
                 case (global.direction.down):
                     player.dir = global.direction.down;
-                    player.pos.y--;
+                    player.pos.y++;
                     break;
                 default:
                     break;
             }
 
-            if (this.inBounds(player, player.pos, player.map)) {
-                if(player.mapData[player.pos.x][player.pos.y * -1] === global.tileEmpty || player.mapData[player.pos.x][player.pos.y * -1] === global.tileTeleport) {
-                    this.updateTargetPos(player);
-                } else {
-                    player.pos.x = player.prevPos.x;
-                    player.pos.y = player.prevPos.y;
-                }
-
-            } else {
-                player.pos.x = player.prevPos.x;
-                player.pos.y = player.prevPos.y;
-            }
+        	this.updateTargetPos(player);
+            
         } else {
             switch (player.keyPressed) {
                 case (global.direction.staticLeft):

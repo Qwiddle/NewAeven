@@ -1,7 +1,7 @@
 const global = {
-	numMaps: 1,
-	serverTick: 130,
-	physicsTick: 115,
+	numMaps: 2,
+	serverTick: 30,
+	physicsTick: 45,
 
 	direction: {
         left: 0,

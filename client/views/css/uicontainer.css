@@ -4,12 +4,136 @@
 	display: flex;
   	align-items: flex-end;
   	justify-content: center;
-	animation: animatezoom 0.2s;
+	animation: animatezoom 0.4s;
 }
 
-#container {
+#uicontainer #container {
 	width: 1024px;
 	height: 237px;
 	background-image: url('../../assets/game/uicontainer.png');
 	margin-bottom: 7px;
+	background-size: stretch;
+	position: relative;
+}
+
+#uicontainer #hotkeys {
+	width: 1024px;
+	height: 34px;
+}
+
+#uicontainer #hotkeys #section1 {
+	width: 154px;
+	height: 100%;
+	display: inline-block;
+	margin-left: 5px;
+}
+
+#uicontainer #hotkeys #section2 {
+	width: 154px;
+	height: 100%;
+	margin-right: 20px;
+	margin-left: 20px;
+	display: inline-block;
+}
+
+#uicontainer #hotkeys #section3 {
+	width: 154px;
+	height: 100%;
+	margin-right: 18px;
+	display: inline-block;
+}
+
+#uicontainer #hotkeys #section4 {
+	width: 154px;
+	height: 100%;
+	margin-right: 15px;
+	display: inline-block;
+}
+
+#uicontainer #hotkeys #section5 {
+	width: 154px;
+	height: 100%;
+	margin-right: 15px;
+	display: inline-block;
+}
+
+#uicontainer #hotkeys #section6 {
+	width: 83px;
+	height: 100%;
+	display: inline-block;
+}
+
+#uicontainer #buttons {
+	width: 100px;
+	height: 180px;
+	margin-left: 5px;
+	display: inline-block;
+}
+
+#uicontainer #chatbox {
+	width: 480px;
+	height: 145px;
+	display: inline-block;
+	margin-bottom: 22px;
+}
+
+#uicontainer #systembox {
+	width: 285px;
+	height: 145px;
+	display: inline-block;
+	margin-bottom: 22px;
+}
+
+#uicontainer #buttons2 {
+	width: 100px;
+	height: 187px;
+	display: inline-block;
+}
+
+#uicontainer #experience {
+	width: 765px;
+	height: 17px;
+	position: absolute;
+	margin-left: 130px;
+	margin-top: -23px;
+}
+
+#uicontainer #chatbox #icons {
+	width: 31px;
+	height: 141px;
+	margin-left: 5px;
+	float: left;
+}
+
+#uicontainer #chatbox #chatarea {
+	width: 410px;
+	height: 138px;
+	float: left;
+	margin-left: 5px;
+}
+
+#uicontainer #chatbox #chatarea #textarea {
+	width: 405px;
+	height: 97px;
+	margin-top: 5px;
+	margin-left: 5px;
+}
+
+#uicontainer #chatbox #chatarea #inputbox {
+	width: 403px;
+	height: 29px;
+}
+
+#uicontainer #chatbox #chatarea #chatinput {
+	width: 370px;
+	height: 16	px;
+	border: none;
+	margin-left: 20px;
+	margin-top: 5px;
+	background: none;
+	color: 	#F5DEB3;
+}
+
+#uicontainer #chatbox #chatarea #chatinput::selection {
+	background: #D2B48C;
 }

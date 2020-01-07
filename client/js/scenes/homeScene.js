@@ -15,11 +15,15 @@ export default class HomeScene extends Phaser.Scene {
     }
 
     play() {
-        this.scene.start('game', { client: this.client });
+        this.cameras.main.fadeOut(300);
+        this.scene.start('game', { client: this.client });;
     }
 
     create() {
-        this.add.image(this.centerX(), this.centerY(), 'bg');
+        this.bg = this.add.image(this.centerX(), this.centerY(), 'bg');
+        this.bg.setDisplaySize(this.scale.width, this.scale.height);
+
+        this.scale.on('resize', this.resize, this);
     }
 
     update() {
@@ -27,10 +31,17 @@ export default class HomeScene extends Phaser.Scene {
     }
 
     centerX() {
-        return this.sys.game.config.width / 2;
+        return this.scale.width / 2;
     }
     centerY() {
-        return this.sys.game.config.height / 2;
+        return this.scale.height / 2;
     }
 
+    resize(gameSize, baseSize, displaySize, resolution) {
+        let width = gameSize.width;
+        let height = gameSize.height;
+
+        this.bg.setPosition(this.centerX(), this.centerY());
+        this.bg.setDisplaySize(width, height);
+    }
 }

@@ -36,6 +36,7 @@ export default class ViewLoader {
 			$("#" + view).detach();
 		}
 
+		this.currentView = view;
 	}
 
 	showView(view, fade, callback) {

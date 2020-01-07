@@ -21,21 +21,30 @@ export default class Client {
 			'on_register': (packet) => self.onRegister(packet),
 			'on_login': (packet) => self.onLogin(packet),
 			'on_create': (packet) => self.onCreate(packet),
-			'server_update': (packet) => self.game.serverUpdate(packet),
+			'serverUpdate': (packet) => self.game.serverUpdate(packet),
 		};
 
         this.config = {
             type: Phaser.CANVAS,
-            width: 1024,
-            height: 768,
-            parent: 'cvs',
             pixelArt: true,
-            physics: {
-                default: 'arcade',
+            antialias: false,
+            scale: {
+                mode: Phaser.Scale.RESIZE,
+                parent: 'cvs',
+                width: 640,
+                height: 480,
+                min: {
+                    width: 800,
+                    height: 600
+                },
+                max: {
+                    width: 1920,
+                    height: 1080
+                },
             },
             scene: [
                 BootScene, LoadScene, HomeScene, GameScene
-            ]
+            ],
         };
 
         this.phaser = new Phaser.Game(this.config);
@@ -81,7 +90,8 @@ export default class Client {
         this.addKeyListenersToClient();
         this.game.clientConnected(packet); 
 
-        this.viewLoader.loadView("uicontainer", true);
+        this.viewLoader.loadView("hotkeys", true);
+        this.viewLoader.loadView("mainbuttons", true);
     }
 
     startPingPong() {
@@ -89,13 +99,13 @@ export default class Client {
 
         setInterval(function() {
             const pingPacket = {
-                'event':'PING',   
+                'event':'ping',   
             }
 
             self.pingTime = Date.now();
             self.send(pingPacket);
 
-        }, 1000);
+        }, 4000);
     }
 
     onPong() {
@@ -203,7 +213,7 @@ export default class Client {
 
         addEventListener("keydown", function (key) {
             if (!self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 90;
+                self.keyTimer = Date.now() + 70;
             }
             self.keys[key.keyCode] = true;
         
@@ -212,7 +222,7 @@ export default class Client {
 
         addEventListener("keyup", function (key) {
             if (self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 90;
+                self.keyTimer = Date.now() + 70;
             }
             self.keys[key.keyCode] = false;
         });

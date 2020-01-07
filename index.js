@@ -29,6 +29,7 @@ class Server {
 			'login': (packet) => self.onLoginAttempt(packet),
             'create': (packet, socket) => self.onCreateAttempt(packet, socket),
             'loginPlayer': (packet, socket) => self.onPlayerLoginAttempt(packet, socket),
+            'ping': (packet, socket) => self.onPing(packet, socket),
 		};
 	}
 
@@ -58,7 +59,6 @@ class Server {
 	}
 
 	onConnection(socket) {
-        
         socket.id = uuid.v4();    
         socket.isAlive = true;
         console.log("ws:: client connected: " + socket.id);
@@ -101,6 +101,7 @@ class Server {
                 disconnects: disconnects[player.map],
                 map: player.map,
                 mapData: this.world.dynamicMapData[player.map],
+                moves: packet[player.map],
                 equipment: player.equipment,
                 stats: player.stats,
     			time: Date.now(),
@@ -112,31 +113,51 @@ class Server {
     }
 
     physicsUpdate() {
-        if(!this.initialized) { return; }
+            this.processUpdates();      
 
-        this.processUpdates();  
+            for(let i = 0; i < global.numMaps; i++) {
+                //update mapdata
+            }
 
-        for(let i = 0; i < global.numMaps; i++) {
-            //update mapdata
-        }
+            for (const key in this.world.players) {
+                const player = this.world.players[key];
+                this.world.players[key].mapData = this.world.dynamicMapData[player.map];
+                //this.world.players[key].mapData[player.pos.x][player.pos.y] = global.tile.player;
+            }
 
-        for (const key in this.world.players) {
-            const player = this.world.players[key];
-            this.world.players[key].mapData = this.world.dynamicMapData[player.map];
-            this.world.players[key].mapData[player.pos.x][player.pos.y] = global.tile.player;
-        };
+            for (const id in this.world.players) {
+                this.updatePlayer(this.world.players[id], id);       
+           }
     }
 
     updatePlayer(player, id) {
-    	
+        if (PlayerController.isMovable(player)) {
+            PlayerController.updateKeyPressed(player);
+        }
+
+        if (PlayerController.pressedKey(player)) {
+            if (PlayerController.hasAttacked(player)) {
+               // this.handleCombat(player, id);
+            } else if (!PlayerController.hasRotated(player)) {
+                player.lastMoveTime = Date.now();
+            }
+
+            PlayerController.updatePosition(player);
+            player.processedPackets[player.processedPackets.length-1].pos = player.pos;
+            player.keyPressed = global.direction.none;
+        }
+        
+        //this.world.dynamicMapData[player.prevMap][player.prevPos.x][player.prevPos.y] = global.TILE_EMPTY;
+        //this.world.dynamicMapData[player.map][player.pos.x][player.pos.y] = global.TILE_PLAYER;           
     }
 
     processUpdates() {
     	let toUpdate = this.world.updates.slice();
+
     	this.world.updates.splice(0, toUpdate.length);
 
     	for(let i = 0; i < toUpdate.length; i++) {
-    		let player = this.world.players[toUpdate.id];
+    		let player = this.world.players[toUpdate[i].id];
     		this.processMovement(toUpdate[i], player);
     	}
     }

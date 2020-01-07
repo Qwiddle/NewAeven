@@ -1,3 +1,5 @@
+import ViewLoader from '../viewLoader.js';
+
 export default class LoadScene extends Phaser.Scene {
     constructor () {
         super({key: 'load'});
@@ -6,6 +8,7 @@ export default class LoadScene extends Phaser.Scene {
 
     init(data) {
         this.client = data.client;
+        this.viewLoader = new ViewLoader();
     }
 
     preload () {
@@ -57,6 +60,7 @@ export default class LoadScene extends Phaser.Scene {
 
         this.load.once('complete', function () {
             this.load.off('progress', updateProgressbar);
+            this.viewLoader.loadView("home", true);
             this.scene.start('home', { client: self.client} );
         }, this);
     }
@@ -97,10 +101,10 @@ export default class LoadScene extends Phaser.Scene {
         }, this);
     }
 
-    centerX () {
-        return this.sys.game.config.width / 2;
+    centerX() {
+        return this.scale.width / 2;
     }
-    centerY () {
-        return this.sys.game.config.height / 2;
+    centerY() {
+        return this.scale.height / 2;
     }
 }

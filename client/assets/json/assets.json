@@ -8,7 +8,7 @@
         }
     },
     "spritesheet": {
-        "male_0" : ["../../assets/players/base_0_0.png", { "frameWidth": 34, "frameHeight": 77 }],
+        "base_0_0" : ["../../assets/players/base_0_0.png", { "frameWidth": 34, "frameHeight": 77 }],
         "tiles" : ["../../assets/maps/tileset.png", { "frameWidth": 64, "frameHeight": 32 }],
         "objects" : ["../../assets/maps/objectset.png", { "frameWidth": 56, "frameHeight": 172 }]
     }

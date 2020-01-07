@@ -18,6 +18,7 @@ export default class Player {
         };
 
         this.map = 0;
+        this.mapData = [];	
 		this.prevMap = this.map;
 
 		this.packets = [];
@@ -47,7 +48,7 @@ export default class Player {
 
 	initKinematics() {
 		this.isMoving = false;
-		this.keyPressed = 0;
+		this.keyPressed = 4;
 		this.lastRotate = 0;
 		this.isAttacking = false;
 		this.lastAttackTime = 0;

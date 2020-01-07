@@ -5,7 +5,6 @@ const client = new Client();
 const viewLoader = new ViewLoader();
 
 window.onload = function() {
-    viewLoader.loadView("home", true);
     loadHandlers();
 }
 

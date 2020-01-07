@@ -29,9 +29,9 @@ export default class MapManager {
 
     	for(let i = 0; i < width; i++) {
     		for(let j = 0; j < height; j++) {
-    			if (map.layers[5].data[count] != 0) {
+    			/*if (map.layers[5].data[count] != 0) {
                      mapData[j][i] = TILE_WALL;
-                }
+                }*/
 
             	count++;
     		}
