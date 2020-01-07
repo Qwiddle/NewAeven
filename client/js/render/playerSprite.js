@@ -19,32 +19,56 @@ export default class PlayerSprite {
 
 	addAnimations(sprite) {
 		this.animations = {
-			walkDown: {
+			walkDown: {	
 				key: 'down',
-				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5, first: 2}),
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
 				frameRate: 10,
 			},
 			walkRight: {
 				key: 'right',
-				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5, first: 2}),
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
 				frameRate: 10,
 			},
 			walkLeft: {
 				key: 'left',
-				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9, first: 6}),
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
 				frameRate: 10,
 			},
 			walkUp: {
 				key: 'up',
-				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9, first: 6}),
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
 				frameRate: 10,
-			}
+			},
+			attackDown: {
+				key: 'attackDown',
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
+				duration: 400,
+			},
+			attackRight: {
+				key: 'attackRight',
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
+				duration: 400,
+			},
+			attackLeft: {
+				key: 'attackLeft',
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
+				duration: 400,
+			},
+			attackUp: {
+				key: 'attackUp',
+				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
+				duration: 400,
+			},
 		}
 
 		this.phaser.anims.create(this.animations.walkDown);
 		this.phaser.anims.create(this.animations.walkRight);
 		this.phaser.anims.create(this.animations.walkLeft);
 		this.phaser.anims.create(this.animations.walkUp);
+		this.phaser.anims.create(this.animations.attackDown);
+		this.phaser.anims.create(this.animations.attackRight);
+		this.phaser.anims.create(this.animations.attackLeft);
+		this.phaser.anims.create(this.animations.attackUp);
 
 		this.initDirFrames();
 	}

@@ -28,6 +28,7 @@ export default class Client {
             type: Phaser.CANVAS,
             pixelArt: true,
             antialias: false,
+            roundPixels: false,
             scale: {
                 mode: Phaser.Scale.RESIZE,
                 parent: 'cvs',
@@ -70,7 +71,7 @@ export default class Client {
         this._socket.onmessage = function (packet) { 
             const data = JSON.parse(packet.data);
 
-            console.log(data);
+            //console.log(data);
 
             if (self.events.hasOwnProperty(data.event)) {
             	self.events[data.event](data);
@@ -213,7 +214,7 @@ export default class Client {
 
         addEventListener("keydown", function (key) {
             if (!self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 95;
+                self.keyTimer = Date.now() + 90;
             }
             self.keys[key.keyCode] = true;
         
@@ -222,7 +223,7 @@ export default class Client {
 
         addEventListener("keyup", function (key) {
             if (self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 95;
+                self.keyTimer = Date.now() + 90;
             }
             self.keys[key.keyCode] = false;
         });

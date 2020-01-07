@@ -60,7 +60,7 @@ class Server {
 
 	onConnection(socket) {
         socket.id = uuid.v4();    
-        socket.isAlive = true;
+        socket.authenticated = true;
         console.log("ws:: client connected: " + socket.id);
     
         const self = this;
@@ -84,8 +84,6 @@ class Server {
     }
 
     serverUpdate() {
-    	this.db.saveWorldState(this.world);
-
     	const packet = this.bundleServerPacket();
         const disconnects = this.getDisconnects();
 
@@ -110,6 +108,8 @@ class Server {
     		if(socket.readyState === WebSocket.OPEN)
     			socket.send(JSON.stringify(bundledPacket));
     	});
+
+        this.db.saveWorldState(this.world);
     }
 
     physicsUpdate() {
@@ -342,17 +342,7 @@ class Server {
             });
         }
 
-        if (username && password) {
-            let online = false;
-
-            for (const key in this.world.players) {
-                let player = this.world.players[key];
-                if(player.username = username) { online = true; }
-            }
-
-            if(!online) 
-            	this.db.getAccount(username, onSuccess, onFailure);
-        }
+        this.db.getAccount(username, onSuccess, onFailure);
     }
 
     onPlayerLoginAttempt(packet, socket) {

@@ -80,14 +80,17 @@ export default class Game {
         for (let i = 0; i < disconnects.length; i++) {
             if (this.players.hasOwnProperty(disconnects[i])) {
                 delete this.players[disconnects[i]];
-                //this.clientController.deleteSprite(disconnects[i]);
+                this.players[disconnects[i]] = [];
+                console.log(disconnects[i]);
+                this.clientController.deleteSprite(disconnects[i]);
             }
         }
     }
 
     deleteDisconnectedPlayerData(key) {
         delete this.players[key];
-        //this.clientController.deleteSprite(key);
+        this.players[key] = [];
+        this.clientController.deleteSprite(key);
     }
 
     updatePlayers() {
@@ -131,12 +134,16 @@ export default class Game {
 
     updateKeyPressed() {
         if (PlayerController.isMovable(this.player)) {
-            this.player.keyPressed = this.clientController.getKeyboardInput(this.player.keyPressed);
+            if(document.hasFocus()) {
+                this.player.keyPressed = this.clientController.getKeyboardInput(this.player.keyPressed);
 
-            if (this.player.keyPressed != global.direction.none) {
-                this.pathStack = [];
-            } else if (this.pathStack.length > 0) {
-                this.player.keyPressed = this.pathStack.pop();
+                if (this.player.keyPressed != global.direction.none) {
+                    this.pathStack = [];
+                } else if (this.pathStack.length > 0) {
+                    this.player.keyPressed = this.pathStack.pop();
+                }
+            } else {
+                 this.player.keyPressed = global.direction.none;
             }
         }
     }
