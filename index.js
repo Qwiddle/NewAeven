@@ -392,7 +392,7 @@ class Server {
 
         const createAccount = function() {
             bcrypt.hash(packet.password, 10, function(err, hash) {
-                self.db.createAccount(packet, hash, socket._socket.remoteAddress);
+                self.db.createAccount(packet, hash, '127.0.0.1');
                 registrationSuccessful();              
             });
         }
