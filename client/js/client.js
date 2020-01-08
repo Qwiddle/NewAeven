@@ -11,7 +11,7 @@ export default class Client {
 		const self = this;
 
         this.ip = {
-            address: '127.0.0.1',
+            address: '157.245.125.191',
             port: '8443',
         }
 
@@ -29,9 +29,9 @@ export default class Client {
             pixelArt: true,
             antialias: false,
             roundPixels: false,
+            parent: 'cvs',
             scale: {
                 mode: Phaser.Scale.RESIZE,
-                parent: 'cvs',
                 width: 640,
                 height: 480,
                 min: {
@@ -71,8 +71,6 @@ export default class Client {
         this._socket.onmessage = function (packet) { 
             const data = JSON.parse(packet.data);
 
-            //console.log(data);
-
             if (self.events.hasOwnProperty(data.event)) {
             	self.events[data.event](data);
             }
@@ -91,8 +89,8 @@ export default class Client {
         this.addKeyListenersToClient();
         this.game.clientConnected(packet); 
 
+        //this.viewLoader.loadView("settings", true);
         this.viewLoader.loadView("hotkeys", true);
-        this.viewLoader.loadView("mainbuttons", true);
     }
 
     startPingPong() {

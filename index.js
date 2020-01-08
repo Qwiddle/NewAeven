@@ -10,7 +10,7 @@ const DatabaseManager = require('./util/databaseManager.js').default;
 const MapManager = require('./util/mapManager.js').default;
 const World = require('./util/world.js').default;
 const Player = require('./client/js/entity/player.js').default;
-const PlayerController = require('./client/js/entity/playercontroller.js').default;
+const PlayerController = require('./client/js/entity/playerController.js').default;
 const global = require('./client/global.js').default;
 
 class Server {

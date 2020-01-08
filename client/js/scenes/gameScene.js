@@ -56,7 +56,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updateSprite(player, sprite) {
-    	sprite.sprite.depth = this.client.game.player.targetPos.y + 128;
+    	sprite.sprite.depth = sprite.sprite.y + 128;
 
     	if (player.isAttacking) {
             this.attack(player, sprite);

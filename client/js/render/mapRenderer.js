@@ -94,13 +94,13 @@ export default class MapRenderer {
 
                 if(this.map.layers[3].data[tileCount] != 0) {
                     if(this.map.layers[3].data[tileCount] >= 1561) {
-                        this.drawObjects(i, j, this.map.layers[3].data[tileCount] - 1561, 0, 0, 'objects');
+                        this.drawObjects(i, j, this.map.layers[3].data[tileCount] - 1561, 16, 0, 'objects');
                     }
                 }
 
                 if (this.map.layers[4].data[tileCount] != 0) {
                     if(this.map.layers[4].data[tileCount] >= 1561) {
-                        this.drawObjects(i, j, this.map.layers[4].data[tileCount] - 1561, -8, 0, 'objects');
+                        this.drawObjects(i, j, this.map.layers[4].data[tileCount] - 1561, 8, 0, 'objects');
                     }
                 }
 
