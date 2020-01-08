@@ -22,22 +22,22 @@ export default class PlayerSprite {
 			walkDown: {	
 				key: 'down',
 				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
-				frameRate: 10,
+				duration: 450,
 			},
 			walkRight: {
 				key: 'right',
 				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
-				frameRate: 10,
+				duration: 450,
 			},
 			walkLeft: {
 				key: 'left',
 				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
-				frameRate: 10,
+				duration: 450,
 			},
 			walkUp: {
 				key: 'up',
 				frames: this.phaser.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
-				frameRate: 10,
+				duration: 450,
 			},
 			attackDown: {
 				key: 'attackDown',

@@ -51,6 +51,7 @@ export default class GameScene extends Phaser.Scene {
             } else if(this.client.game.players[key].username != this.client.game.player.username) {
             	console.log(this.client.game.players[key]);
                 this.client.game.sprites[key] = new PlayerSprite(this.client.game.players[key], this);
+                this.client.game.sprites[key].sprite.on('animationcomplete', this.animComplete, this);
             }
         }
     }
@@ -63,7 +64,6 @@ export default class GameScene extends Phaser.Scene {
             player.isMoving = true;
         } else if (!player.isMoving) {
             if (sprite.sprite.x != player.targetPos.x || sprite.sprite.y != player.targetPos.y) {
-            	player.isMoving = true;
             	this.interpolate(player, sprite);
             } else {
                 if (player.dir == global.direction.staticDown || player.dir == global.direction.staticLeft || player.dir == global.direction.down || player.dir == global.direction.left) {
@@ -126,20 +126,17 @@ export default class GameScene extends Phaser.Scene {
 			sprite.sprite.play('down');
         }
 
+        player.isMoving = true;
+
         sprite.tween = this.tweens.add({
     		targets: sprite.sprite,
     		x: player.targetPos.x,
     		y: player.targetPos.y,
     		duration: player.walkTime,
-    		ease: 'Power0',
+    		
     		onComplete: function() {  
     			player.positionUpdated = false;
     			player.isMoving = false;
-
-    			if (sprite.sprite.x == player.targetPos.x &&
-                	sprite.sprite.y == player.targetPos.y) {
-    				sprite.sprite.setFrame(sprite.dirFrame[player.dir]);
-            	} 
     		}
     	});
 
