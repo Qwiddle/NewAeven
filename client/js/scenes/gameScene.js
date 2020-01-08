@@ -1,4 +1,4 @@
-import Viewloader from '../viewloader.js';
+import Viewloader from '../viewLoader.js';
 import PlayerSprite from '../render/playerSprite.js';
 import MapRenderer from '../render/mapRenderer.js';
 import global from '../../global.js';
