@@ -1,6 +1,6 @@
 const global = {
 	numMaps: 2,
-	serverTick: 45,
+	serverTick: 30,
 	physicsTick: 45,
 
 	direction: {

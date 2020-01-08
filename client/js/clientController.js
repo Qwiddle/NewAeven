@@ -58,11 +58,8 @@ export default class ClientController {
     }
 
     deleteSprite(key) {
-        if (this.phaser.sprites[key] != undefined) {
-            this.phaser.sprites[key].entity.destroy();
-            this.phaser.sprites[key].weapon.destroy();
-        }
-
-        delete this.phaser.sprites[key];
+        console.log(this.client.game.sprites[key]);
+        this.client.game.sprites[key].sprite.destroy();
+        delete this.client.game.sprites[key];
     }
 }
