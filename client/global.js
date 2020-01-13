@@ -19,6 +19,13 @@ const global = {
         attack: 9
     },
 
+    chatState: {
+        none: 'none', 
+        public: 'public', 
+        global: 'global', 
+        command: 'command'
+    },
+
     tilePlayer: 9,
     tileEmpty: 0,
 };

@@ -6,6 +6,7 @@
 	animation: animatezoom 0.4s;
 	justify-content: center;
 	min-width: 790px;
+	opacity: 0.9;
 }
 
 #functionkeys {
@@ -13,14 +14,15 @@
 	height: 38px;
 	background-image: url('../../assets/game/functionkeys.png');
 	display: inline-block;
-	margin-right: 20px;
+	margin-right: 10px;
 }
 
-#mainbuttons #buttoncontainer {
+#buttoncontainer {
 	width: 300px;
 	height: 39px;
 	background-image: url('../../assets/game/mainbuttoncontainer.png');
 	display: inline-block;
+	opacity: 0.9;
 }
 
 .uibutton {

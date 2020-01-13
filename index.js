@@ -60,7 +60,6 @@ class Server {
 
 	onConnection(socket) {
         socket.id = uuid.v4();    
-        socket.authenticated = true;
         console.log("ws:: client connected: " + socket.id);
     
         const self = this;
@@ -83,9 +82,42 @@ class Server {
         });  
     }
 
+    bundleServerPacket() {
+        let packet = [];
+
+        for (let i = 0; i < global.numMaps; i++) {
+            packet[i] = {};
+        }
+    
+        for (let key in this.world.players) {
+            let map = this.world.players[key].map;
+
+            packet[map][key] = {
+                processed: this.world.players[key].processedPackets.slice(),
+                pos: this.world.players[key].pos,
+                map: map,
+                race: this.world.players[key].race,
+                username: this.world.players[key].username,
+                sex: this.world.players[key].sex,
+                dir: this.world.players[key].dir,
+                hair: this.world.players[key].hair,
+                messages: this.world.players[key].msg,
+                globalMessages: this.world.globalMessages,
+                time: Date.now(),
+            };
+            
+            this.world.players[key].msg = "";
+            this.world.players[key].processedPackets = []
+        }
+    
+        return packet;
+    }
+
     serverUpdate() {
+        this.db.saveWorldState(this.world);
     	const packet = this.bundleServerPacket();
         const disconnects = this.getDisconnects();
+        const self = this;
 
     	this.wss.clients.forEach((socket) => {
     		if(!socket.authenticated) { return; }
@@ -102,6 +134,8 @@ class Server {
                 moves: packet[player.map],
                 equipment: player.equipment,
                 stats: player.stats,
+                messages: this.world.messages[player.map],
+                globalMessages: this.world.globalMessages,
     			time: Date.now(),
     		};
 
@@ -109,20 +143,19 @@ class Server {
     			socket.send(JSON.stringify(bundledPacket));
     	});
 
-        this.db.saveWorldState(this.world);
+        this.world.clearMessages();
     }
 
     physicsUpdate() {
             this.processUpdates();      
 
             for(let i = 0; i < global.numMaps; i++) {
-                //update mapdata
+                this.world.dynamicMapData[i] = this.world.mapData[i];
             }
 
             for (const key in this.world.players) {
                 const player = this.world.players[key];
                 this.world.players[key].mapData = this.world.dynamicMapData[player.map];
-                //this.world.players[key].mapData[player.pos.x][player.pos.y] = global.tile.player;
             }
 
             for (const id in this.world.players) {
@@ -159,35 +192,40 @@ class Server {
     	for(let i = 0; i < toUpdate.length; i++) {
     		let player = this.world.players[toUpdate[i].id];
     		this.processMovement(toUpdate[i], player);
+            this.processMessages(toUpdate[i], player);
     	}
     }
 
-    bundleServerPacket() {
-        let packet = [];
+    processMovement(update, player) {
+    	if (this.hasMetaData(update, 'movement')) {
+    		player.packets.push(update['movement']);
+    	}
+    }
 
-        for (let i = 0; i < global.numMaps; i++) {
-            packet[i] = {};
-        }
-    
-        for (let key in this.world.players) {
-            let map = this.world.players[key].map;
+    processMessages(update, player) {
+        if(this.hasMetaData(update, 'message')) {
+            const messageContainer = update['message'];
 
-            packet[map][key] = {
-                processed: this.world.players[key].processedPackets.slice(),
-                pos: this.world.players[key].pos,
-                map: map,
-                race: this.world.players[key].race,
-                username: this.world.players[key].username,
-                sex: this.world.players[key].sex,
-                dir: this.world.players[key].dir,
-                hair: this.world.players[key].hair,
-                time: Date.now(),
-            };
-    
-            this.world.players[key].processedPackets = [];
+            if(messageContainer.messages.length > 0) {
+                const message = messageContainer.messages[messageContainer.messages.length - 1];
+
+                if(message.state == global.chatState.public) {
+                    player.msg = messageContainer.messages[messageContainer.messages.length - 1];
+                    player.msg.value = this.removeTags(player.msg.value);
+                    let msg = messageContainer.messages.shift();
+
+                    msg.id = update.id;
+                    msg.username = player.username;
+                    msg.value = this.removeTags(msg.value);
+
+                    if (msg.state == global.chatState.public) {
+                        this.world.messages[player.map].push(msg);
+                    } else if (msg.state == global.chatState.global) {
+                        this.world.globalMessages.push(msg);
+                    }
+                }
+            }
         }
-    
-        return packet;
     }
 
     getDisconnects() {
@@ -211,12 +249,6 @@ class Server {
         });
 
         return disconnects;
-    }
-
-    processMovement(update, player) {
-    	if (this.hasMetaData(update, 'movement')) {
-    		player.packets.push(update['movement']);
-    	}
     }
 
     initClient(socket, username) {
@@ -251,6 +283,7 @@ class Server {
 	    	player.stats.level = data.level;
 
 	    	self.world.players[socket.id] = player;
+            //self.world.messages[player.map] = [];
 
 	    	let initPacket = {
 	    		event: 'welcome',
@@ -276,6 +309,10 @@ class Server {
 
     hasMetaData(update, key) {
     	return update.hasOwnProperty(key) && !this.isJsonObjectEmpty(update[key]);
+    }
+
+    removeTags(value) {
+        return value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
     }
 
     isJsonString(str) {

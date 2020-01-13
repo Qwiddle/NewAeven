@@ -1,10 +1,12 @@
 import Player from './entity/player.js';
 import PlayerController from './entity/playerController.js';
+import ChatManager from './chatManager.js';
 import global from '../global.js';
 
 export default class Game {
     constructor(clientController) {
         this.clientController = clientController;
+        this.chatManager = new ChatManager();
         this.initialized = false; 
 
         this.CommandRegex = {
@@ -28,8 +30,10 @@ export default class Game {
         this.player.map = packet.map;
         this.player.mapData = this.mapData;
         //this.clientController.updateEquipment(this.player, packet.equipment);
+        this.updateMyClient(packet);
         this.updateDisconnectedPlayers(packet.disconnects);
         this.updateOtherClients(packet.moves, packet.map);
+        this.updateChats(packet.messages, packet.globalMessages);
     }
 
     physicsUpdate() {
@@ -80,9 +84,7 @@ export default class Game {
         for (let i = 0; i < disconnects.length; i++) {
             if (this.players.hasOwnProperty(disconnects[i])) {
                 delete this.players[disconnects[i]];
-                this.players[disconnects[i]] = [];
-                console.log(disconnects[i]);
-                this.clientController.deleteSprite(disconnects[i]);
+                //this.clientController.deleteSprite(disconnects[i]);
             }
         }
     }
@@ -96,6 +98,8 @@ export default class Game {
     updatePlayers() {
         for (let key in this.players) {
             let player = this.players[key];
+
+            PlayerController.updateTargetPos(player);
 
             if (player.map !== this.player.map) {
                 this.deleteDisconnectedPlayerData(key);
@@ -125,7 +129,6 @@ export default class Game {
 
                 if (!rotated) {
                     PlayerController.updatePosition(this.player);
-                    PlayerController.updateTargetPos(player);
                     player.lastMoveTime = Date.now();
                 }
             }
@@ -187,11 +190,15 @@ export default class Game {
         return PlayerController.pressedKey(this.player) ? this.movementUpdate() : {};
     }
 
+    getMessageUpdate() {
+        return this.chatManager.messageQueue.length > 0 ? this.bundleMsgMetadata() : {}; 
+    }
+
     sendPhysicsPacket() {
         const packet = {
             'event':'physicsUpdate', 
             'movement': this.getMovementUpdate(), 
-            'equipment': this.getEquipmentUpdate(),
+            'message': this.getMessageUpdate(),
         };
 
         this.clientController.sendPacket(packet);
@@ -210,6 +217,16 @@ export default class Game {
         };
 
         this.player.packets.push(metadata);
+        return metadata;
+    }
+
+    bundleMsgMetadata() {
+        const metadata = {
+            messages: this.chatManager.messageQueue
+        };
+
+        this.chatManager.messageQueue = [];
+
         return metadata;
     }
 
@@ -259,16 +276,22 @@ export default class Game {
         PlayerController.updateTargetPos(this.player);
     }
 
-    updateMyClient(packet, equipment) {
-        delete equipment[this.clientController.getClientId()];
+    updateMyClient(packet) {
         const me = packet.moves[this.clientController.getClientId()];
         this.reconcileClientPredictionsWithServer(me);
+        this.updateMyMessage(me);
         delete packet.moves[this.clientController.getClientId()];
     }
 
     updateOtherClients(packet, map) {
         for (let key in packet) {
             if (this.players.hasOwnProperty(key)) {
+                if (packet[key].message != "") {
+                    this.players[key].msg = packet[key].messages.value;
+                    this.players[key].msgUpdated = true;
+                    this.players[key].msgDelay = Date.now() + 2000;
+                }
+
                 while (packet[key].processed.length > 0) {
                     this.players[key].packets.push(packet[key].processed.shift());
                 }
@@ -277,6 +300,19 @@ export default class Game {
            }
 
         }
+    }
+
+    updateMyMessage(me) {
+        if (me.messages !== "") {
+            this.player.msg = me.messages.value;
+            this.player.msgUpdated = true;
+            this.player.msgDelay = Date.now() + 2000;
+        }
+    }
+
+    updateChats(messages, globalMessages) {
+        this.chatManager.updateChat(messages);
+        this.chatManager.updateChat(globalMessages);
     }
 
     hasMapUpdated(oldMap, newMap) {

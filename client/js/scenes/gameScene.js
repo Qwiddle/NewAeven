@@ -21,7 +21,8 @@ export default class GameScene extends Phaser.Scene {
     	this.client.game.mapRenderer = new MapRenderer(this, this.client.game.player.mapJson);    
     	this.client.game.mapRenderer.drawMap();
     	this.cameras.main.fadeIn(750);
-    	this.cameras.main.startFollow(this.playerSprite.sprite, false);
+    	this.cameras.main.startFollow(this.playerSprite.sprite, true, 0.4, 0.4);
+    	this.cameras.main.zoom = 1;
 
     	this.game.events.on('hidden', function() {
     		//hidden
@@ -49,7 +50,6 @@ export default class GameScene extends Phaser.Scene {
             if (this.client.game.sprites.hasOwnProperty(key)) {
                 this.updateSprite(this.client.game.players[key], this.client.game.sprites[key]);
             } else if(this.client.game.players[key].username != this.client.game.player.username) {
-            	console.log(this.client.game.players[key]);
                 this.client.game.sprites[key] = new PlayerSprite(this.client.game.players[key], this);
                 this.client.game.sprites[key].sprite.on('animationcomplete', this.animComplete, this);
             }
@@ -65,6 +65,7 @@ export default class GameScene extends Phaser.Scene {
         } else if (!player.isMoving) {
             if (sprite.sprite.x != player.targetPos.x || sprite.sprite.y != player.targetPos.y) {
             	this.interpolate(player, sprite);
+
             } else {
                 if (player.dir == global.direction.staticDown || player.dir == global.direction.staticLeft || player.dir == global.direction.down || player.dir == global.direction.left) {
                     sprite.sprite.flipX = false;
@@ -110,33 +111,32 @@ export default class GameScene extends Phaser.Scene {
     }
 
     interpolate(player, sprite) {
-    	this.tweens.killTweensOf(sprite);
-
     	if (this.left(player, sprite)) {
             sprite.sprite.flipX = false;
            	sprite.sprite.play('left');
+           	player.isMoving = true;
         } else if (this.right(player, sprite)) {
             sprite.sprite.flipX = true;
             sprite.sprite.play('right');
+            player.isMoving = true;
         } else if (this.up(player, sprite)) {
             sprite.sprite.flipX = true;
             sprite.sprite.play('up');
+            player.isMoving = true;
         } else if (this.down(player, sprite)) {
 			sprite.sprite.flipX = false;            
 			sprite.sprite.play('down');
+			player.isMoving = true;
         }
-
-        player.isMoving = true;
 
         sprite.tween = this.tweens.add({
     		targets: sprite.sprite,
     		x: player.targetPos.x,
     		y: player.targetPos.y,
-    		duration: player.walkTime,
-    		
+    		duration: 450,
     		onComplete: function() {  
-    			player.positionUpdated = false;
     			player.isMoving = false;
+    			sprite.sprite.anims.stop();
     		}
     	});
 
@@ -146,7 +146,7 @@ export default class GameScene extends Phaser.Scene {
     	if(animation.key === 'attackLeft' || animation.key === 'attackRight' || animation.key === 'attackDown' || animation.key === 'attackUp') {
 			this.client.game.player.isAttacking = false;
 			this.client.game.player.isMoving = false;
-    	}
+		}
     }
 
     cullMap() {

@@ -82,7 +82,7 @@
         {
          "columns":10,
          "firstgid":1,
-         "image":"..\/client\/assets\/maps\/TileSet.png",
+         "image":"..\/..\/..\/..\/Downloads\/TileSet.png",
          "imageheight":5000,
          "imagewidth":640,
          "margin":0,
@@ -116,7 +116,7 @@
         {
          "columns":62,
          "firstgid":2188,
-         "image":"..\/client\/assets\/maps\/wallset.png",
+         "image":"..\/..\/..\/..\/Downloads\/wallset.png",
          "imageheight":9000,
          "imagewidth":2000,
          "margin":0,
@@ -133,9 +133,9 @@
         {
          "columns":11,
          "firstgid":3180,
-         "image":"..\/client\/assets\/maps\/objectset2.png",
-         "imageheight":9000,
-         "imagewidth":640,
+         "image":"..\/client\/assets\/maps\/objectset.png",
+         "imageheight":9804,
+         "imagewidth":616,
          "margin":0,
          "name":"objectset2",
          "properties":
@@ -143,7 +143,7 @@
 
             },
          "spacing":0,
-         "tilecount":572,
+         "tilecount":627,
          "tileheight":172,
          "tilewidth":56
         }],

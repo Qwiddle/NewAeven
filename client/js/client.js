@@ -5,6 +5,7 @@ import LoadScene from './scenes/loadScene.js';
 import HomeScene from './scenes/homeScene.js';
 import GameScene from './scenes/gameScene.js';
 import Game from './game.js';
+import ChatManager from'./chatManager.js';
 
 export default class Client {
 	constructor() {
@@ -27,9 +28,13 @@ export default class Client {
         this.config = {
             type: Phaser.CANVAS,
             pixelArt: true,
+            roundPixels: true,
             antialias: false,
-            roundPixels: false,
             parent: 'cvs',
+            fps: {
+                min: 10,
+                target: 60
+            },
             scale: {
                 mode: Phaser.Scale.RESIZE,
                 width: 640,
@@ -43,6 +48,7 @@ export default class Client {
                     height: 1080
                 },
             },
+
             scene: [
                 BootScene, LoadScene, HomeScene, GameScene
             ],
@@ -89,8 +95,10 @@ export default class Client {
         this.addKeyListenersToClient();
         this.game.clientConnected(packet); 
 
-        //this.viewLoader.loadView("settings", true);
+        
         this.viewLoader.loadView("hotkeys", true);
+        this.viewLoader.loadView("settings", true);
+        this.viewLoader.loadView("chat", true);
     }
 
     startPingPong() {
@@ -229,7 +237,8 @@ export default class Client {
 
     isEnterKeyPressed(client) {
         if (client.keys[13]) {
-           //enable chat, enter key pressed
+            if($("#chatinput").is(":focus"))
+                this.game.chatManager.sendMessage($("#chatinput").val());
         }
     }
 }

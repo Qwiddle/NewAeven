@@ -11,9 +11,9 @@ export default class ViewLoader {
 
 		$("<div>").load("views/" + view + ".html", function() {
 			if(fade) {
-				$("#game_elements").append($(this).html()).hide().fadeIn(this.fadeInTime);
+				$("#game_elements #container").append($(this).html()).hide().fadeIn(this.fadeInTime);
 			} else {
-				$("#game_elements").append($(this).html());
+				$("#game_elements #container").append($(this).html());
 			}
 
 			if(callback)

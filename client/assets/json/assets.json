@@ -1,6 +1,7 @@
 {
     "image": {
-        "bg": "../../assets/menu/bg.jpg"
+        "bg": "../../assets/menu/bg.jpg",
+        "tile_hover": "../../assets/maps/tile_hover.png"
     },
     "audio": {
         "sfx_admin" : {

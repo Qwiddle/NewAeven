@@ -1,18 +1,212 @@
 #settings {
 	width: 253px;
 	height: 322px;
-	background-image: url('../../assets/game/settings.png');
 	position: absolute;
 	z-index: 10;
+	left: 55%;
+	top: 35%;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	display: flex;
+	opacity: 0.9;
+	background-image: url('../../assets/game/settings.png');
 }
 
 #settings #header {
 	width: 100%;
 	height: 42px;
+	top: 0;
+}
+
+#settings #close {
+	float: right;
+	margin-top: 10px;
+	margin-right: 15px;
+	background-position: 20px 0px;
 }
 
 #settings #content {
 	width: 232px;
-	height: 230px;
-	background-color: black;
+	height: 260px;
+	background-image: url('../../assets/game/settingsbox.png');
+	margin-top: 30px;
+}
+
+#settings #display {
+	margin-top: 10px;
+	margin-left: 5px;
+} 
+
+#settings #sound {
+	height: 50px;
+	margin-top: 20px;
+	margin-left: 5px;
+} 
+
+#settings #misc {
+	height: 50px;
+	margin-top: 20px;
+	margin-left: 5px;
+} 
+
+#settings #displayheader {
+	float: left;
+	margin-left: 8px;
+	margin-bottom: 10px;
+}
+
+#settings #soundheader {
+	float: left;
+	margin-left: 8px;
+}
+
+#settings #mischeader {
+	float: left;
+	margin-left: 8px;
+}
+
+.closebutton {
+	background-image: url('../../assets/game/buttons/closebutton.png');
+	width: 20px;
+	height: 20px;
+	border: none;
+}
+
+.custom-dropdown select:focus {
+	outline: none;
+  	box-shadow: none;
+}
+
+.custom-dropdown {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 0.95em;
+  float: right;
+  margin-right: 15px;
+  margin-top: 3px;
+}
+
+.custom-dropdown select {
+  background-color: #a66b41;
+  color: #FFF;
+  font-size: inherit;
+  padding-right: 2.5em;	
+  padding-left: 2px;
+  border: 0;
+  margin: 0;
+  border-radius: 2px;
+  -moz-appearance: none;
+  -webkit-appearance:none;
+  appearance: none;
+  font-family: 'Arial';
+  font-weight: bold;
+	text-shadow:
+    -1px -1px 0 #000,  
+     1px -1px 0 #000,
+    -1px  1px 0 #000,
+     1px  1px 0 #000;
+}
+/*Hiding the select arrow for IE10*/
+.custom-dropdown select::-ms-expand {
+    display: none;
+}
+
+.custom-dropdown::before,
+.custom-dropdown::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.custom-dropdown::after { /*  Custom dropdown arrow */
+  content: "\25BC";
+  height: 1em;
+  font-size: .625em;
+  line-height: 1;
+  right: 1.2em;
+  top: 50%;
+  margin-top: -.5em;
+}
+
+.custom-dropdown::before { /*  Custom dropdown arrow cover */
+  width: 2em;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  border-radius: 0 3px 3px 0;
+  background-color: rgba(0,0,0,.2);
+}
+
+.custom-dropdown::after {
+  color: rgba(0,0,0,.6);
+}
+
+.custom-dropdown select[disabled] {
+  color: rgba(0,0,0,.25);
+}
+
+#settings #close:hover {
+	background-position: 0px 0px;
+}
+
+.optiontext {
+	font-size: 16px;
+	font-family: 'Forte';
+	color: white;
+  	text-shadow:
+       1px 1px 0 #000,
+     -1px -1px 0 #000,  
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+       1px 1px 0 #000;
+       display: inline-block;
+	float: left;
+	margin-left: 5px;
+}
+
+.customcheck {
+	float: right;
+	margin-top: 4px;
+	margin-right: 15px;
+    height: 20px;
+    width: 20px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+    border-radius: 2px;
+    outline: none;
+    transition-duration: 0.3s;
+    cursor: pointer;
+}
+
+.customcheck:after {
+  content: '\00D7';
+  display: block;
+  background: #a86f42;
+  background-image: url('https://cdn0.iconfinder.com/data/icons/slim-square-icons-basics/100/basics-21-32.png');
+  pointer-events: none;
+  font-size: 15px;
+  position: absolute;
+  height: 15px;
+  width: 15px;
+  color: transparent;
+  transition: .25s all ease-in-out;
+  border-radius: 3px;
+  line-height: 15px;
+  background-position: 0 15px;
+  background-repeat: no-repeat;
+  background-size: 15px 15px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: transparent;
+}
+.customcheck:checked:after {
+  background-color: #8B4513;
+  background-position: 0 0;
+}
+.customcheck:hover:after{
+  border-color: #8a5936;
 }

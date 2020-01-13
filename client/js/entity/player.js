@@ -65,8 +65,8 @@ export default class Player {
 	}
 
 	initMessageMetadata() {
-        this.message = "";
-        this.messageUpdated = false;
-        this.messageDelay = 0;
+        this.msg = "";
+        this.msgUpdated = false;
+        this.msgDelay = 0;
     }
 }

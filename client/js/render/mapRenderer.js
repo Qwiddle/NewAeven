@@ -68,8 +68,47 @@ export default class MapRenderer {
         const iCoord = (y - x) * this.tileWidth / 2;
         const jCoord = (y + x) * this.tileHeight / 2 + 32;
 
-        let tileSprite = this.phaser.add.image(iCoord, jCoord, type, id);
+        let tileSprite = this.phaser.add.image(iCoord, jCoord, type, id).setInteractive({
+            pixelPerfect: true,
+            alphaTolerance: 0,
+        });
+
         tileSprite.depth = 0;
+
+        this.tiles.push(tileSprite);
+
+        this.addMouseListenersToTile(tileSprite);
+    }
+
+    addMouseListenersToTile(tileSprite) {
+        const self = this;
+        let tileX = tileSprite.x;
+        let tileY = tileSprite.y;
+
+        tileSprite.on('pointerover', function(pointer, localX, localY, event) {
+            self.updateTileHoverSpritePosition(tileX, tileY);
+            console.log(pointer);
+        });
+        ﻿
+        tileSprite.on('pointerout',function(pointer) {
+            if(self.tileHover != null) {  
+                self.tileHover.visible = false;
+            }
+        });
+    }
+
+    updateTileHoverSpritePosition(x, y) {
+        if (this.tileHover == null) {
+            this.addTileHoverSprite(x, y);
+        } else {
+            this.tileHover.visible = true;
+            this.tileHover.x = x;
+            this.tileHover.y = y;
+        }
+    }
+
+    addTileHoverSprite(x, y) {
+        this.tileHover = this.phaser.add.image(x, y, 'tile_hover').setInteractive();
     }
 
     drawMap() {
@@ -94,13 +133,13 @@ export default class MapRenderer {
 
                 if(this.map.layers[3].data[tileCount] != 0) {
                     if(this.map.layers[3].data[tileCount] >= 1561) {
-                        this.drawObjects(i, j, this.map.layers[3].data[tileCount] - 1561, 16, 0, 'objects');
+                        this.drawObjects(i, j, this.map.layers[3].data[tileCount] - 1561, 8, 0, 'objects');
                     }
                 }
 
                 if (this.map.layers[4].data[tileCount] != 0) {
                     if(this.map.layers[4].data[tileCount] >= 1561) {
-                        this.drawObjects(i, j, this.map.layers[4].data[tileCount] - 1561, 8, 0, 'objects');
+                        this.drawObjects(i, j, this.map.layers[4].data[tileCount] - 1561, 0, 0, 'objects');
                     }
                 }
 
