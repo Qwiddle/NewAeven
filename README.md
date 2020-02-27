@@ -1,6 +1,5 @@
 # NewAeven
-Open source MMORPG made using WebSockets
+![New Aeven MMORPG](https://i.ibb.co/hDcBqX4/Screenshot-22.png)
 
-MySQL server is necessary
-
-![New Aeven MMORPG](https://i.imgur.com/Gnrl8TI.png)
+Installation:
+todo
