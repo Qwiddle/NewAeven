@@ -1,0 +1,60 @@
+#registration {
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+	display: flex;
+}
+
+#registrationbox {
+	width: 518px;
+	height: 322px;
+	background-image: url('../../assets/menu/registration.png');
+	position: absolute;
+	border: 1px solid black;
+}
+
+#textboxes {
+	width: 270px;
+	height: 162px;
+	margin-left: 184px;
+	margin-top: 72px;
+}
+
+.registrationtextbox {
+	width: 260px;
+	height: 28px;
+	font-size: 17px;
+	font-family: 'Arial';
+	font-weight: bold;
+	text-align: left;
+	padding-left: 10px;
+	border: none;
+	background: none;
+	margin-bottom: 13px;
+}
+
+#registration #inputs {
+	float: right;
+	margin-right: 30px;
+	margin-top: 35px;
+}
+
+#registration #inputs #okbutton {
+	width: 89px;
+	height: 27px;
+	background-image: url('../../assets/menu/buttons/ok_button_small.png');
+	display:inline-block;
+}
+
+#registration #inputs #okbutton:hover, #registration #inputs #cancelbutton:hover {
+	background-position: 89px 0px;
+}
+
+#registration #inputs #cancelbutton {
+	width: 89px;
+	height: 27px;
+	background-image: url('../../assets/menu/buttons/cancel_button_small.png');
+	display:inline-block;
+}

@@ -7,18 +7,19 @@ export default class Player {
 		this.initMessageMetadata();
 
 		this.username = username;
+		this.accountname = "";
 		this.prevPos = {x: 0, y: 0};
 		this.pos = {x: 0, y: 0};
 		this.targetPos = {x: 0, y: 0};
-		
-		this.stats = { 
-            curr_hp: 30,
-            max_hp: 30,
-            level: 1
-        };
 
-        this.map = 0;
-        this.mapData = [];	
+		this.stats = { 
+			hp: 30,
+			maxhp: 30,
+			level: 0
+		};
+
+		this.map = 0;
+		this.mapData = [];	
 		this.prevMap = this.map;
 
 		this.packets = [];
@@ -30,21 +31,20 @@ export default class Player {
 	}
 
 	initCosmetics(sex, race) {
-        this.sex = 0;
-        this.race = 0;
-		this.account_name = "";
+		this.sex = 0;
+		this.race = 0;
 
-        this.equipment = {
-            shirt: {id: '', name: ''},
-            pants: {id: '', name: ''},
-            weapon: {id: '', name: ''},
-        }
+		this.equipment = {
+			armor: {id: ''},
+			boots: {id: ''},
+			weapon: {id: ''},
+		}
 
-        this.hair = {
-            style: 0,
-            color: 0,
-        }
-    }
+		this.hair = {
+			style: 0,
+			color: 0,
+		}
+	}
 
 	initKinematics() {
 		this.isMoving = false;
@@ -52,6 +52,7 @@ export default class Player {
 		this.lastRotate = 0;
 		this.isAttacking = false;
 		this.lastAttackTime = 0;
+		this.isPressed = false;
 	}
 
 	initPacketMetadata() {
@@ -65,8 +66,8 @@ export default class Player {
 	}
 
 	initMessageMetadata() {
-        this.msg = "";
-        this.msgUpdated = false;
-        this.msgDelay = 0;
+		this.message = "";
+		this.messageUpdated = false;
+		this.messageDelay = 0;
     }
 }

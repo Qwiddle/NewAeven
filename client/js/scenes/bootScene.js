@@ -1,19 +1,17 @@
 export default class BootScene extends Phaser.Scene {
-    constructor() {
-        super({ key: 'boot' });
-    }
+	constructor() {
+		super({key: 'boot'});
+	}
 
-    init(data) {
-        this.client = data.client;
-    }
+	init(data) {
+		this.client = data.client;
+	}
 
-    preload() {
-        this.load.json('assets', '../../assets/json/assets.json');
-        this.load.image('logo', '../../assets/logo.png');
-    }
+	preload() {
+		this.load.json('assets', '../../assets/assets.json');
+	}
 
-    create() {
-        this.client.connect();
-        this.scene.start('load', { client: this.client});
-    }
+	create() {
+		this.scene.start('load', {client: this.client});
+	}
 }

@@ -5,8 +5,46 @@
 				<div id="playersprite"></div>
 			</div>
 
-			<div id="namebox">
-				<div id="label">
+			<div id="sliders">
+				<div class="namebox small">
+					<div class="label">
+						<p class="boxtext">Hair</p>
+					</div>
+
+					<div class="arrowselector" id="hairselector">
+						<div class="arrow left" data-id="hairnum"></div>
+						<div id="hairnum" class="selectionbox boxtext">0</div>
+						<div class="arrow right" data-id="hairnum"></div>
+					</div>
+				</div>
+
+				<div class="namebox small">
+					<div class="label">
+						<p class="boxtext">Color</p>
+					</div>
+
+					<div class="arrowselector" id="colorselector">
+						<div class="arrow left" data-id="colornum"></div>
+						<div id="colornum" class="selectionbox boxtext">0</div>
+						<div class="arrow right" data-id="colornum"></div>
+					</div>
+				</div>
+
+				<div class="namebox small">
+					<div class="label">
+						<p class="boxtext">Skin</p>
+					</div>
+
+					<div class="arrowselector" id="skinselector">
+						<div class="arrow left" data-id="skinnum"></div>
+						<div id="skinnum" class="selectionbox boxtext">0</div>
+						<div class="arrow right" data-id="skinnum"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="namebox" id="namecreate">
+				<div class="label">
 					<p class="boxtext">Name</p>
 				</div>
 
@@ -14,8 +52,13 @@
 			</div>
 		</div>
 
+		<div id="classinfo">
+			
+		</div>
+
 		<div id="inputs">
-			<div id="ok_button"></div>
-			<div id="cancel_button"></div>
+			<div class="ok_button clickable"></div>
+			<div class="cancel_button clickable"></div>
+		</div>
 	</div>
 </div>

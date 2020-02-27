@@ -1,244 +1,165 @@
-import ViewLoader from './viewLoader.js';
-import ClientController from './clientController.js';
-import BootScene from './scenes/bootScene.js';
-import LoadScene from './scenes/loadScene.js';
-import HomeScene from './scenes/homeScene.js';
-import GameScene from './scenes/gameScene.js';
+import ViewLoader from './ui/viewLoader.js';
 import Game from './game.js';
-import ChatManager from'./chatManager.js';
 
 export default class Client {
 	constructor() {
-		const self = this;
-
-        this.ip = {
-            address: '157.245.125.191',
-            port: '8443',
-        }
-
-		this.events = {
-			'pong': (packet) => self.onPong(packet),
-			'welcome': (packet) => self.connectedToServer(packet),
-			'on_register': (packet) => self.onRegister(packet),
-			'on_login': (packet) => self.onLogin(packet),
-			'on_create': (packet) => self.onCreate(packet),
-			'serverUpdate': (packet) => self.game.serverUpdate(packet),
+		this.ip = {
+			address: '127.0.0.1',
+			port: '8443',
 		};
 
-        this.config = {
-            type: Phaser.CANVAS,
-            pixelArt: true,
-            roundPixels: true,
-            antialias: false,
-            parent: 'cvs',
-            fps: {
-                min: 10,
-                target: 60
-            },
-            scale: {
-                mode: Phaser.Scale.RESIZE,
-                width: 640,
-                height: 480,
-                min: {
-                    width: 800,
-                    height: 600
-                },
-                max: {
-                    width: 1920,
-                    height: 1080
-                },
-            },
+		this.viewLoader = new ViewLoader();
+		this.game = new Game(this);
 
-            scene: [
-                BootScene, LoadScene, HomeScene, GameScene
-            ],
-        };
-
-        this.phaser = new Phaser.Game(this.config);
-        this.phaser.scene.start('boot', { client: this});
-
-        this.viewLoader = new ViewLoader();
-        this.game = new Game(new ClientController(this, this.phaser));
-
-        this._socket = {};
-        this.id = "";
-		this.pingTime = 0;
-        this.latency = 0;
+		this.events = {
+			'connection': (packet) => this.onConnection(packet),
+			'register': (packet) => this.onRegister(packet),
+			'login': (packet) => this.onLogin(packet),
+			'playerCreate': (packet) => this.onPlayerCreate(packet),
+			'playerLogin': (packet) => this.onPlayerLogin(packet),
+			'playerWelcome': (packet) => this.playerWelcome(packet),
+			'serverUpdate': (packet) => this.game.onServerUpdate(packet)
+		};
 	}
 
 	connect() {
-		const self = this;
-		this._socket = new WebSocket('ws://' + this.ip.address + ':' + this.ip.port);     
+		this.primus = new Primus(this.ip.address + ":" + this.ip.port, {
+			reconnect: {
+		    	maxDelay: Infinity,
+		    	minDelay: 500,
+		    	retries: 10
+			},
+			strategy: ['online', 'disconnect', 'timeout'],
+		});
 
-        this._socket.onopen = (event) => {
-            console.log("ws:: client connected");
-        }   
+		this.primus.on("open", () => {
+			console.log('successfully connected to the game server.');
+		});
 
-        this._socket.onmessage = function (packet) { 
-            const data = JSON.parse(packet.data);
+		this.primus.on('data', (data) => {
+			const decodedData = msgpack.decode(data.data);
+			const packet = JSON.parse(decodedData);
 
-            if (self.events.hasOwnProperty(data.event)) {
-            	self.events[data.event](data);
-            }
-        }
+			//console.log(packet);
 
-        this._socket.onclose = function (packet) {
-            alert("Disconnected from the server");
-            location.reload();	
-        }
+			if (this.events.hasOwnProperty(packet.event)) {
+				this.events[packet.event](packet);
+			};
+		});
 	}
-
-	connectedToServer(packet) {
-        this.id = packet.id;
-
-        this.startPingPong();            
-        this.addKeyListenersToClient();
-        this.game.clientConnected(packet); 
-
-        
-        this.viewLoader.loadView("hotkeys", true);
-        this.viewLoader.loadView("settings", true);
-        this.viewLoader.loadView("chat", true);
-    }
-
-    startPingPong() {
-        const self = this;
-
-        setInterval(function() {
-            const pingPacket = {
-                'event':'ping',   
-            }
-
-            self.pingTime = Date.now();
-            self.send(pingPacket);
-
-        }, 4000);
-    }
-
-    onPong() {
-        this.latency = (Date.now() - this.pingTime) / 2;
-    }
-
-	send(packet) {
-        this._socket.send(JSON.stringify(packet));
-    }
-
-    createCharacter(username, race, sex, style, color) {
-        const createPacket = {
-            'event': 'create',
-            'username': username,
-            'race': race,
-            'sex': sex,
-            'style': style,
-            'color': color,
-        }
-
-        this.send(createPacket);
-    }
-
-    onCreate(packet) {
-        const self = this;
-
-        if(packet.success) {
-            this.viewLoader.removeView("charactercreation", true, function() {
-                self.viewLoader.showView("navbuttons", true);
-                self.viewLoader.loadView("home", true);
-            });
-        } else {
-            alert('character creation failed.');
-        }
-    }
 
 	login(username, password) {
 		const loginPacket = {
 			'event': 'login',
 			'username': username,
 			'password': password,
-		}
+		};
 
 		this.send(loginPacket);
 	}
 
 	onLogin(packet) {
-        const self = this;
-
 		if (packet.success) {
-            if(packet.characters == 0) {
-                this.viewLoader.removeView("home", true, function() {
-                    self.viewLoader.hideView("navbuttons", true);
-                    self.viewLoader.loadView("charactercreation", true);
-                });
-            } else {
-                this.viewLoader.removeView("home", true, function() {
-                    self.viewLoader.removeView("navbuttons", true);
-                    self.loginPlayer();
-                });
-            }
+			if(packet.characters == 0) {
+				this.viewLoader.removeView("home", true, () => {
+					this.viewLoader.loadView("charactercreation", true);
+				});
+			} else {
+				this.viewLoader.removeView("home", true, () => {
+					this.viewLoader.loadView("characterselection", true, () => {
+						if(packet.characters.length >= 1 || packet.characters >= 1) {
+							$("#0").children(".create3d").removeClass("create3d").addClass("login3d");
+							$("#0").children(".characterbox").append('<div class="playersprite">');
+						} if(packet.characters.length >= 2 || packet.characters >= 2) {
+							$("#1").children(".create3d").removeClass("create3d").addClass("login3d");
+							$("#1").children(".characterbox").append('<div class="playersprite">');
+						} if(packet.characters.length >= 3 || packet.characters == 3) {
+							$("#2").children(".create3d").removeClass("create3d").addClass("login3d");
+							$("#2").children(".characterbox").append('<div class="playersprite">');
+						}
+					});
+				});
+			}
 		} else {
-			alert('login failed');
+			alert('Login failed. Please check your account information and try again.');
 		}
 	}
 
-    loginPlayer() {
-        const loginPlayerPacket = {
-            'event': 'loginPlayer',
-        }
-
-        this.send(loginPlayerPacket);
-    }
-
-	register(username, password, email) {
+	register(username, password, passwordConfirm, email) {
 		const registerPacket = {
 			'event': 'register',
 			'username': username,
 			'password': password,
-			'passwordConfirm': password,
+			'passwordConfirm': passwordConfirm,
 			'email': email,
-		}
+		};
 
 		this.send(registerPacket);
 	}
 
 	onRegister(packet) {
-        const self = this;
-
 		if (packet.success) {
-			this.viewLoader.removeView("register", true, function() {
-                self.viewLoader.showView("navbuttons", true);
-                self.viewLoader.loadView("home", true);
-            });
+			this.viewLoader.removeView("registration", true, () => {
+				this.viewLoader.showView("home", true);
+			});
 		} else {
 			alert("registration unsuccessful.");
 		}
 	}
 
-	addKeyListenersToClient() {
-        this.keys = [];
-        this.keyTimer = 0;
+	playerCreate(name, sex, race, hair) {
+		const playerCreatePacket = {
+			'event': 'playerCreate',
+			'username': name,
+			'sex': sex,
+			'race': race,
+			'hair': hair
+		}
 
-        const self = this;
+		this.send(playerCreatePacket);
+	}
 
-        addEventListener("keydown", function (key) {
-            if (!self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 90;
-            }
-            self.keys[key.keyCode] = true;
-        
-            self.isEnterKeyPressed(self);
-        });
+	onPlayerCreate(packet) {
+		if(packet.success) {
+			this.viewLoader.removeView("charactercreation", true, () => {
+				this.viewLoader.loadView("home", false, () => {
+					this.onLogin(packet);
+				});
+			});
+		}
+	}
 
-        addEventListener("keyup", function (key) {
-            if (self.keys[key.keyCode]) {
-                self.keyTimer = Date.now() + 90;
-            }
-            self.keys[key.keyCode] = false;
-        });
-    }
+	playerLogin(playerID) {
+		const playerLoginPacket = {
+			'event': 'playerLogin',
+			'playerID': playerID
+		};
 
-    isEnterKeyPressed(client) {
-        if (client.keys[13]) {
-            if($("#chatinput").is(":focus"))
-                this.game.chatManager.sendMessage($("#chatinput").val());
-        }
-    }
+		this.send(playerLoginPacket);
+	}
+
+	onPlayerLogin(packet) {
+		if(packet.success) {
+			this.viewLoader.removeView("characterselection", true);
+		} else {
+			alert('player login attempt unsuccessful. possible hacking attempt');
+		}
+	}
+
+	playerWelcome(packet) {
+		this.id = packet.id;
+		this.game.playerConnected(packet);
+
+		this.viewLoader.removeView(this.viewLoader.currentView, true, () => {
+			this.viewLoader.loadView("hotkeys", true);
+			this.viewLoader.loadView("chat", true, () => {
+				$("#chatinput").focus();
+			});
+			$('.servertext').hide();
+		});	
+	}
+
+	send(packet) {
+		this.primus.write(msgpack.encode(JSON.stringify(packet)));
+	}
 }

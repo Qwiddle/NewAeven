@@ -1,47 +1,74 @@
-import ViewLoader from '../viewLoader.js';
-import Game from '../game.js';
+import ViewLoader from '../ui/viewLoader.js';
 
 export default class HomeScene extends Phaser.Scene {
-    constructor() {
-        super({key: 'home'});
-    }
+	constructor() {
+		super({key: 'home'});
+		this.viewLoader = new ViewLoader();
+	}
 
-    init(data) {
-        this.client = data.client;
-    }
+	init(data) {
+		this.client = data.client;
+	}
 
-    preload() {
+	preload() {
+		this.menuSound = this.sound.add('menuclick', {
+			volume: 1,
+			loop: false
+		});
+	}
 
-    }
+	update() {
+		if(this.client.game.initialized) { 
+			this.startGame(); 
+		}
+	}
 
-    play() {
-        this.cameras.main.fadeOut(300);
-        this.scene.start('game', { client: this.client });;
-    }
+	create() {
+		this.bg = this.add.image(this.centerX(), this.centerY(), 'bg');
+		this.bg.setDisplaySize(this.scale.width, this.scale.height);
 
-    create() {
-        this.bg = this.add.image(this.centerX(), this.centerY(), 'bg');
-        this.bg.setDisplaySize(this.scale.width, this.scale.height);
+		this.header = this.add.image(this.centerX(), this.centerY() / 4, 'header');
+		this.scale.on('resize', this.resize, this);
 
-        this.scale.on('resize', this.resize, this);
-    }
+		this.viewLoader.loadView("home", true, () => {
+			this.client.connect();
+		});
 
-    update() {
-        if(this.client.game.initialized) { this.play(); }
-    }
+		$('#views').on('click', '.clickable', () => {
+			this.sound.play('menuclick2');
+		});
 
-    centerX() {
-        return this.scale.width / 2;
-    }
-    centerY() {
-        return this.scale.height / 2;
-    }
+		$('#views').on('click', '.textbox', () => {
+			this.sound.play('menuclick');
+		});
 
-    resize(gameSize, baseSize, displaySize, resolution) {
-        let width = gameSize.width;
-        let height = gameSize.height;
+		$('#views').on('click', '.registrationtextbox', () => {
+			this.sound.play('menuclick');
+		});
+	}
 
-        this.bg.setPosition(this.centerX(), this.centerY());
-        this.bg.setDisplaySize(width, height);
-    }
+	startGame() {
+		this.scene.start('game', { client: this.client });
+	}
+
+	getRandomInt(min, max) {
+		return Math.random() * (max - min) + min;
+	}
+
+	centerX() {
+		return this.scale.width / 2;
+	}
+	centerY() {
+		return this.scale.height / 2;
+	}
+
+	resize(gameSize, baseSize, displaySize, resolution) {
+		let width = gameSize.width;
+		let height = gameSize.height;
+
+		this.bg.setPosition(this.centerX(), this.centerY());
+		this.bg.setDisplaySize(width, height);
+
+		this.header.setPosition(this.centerX(), this.centerY() / 8);
+	}
 }

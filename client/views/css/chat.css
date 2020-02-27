@@ -1,11 +1,11 @@
 #chat {
-	width: 470px;
-	height: 145px;
+	width: 443px;
+	height: 139px;
 	position: absolute;
 	z-index: 10;
 	left: 0;
 	bottom: 0;
-	opacity: 0.95;
+	opacity: 1.0;
 	display: flex;
   	align-items: flex-end;
 	background-image: url('../../assets/game/chat.png');
@@ -20,14 +20,14 @@
 }
 
 #chat #chatarea {
-	width: 410px;
+	width: 420px;
 	height: 130px;
 	float: left;
-	margin-left: 5px;
+	margin-left: 15px;
 }
 
 #chat #chatarea #textarea {
-	width: 400px;
+	width: 420px;
 	height: 97px;
 	text-align: left;
 }
@@ -35,7 +35,7 @@
 #chat #chatarea #publicmsg {
 	width: 95%;
 	height: 100%;
-	background-color: rgba(0, 0, 0, 0.2);
+	background-color: rgba(0, 0, 0, 0.1);
 }
 
 #chat #chatarea #inputbox {
@@ -44,10 +44,10 @@
 }
 
 #chat #chatarea #chatinput {
-	width: 370px;
-	height: 16px;
+	width: 385px;
+	height: 14px;
 	border: none;
-	margin-left: 10px;
+	margin-left: 2px;
 	margin-top: 0px;
 	background: none;
 	color: 	#F5DEB3;
@@ -61,5 +61,4 @@
 	font-size: 14px;
 	font-family: 'Arial';
 	color: #f2dcb3;
-	font-weight: bold;
 }

@@ -1,10 +1,13 @@
-import global from '../global.js'
+import global from './global.js'
+import InputManager from './inputManager.js';
 
 export default class ClientController {
 	constructor(client, phaser) {
 		this.client = client;
 		this.phaser = phaser;
+		this.inputManager = new InputManager(this.client);
 		this.initKeys();
+
 	}
 
 	initKeys() {
@@ -16,50 +19,48 @@ export default class ClientController {
 			17: global.key.attack
 		};
 
-        this.staticKeys = {
-            37: global.direction.staticLeft,
-            38: global.direction.staticUp,
-            39: global.direction.staticRight,
-            40: global.direction.staticDown,
-        };
+		this.staticKeys = {
+			37: global.direction.staticLeft,
+			38: global.direction.staticUp,
+			39: global.direction.staticRight,
+			40: global.direction.staticDown,
+		};
 	}
 
-    getKineticKeyboardInput() {
-        for (const key in this.kineticKeys) {
-            if (this.client.keys[key]) {
-                return this.kineticKeys[key];
-            }
-        }
+	addKeyListeners() {
+		this.inputManager.addListeners();
+	}
 
-        return global.direction.none;        
-    }
+	getKineticKeyboardInput() {
+		for (const key in this.kineticKeys) {
+			if (this.inputManager.keys[key]) {
+				return this.kineticKeys[key];
+			}
+		}
 
-    getStaticKeyboardInput(initialKey) {
-        for (const key in this.staticKeys) {
-            if (this.client.keys[key]) {
-                return this.staticKeys[key];
-            }
-        }
+		return global.direction.none;        
+	}
 
-        return initialKey;
-    }
+	getStaticKeyboardInput(initialKey) {
+		for (const key in this.staticKeys) {
+			if (this.inputManager.keys[key]) {
+				return this.staticKeys[key];
+			}
+		}
 
-    getKeyboardInput(initialKey) {
-        return Date.now() < this.client.keyTimer ? 
-            this.getStaticKeyboardInput(initialKey) : this.getKineticKeyboardInput();
-    }
-    
-    sendPacket(packet) {
-        this.client.send(packet); 
-    }
+		return initialKey;
+	}
 
-    getClientId() {
-        return this.client.id;
-    }
+	getKeyboardInput(initialKey) {
+		return Date.now() < this.inputManager.keyTimer ? 
+			this.getStaticKeyboardInput(initialKey) : this.getKineticKeyboardInput();
+	}
 
-    deleteSprite(key) {
-        console.log(this.client.game.sprites[key]);
-        this.client.game.sprites[key].sprite.destroy();
-        delete this.client.game.sprites[key];
-    }
+	getClientId() {
+		return this.client.id;
+	}
+
+	deleteSprite(key) {
+	  //
+	}
 }

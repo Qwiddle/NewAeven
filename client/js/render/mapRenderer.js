@@ -1,160 +1,133 @@
 export default class MapRenderer {
-    constructor(phaser, map) {
-        this.phaser = phaser;
-        this.map = map;
-        this.tileOffset = 32;
-        this.loadMap(map);
-        this.tiles = [];
+	constructor(scene, json) {
+		this.tileWidth = 64;
+		this.tileHeight = 32;
+		this.tiles = [];
         this.walls = [];
         this.objects = [];
-    }
+		this.scene = scene;
+		this.load(json)
+	}
 
-    loadMap(map) {
-        this.mapWidth = map.width;
-        this.mapHeight = map.height;
-        this.tileWidth = map.tilewidth;
-        this.tileHeight = map.tileheight;
-    }
+	load(json) {
+		this.map = json;
+		this.mapWidth = json.width;
+        this.mapHeight = json.height;
+		
+		this.tileGroup = this.scene.add.group();
+		this.objectGroup = this.scene.add.group();
+		this.wallGroup = this.scene.add.group();
+	}
 
-    drawObjects(x, y, id, offx, offy, obj) {
-        let objHeight = 0;
-        let objWidth = 0;
+	drawTile(x, y, id) {
+		const tileWidthHalf = this.tileWidth / 2;
+		const tileHeightHalf = this.tileHeight / 2;
 
-        if (obj=='objects') {
-            objHeight = 172;
-            objWidth = 56;
-        } else if(obj='walls') {
-            objHeight = 172;
-            objWidth = 531;
-        }
+		const iCoord = (y - x) * tileWidthHalf;
+		const jCoord = (y + x) * tileHeightHalf + 32;
 
-        const ox = -objWidth / 2 + offx + 22;
-        const oy = (this.tileHeight + objHeight / 2) + 16;
+		let tileSprite = this.scene.add.image(iCoord, jCoord, 'tiles', id + ".png").setInteractive({
+			pixelPerfect: true
+		}).setOrigin(0.5);
 
-        const iCoord = ox + (y - x) * this.tileWidth / 2 ;
-        const jCoord = oy + (y + x) * this.tileHeight / 2 - (objHeight);
-        let temp = this.phaser.add.image(iCoord, jCoord, obj, id);
+		tileSprite.isoX = x;
+		tileSprite.isoY = y;
 
-        temp.depth = jCoord + objHeight;
+		tileSprite.depth = 0;
 
-        this.objects.push(temp);
-    }
+		this.addMouseListeners(tileSprite);
+		this.tileGroup.add(tileSprite, true);
+	}
 
-    drawWalls(x, y, id, offx, offy, obj) {
-        let objHeight = 0;
-        let objWidth = 0;
+	drawWall(x, y, offx, offy, id) {
+		let wallSprite = this.scene.add.image(0, 0, 'walls', id + ".png").setOrigin(0.5);
 
-        if (obj=='objects') {
-            objHeight = 172;
-            objWidth = 56;
-        } else if(obj='walls') {
-            objHeight = 531;
-            objWidth = 32;
-        }
+		const tileWidthHalf = this.tileWidth / 2;
+		const tileHeightHalf = this.tileHeight / 2;
+		const wallHeight = wallSprite.height;
+		const wallWidth = wallSprite.width;
 
-        const ox = -objWidth / 2 + offx;
-        const oy = (this.tileHeight + objHeight / 2) + 16;
+		const depthY = this.isoToCartesian(x, y).y + wallHeight / 2;
+		console.log(id);
 
-        const iCoord = ox + (y - x) * this.tileWidth / 2;
-        const jCoord = oy + (y + x) * this.tileHeight / 2 - (objHeight);
-        let temp = this.phaser.add.image(iCoord, jCoord, obj, id);
+		const iCoord = ((y - x) * tileWidthHalf) - wallWidth / 2 + offx;
+		const jCoord = ((y + x) * tileHeightHalf) - wallHeight / 2 + this.tileHeight + 16;
 
-        temp.depth = jCoord + 330;
+		wallSprite.depth = jCoord + wallHeight;
+		wallSprite.x = iCoord;
+		wallSprite.y = jCoord;
+		this.wallGroup.add(wallSprite);
+	}
 
-        this.walls.push(temp);
-    }
+	drawObject(x, y, offx, offy, id) {
+		let objectSprite = this.scene.add.image(0, 0, 'objects', id + ".png").setOrigin(0.5);
 
-    drawTile(x, y, type, id) {
-        const iCoord = (y - x) * this.tileWidth / 2;
-        const jCoord = (y + x) * this.tileHeight / 2 + 32;
+		const tileWidthHalf = this.tileWidth / 2;
+		const tileHeightHalf = this.tileHeight / 2;
+		let objectHeight = objectSprite.height;
+		const objectWidth = objectSprite.width;
 
-        let tileSprite = this.phaser.add.image(iCoord, jCoord, type, id).setInteractive({
-            pixelPerfect: true,
-            alphaTolerance: 0,
-        });
+		const iCoord = ((y - x) * tileWidthHalf);
+		const jCoord = ((y + x) * tileHeightHalf) - objectHeight / 2 + this.tileHeight + 16;
 
-        tileSprite.depth = 0;
+		if(objectHeight >= 165)
+			objectHeight = 165;
 
-        this.tiles.push(tileSprite);
+		let depthY = jCoord + objectHeight
 
-        this.addMouseListenersToTile(tileSprite);
-    }
+		objectSprite.depth = depthY;
+		objectSprite.x = iCoord;
+		objectSprite.y = jCoord;
+		this.objectGroup.add(objectSprite);
+	}
 
-    addMouseListenersToTile(tileSprite) {
-        const self = this;
-        let tileX = tileSprite.x;
-        let tileY = tileSprite.y;
+	drawMap() {
+		let tileCount = 0;
 
-        tileSprite.on('pointerover', function(pointer, localX, localY, event) {
-            self.updateTileHoverSpritePosition(tileX, tileY);
-            console.log(pointer);
-        });
-        ﻿
-        tileSprite.on('pointerout',function(pointer) {
-            if(self.tileHover != null) {  
-                self.tileHover.visible = false;
-            }
-        });
-    }
+		for(let i = 0; i < this.mapHeight; i++) {
+			for(let j = 0; j < this.mapWidth; j++) {
+				this.drawTile(i, j, this.map.layers[0].data[tileCount]);
+				tileCount++
+				console.log(this.map.layers[0].data[tileCount])
+			}
+		}
 
-    updateTileHoverSpritePosition(x, y) {
-        if (this.tileHover == null) {
-            this.addTileHoverSprite(x, y);
-        } else {
-            this.tileHover.visible = true;
-            this.tileHover.x = x;
-            this.tileHover.y = y;
-        }
-    }
+		tileCount = 0;
 
-    addTileHoverSprite(x, y) {
-        this.tileHover = this.phaser.add.image(x, y, 'tile_hover').setInteractive();
-    }
+		for(let i = 0; i < this.mapHeight; i++) {
+			for(let j = 0; j < this.mapWidth; j++) {
+				if(this.map.layers[1].data[tileCount] != 0) {
+					//this.drawObject(i, j, 0, 0, this.map.layers[1].data[tileCount]);
+					//console.log(this.map.layers[1].data[tileCount]);
+				}
+				tileCount++;
+			}
+		}
 
-    drawMap() {
-        let tileCount = 0;
- 
-        for (let i = 0; i < this.mapWidth; i++) {
-            for (let j = 0; j < this.mapHeight; j++) {
+		tileCount = 0;
 
-                this.drawTile(i, j, 'tiles', this.map.layers[0].data[tileCount] - 1);
+		for(let i = 0; i < this.mapHeight; i++) {
+			for(let j = 0; j < this.mapWidth; j++) {
+				if(this.map.layers[2].data[tileCount] != 0) {
+					//this.drawWall(i, j, 0, 0, this.map.layers[2].data[tileCount]);
+				}
+				tileCount++;
+			}
+		}
 
-                if(this.map.layers[1].data[tileCount] != 0) {
-                    if(this.map.layers[1].data[tileCount] >= 1561) {
-                        this.drawWalls(i, j, this.map.layers[1].data[tileCount] - 2188, 0, 0, 'walls');
-                    }
-                }
+		tileCount = 0;
 
-                if(this.map.layers[2].data[tileCount] != 0) {
-                    if(this.map.layers[2].data[tileCount] >= 1561) {
-                        this.drawWalls(i, j, this.map.layers[2].data[tileCount] - 2188, -32, 0, 'walls');
-                    }
-                }
+		for(let i = 0; i < this.mapHeight; i++) {
+			for(let j = 0; j < this.mapWidth; j++) {
+				if(this.map.layers[2].data[tileCount] != 0) {
+					//this.drawWall(i, j, 32, 0, this.map.layers[3].data[tileCount] + 101);
+					tileCount++;
+				}
+			}
+		}
+	}
 
-                if(this.map.layers[3].data[tileCount] != 0) {
-                    if(this.map.layers[3].data[tileCount] >= 1561) {
-                        this.drawObjects(i, j, this.map.layers[3].data[tileCount] - 1561, 8, 0, 'objects');
-                    }
-                }
-
-                if (this.map.layers[4].data[tileCount] != 0) {
-                    if(this.map.layers[4].data[tileCount] >= 1561) {
-                        this.drawObjects(i, j, this.map.layers[4].data[tileCount] - 1561, 0, 0, 'objects');
-                    }
-                }
-
-                if (this.map.layers[5].data[tileCount] != 0) {
-                    if(this.map.layers[5].data[tileCount] >= 1561) {
-                        //draw objectset2
-                    }
-                }
-
-                tileCount++;
-            }
-        }
-    }
-
-    destroyMap() {
+	destroyMap() {
         for (let i = 0; i < this.tiles.length; i++) {
             this.tiles[i].destroy();
         }
@@ -167,8 +140,133 @@ export default class MapRenderer {
             this.objects[i].destroy();
         }
         
-        this.tiles = [];
+        //this.tileGroup
         this.walls = [];
         this.objects = [];
-    }
+	}
+	
+
+	toggleLayer(layer) {
+		if(layer === 'tile') {
+			let children = this.tileGroup.getChildren();
+
+			for (let child of children) {
+				if(child.alpha >= 0.7)
+					child.alpha = 0.0;
+				else
+					child.alpha = 1.0;
+			}
+		} else if(layer === 'object') {
+			let children = this.objectGroup.getChildren();
+
+			for (let child of children) {
+				if(child.alpha >= 0.5)
+					child.alpha = 0.0;
+				else
+					child.alpha = 1.0;
+			}
+		} else if(layer === 'wall') {
+			let children = this.wallGroup.getChildren();
+
+			for (let child of children) {
+				if(child.alpha >= 0.5)
+					child.alpha = 0.0;
+				else
+					child.alpha = 1.0;
+			}
+		}
+	}
+
+	addMouseListeners(sprite) {
+		sprite.on('pointerover', (pointer) => {
+			this.updateTileHoverSpritePosition(sprite.x, sprite.y);
+		});
+
+		sprite.on('pointerout', (pointer) => {
+			if(this.tileHover != null) {  
+                this.tileHover.visible = false;
+                this.tileHover.setAlpha(0);
+            }
+		});
+
+		sprite.on('pointerdown', (pointer) => {
+			if(pointer.button === 0) {
+				this.updateTileClickSpritePosition(sprite.x, sprite.y, sprite.isoX, sprite.isoY);
+			}
+		});
+	}
+
+	updateTileHoverSpritePosition(x, y) {
+		if (this.tileHover == null) {
+			this.addTileHoverSprite(x, y);
+		} else {
+			this.tileHover.visible = true;
+			this.tileHover.x = x;
+			this.tileHover.y = y;
+		}
+
+		this.tileHover.setAlpha(1);
+	}
+	
+	addTileHoverSprite(x, y) {
+		this.tileHover = this.scene.add.image(x, y, 'tilehover');
+	}
+
+	updateTileClickSpritePosition(x, y, isoX, isoY) {
+		if (this.tileClick == null) {
+			this.addTileClickSprite(x, y);
+			this.tileClick.isoX = isoX;
+			this.tileClick.isoY = isoY;
+		} else {
+			this.tileClick.setAlpha(1);
+			this.tileClick.x = x;
+			this.tileClick.y = y;
+			this.tileClick.isoX = isoX;
+			this.tileClick.isoY = isoY;
+		}
+		if(!this.tileClick.inAnim) {
+			this.tileClick.setAlpha(1);
+			this.tileClick.inAnim = true;
+			this.tileClick.play('click');
+		}
+
+		this.scene.client.game.findPath(this.tileClick.isoY, this.tileClick.isoX);
+		console.log(this.scene.client.game.pathFinder);
+	}
+
+	addTileClickSprite(x, y) {
+		this.tileClick = this.scene.add.sprite(x, y, 'tilehover');
+		this.createTileAnimation();
+		this.tileClick.play('click');
+		this.tileClick.inAnim = true;
+	}
+
+	createTileAnimation() {
+		this.animations = {
+			click: { 
+				key: 'click',
+				frames: this.scene.anims.generateFrameNumbers('tilehover', {start: 0, end: 6}),
+				duration: 600,
+			}
+		}
+
+		this.scene.anims.create(this.animations.click);
+
+		this.tileClick.on('animationcomplete', (animation, frame) => {
+			this.tileClick.setAlpha(0);
+			this.tileClick.inAnim = false;
+		});
+	}
+
+	isoToCartesian(x, y) {
+		const xCoord = (y - x) * this.tileHeight / 2;
+		const yCoord = (y + x) * this.tileHeight / 2 + 32;
+
+		const coords = {
+			x: xCoord,
+			y: yCoord
+		};
+
+		return coords;
+	}
 }

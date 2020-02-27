@@ -1,28 +1,39 @@
-import Viewloader from '../viewLoader.js';
-import PlayerSprite from '../render/playerSprite.js';
 import MapRenderer from '../render/mapRenderer.js';
-import global from '../../global.js';
-	
+import PlayerSprite from '../render/playerSprite.js';
+
 export default class GameScene extends Phaser.Scene {
-	constructor () {
-        super({key: 'game'});
+	constructor() {
+		super({key: 'game'});
+	}
+
+	init(data) {
+		this.client = data.client;
+	}
+
+	preload() {
+	}
+
+	update() {
+   		this.playerGroup.children.entries.forEach((sprite) => {
+        	sprite.update();
+        });
+
+        this.cullMap();
     }
 
-    init(data) {
-    	this.client = data.client;
-    	this.client.game.sprites = {};
-    }
+	create() {
+		this.client.game.mapRenderer = new MapRenderer(this, this.client.game.player.mapJson);
+		this.sound.play('login');
 
-    preload() {
-    }
+		this.client.game.clientController.addKeyListeners();
 
-    create() {
-    	this.playerSprite = new PlayerSprite(this.client.game.player, this);
-    	this.client.game.mapRenderer = new MapRenderer(this, this.client.game.player.mapJson);    
-    	this.client.game.mapRenderer.drawMap();
+		this.client.game.mapRenderer.drawMap();
     	this.cameras.main.fadeIn(750);
-    	this.cameras.main.startFollow(this.playerSprite.sprite, true, 0.4, 0.4);
-    	this.cameras.main.zoom = 1;
+    	this.cameras.main.setZoom(1);
+    	this.cameras.main.setRoundPixels(true);
+
+    	this.playerGroup = this.add.group();
+    	//this.enemyGroup = this.add.group();
 
     	this.game.events.on('hidden', function() {
     		//hidden
@@ -32,124 +43,18 @@ export default class GameScene extends Phaser.Scene {
     		//catch up
 		}, this);
 
-		this.playerSprite.sprite.on('animationcomplete', this.animComplete, this);
-    }	
+        this.player = new PlayerSprite({
+        	scene: this,
+        	key: 'base_0_0',
+        	player: this.client.game.player,
+        	x: this.client.game.player.targetPos.x,
+        	y: this.client.game.player.targetPos.y,
+        });
 
-    update() {
-    	this.cullMap();
-    	this.updateSelf();
-   		this.updatePlayers();
-    }
+        this.cameras.main.startFollow(this.player, true, 0.3, 0.3);
+	}
 
-    updateSelf() {
-    	this.updateSprite(this.client.game.player, this.playerSprite);
-    }
-
-    updatePlayers() {
-    	for (let key in this.client.game.players) {
-            if (this.client.game.sprites.hasOwnProperty(key)) {
-                this.updateSprite(this.client.game.players[key], this.client.game.sprites[key]);
-            } else if(this.client.game.players[key].username != this.client.game.player.username) {
-                this.client.game.sprites[key] = new PlayerSprite(this.client.game.players[key], this);
-                this.client.game.sprites[key].sprite.on('animationcomplete', this.animComplete, this);
-            }
-        }
-    }
-
-    updateSprite(player, sprite) {
-    	sprite.sprite.depth = sprite.sprite.y + 128;
-
-    	if (player.isAttacking) {
-            this.attack(player, sprite);
-            player.isMoving = true;
-        } else if (!player.isMoving) {
-            if (sprite.sprite.x != player.targetPos.x || sprite.sprite.y != player.targetPos.y) {
-            	this.interpolate(player, sprite);
-
-            } else {
-                if (player.dir == global.direction.staticDown || player.dir == global.direction.staticLeft || player.dir == global.direction.down || player.dir == global.direction.left) {
-                    sprite.sprite.flipX = false;
-                } else if (player.dir == global.direction.staticRight || player.dir == global.direction.staticUp || player.dir == global.direction.up || player.dir == global.direction.right) {
-                    sprite.sprite.flipX = true;
-                }
-
-                sprite.sprite.setFrame(sprite.dirFrame[player.dir]);
-            }
-        }
-    }
-
-    left(player, sprite) {
-        return player.targetPos.x < sprite.sprite.x && player.targetPos.y < sprite.sprite.y;
-    }
-
-    right(player, sprite) {
-        return player.targetPos.x > sprite.sprite.x && player.targetPos.y > sprite.sprite.y;
-    }
-
-    up(player, sprite) {
-        return player.targetPos.x > sprite.sprite.x && player.targetPos.y < sprite.sprite.y;
-    }
-
-    down(player, sprite) { 
-        return player.targetPos.x < sprite.sprite.x && player.targetPos.y > sprite.sprite.y;
-    }
-
-    attack(player, sprite) {
-    	if(player.dir == global.direction.staticLeft || player.dir == global.direction.left) {
-    		sprite.sprite.play('attackLeft');
-    		sprite.sprite.flipX = false;
-    	} else if(player.dir == global.direction.staticRight || player.dir == global.direction.right) {
-    		sprite.sprite.play('attackRight');
-    		sprite.sprite.flipX = true;
-    	} else if(player.dir == global.direction.staticUp || player.dir == global.direction.up) {
-    		sprite.sprite.play('attackUp');
-    		sprite.sprite.flipX = true;
-    	} else if(player.dir == global.direction.staticDown || player.dir == global.direction.down) {  
-    		sprite.sprite.play('attackDown');
-    		sprite.sprite.flipX = false;
-    	}
-    }
-
-    interpolate(player, sprite) {
-    	if (this.left(player, sprite)) {
-            sprite.sprite.flipX = false;
-           	sprite.sprite.play('left');
-           	player.isMoving = true;
-        } else if (this.right(player, sprite)) {
-            sprite.sprite.flipX = true;
-            sprite.sprite.play('right');
-            player.isMoving = true;
-        } else if (this.up(player, sprite)) {
-            sprite.sprite.flipX = true;
-            sprite.sprite.play('up');
-            player.isMoving = true;
-        } else if (this.down(player, sprite)) {
-			sprite.sprite.flipX = false;            
-			sprite.sprite.play('down');
-			player.isMoving = true;
-        }
-
-        sprite.tween = this.tweens.add({
-    		targets: sprite.sprite,
-    		x: player.targetPos.x,
-    		y: player.targetPos.y,
-    		duration: 450,
-    		onComplete: function() {  
-    			player.isMoving = false;
-    			sprite.sprite.anims.stop();
-    		}
-    	});
-
-    }   
-
-    animComplete(animation, frame) {
-    	if(animation.key === 'attackLeft' || animation.key === 'attackRight' || animation.key === 'attackDown' || animation.key === 'attackUp') {
-			this.client.game.player.isAttacking = false;
-			this.client.game.player.isMoving = false;
-		}
-    }
-
-    cullMap() {
+	cullMap() {
     	let children = this.children.getChildren();
 
 	    for (let child of children)
@@ -160,4 +65,8 @@ export default class GameScene extends Phaser.Scene {
 	    for (let child of visible)
 	        child.visible = true;
     }
+
+	mouseEvent(sprite, pointer) {
+
+	}
 }

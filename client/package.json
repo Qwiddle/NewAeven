@@ -1,0 +1,22 @@
+{
+    "app_name": "client",
+    "chromium-args": "--memory-pressure-off",
+    "developer": {
+        "showDevToolsOnStartup": true
+    },
+    "main": "index.html",
+    "name": "newaeven",
+    "window": {
+        "toolbar": true,
+        "exe_icon": "favicon.png",
+        
+        "id": "client",
+        "mac_icon": "favicon.png",
+        "min_height": 640,
+        "min_width": 480,
+        "resizable": true,
+        "show": true,
+        "show_in_taskbar": true,
+        "title": "New Aeven Beta"
+    }
+}

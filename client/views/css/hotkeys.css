@@ -1,28 +1,26 @@
-#hotkeys {
-	width: 100%;
-	height: 100%;
-	display: flex;
-  	align-items: flex-end;
-	animation: animatezoom 0.4s;
-	justify-content: center;
-	min-width: 790px;
-	opacity: 0.9;
-}
-
 #functionkeys {
+	position: absolute;
 	width: 459px;
 	height: 38px;
 	background-image: url('../../assets/game/functionkeys.png');
 	display: inline-block;
-	margin-right: 10px;
+	text-align: center;
+	opacity: 0.95;
+	bottom: 0;
+	left: 0;
+	
 }
 
 #buttoncontainer {
+	position: absolute;
+	bottom: 0;
+	right: 0;
 	width: 300px;
 	height: 39px;
 	background-image: url('../../assets/game/mainbuttoncontainer.png');
 	display: inline-block;
-	opacity: 0.9;
+	opacity: 0.95;
+	text-align: center;
 }
 
 .uibutton {

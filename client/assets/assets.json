@@ -1,0 +1,26 @@
+{
+	"image": {
+		"bg": "assets/img/castlebg.png",
+		"header": "/assets/header.png"
+	},
+	 "spritesheet": {
+        "base_0_0": ["../../assets/players/base_0_0.png", { "frameWidth": 34, "frameHeight": 77 }],
+        "tilehover": ["../../assets/game/tilehover.png", { "frameWidth": 64, "frameHeight": 32 }]
+    },
+	"audio": {
+		"menuclick": {
+			"ogg" : "assets/sfx/menuclick.ogg"
+		},
+		"menuclick2": {
+			"ogg": "assets/sfx/menuclick2.ogg"
+		},
+		"login": {
+			"ogg": "assets/sfx/login.ogg"
+		}
+	},
+	"json": {
+		"tileatlas": "assets/map/tiles.json",
+    	"objectatlas": "assets/map/objects.json",
+    	"wallatlas": "assets/map/walls.json"
+    }
+}

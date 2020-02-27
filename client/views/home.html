@@ -2,20 +2,22 @@
 	<div id="news">
 		<div id="logincontent">
 			<div id="inputs">
+				<form id="loginform"></form>
+
 				<div class="posttitle" style="margin-left: 10px; width: 190px; padding-top: 0px;">
 					<p class="titletext" style="">username</p>
 				</div>
-				<br>
-				<input type="text" id="username" class="textbox gameinput" autocomplete="new-password"></input>
+
+				<input type="text" id="username" form="loginform" class="textbox gameinput" autocomplete="new-password"></input>
 
 				<div class="posttitle" style="margin-left: 10px; width: 190px; padding-top: 0px;">
 					<p class="titletext" style="">password</p>
 				</div>
-				<br>
-				<input type="password" id="password" class="textbox gameinput" autocomplete="new-password"></input><br>
+
+				<input type="password" id="password" form="loginform"class="textbox gameinput" autocomplete="new-password"></input>
+				<input type="button" form="loginform" id="loginbutton" class="clickable"></input>
 			</div>
-			
-			<input type="button" id="loginbutton"></input>
+		
 		</div>
 
 		<div id="newsheader">
@@ -30,10 +32,12 @@
 				<p class="titletext">New Aeven v1.0</p>
 			</div>
 
-			<div class="postcontent" id="1">
-				<p class="subtext newstext">
-					Welcome to New Aeven! We are an in development MMORPG hoping to emulate the feel of old-school MMOs from the early 2000s. Join our discord server to stay up-to-date with new screenshots and snippets from the team!
+			<div class="postcontent" id="1" style="text-align: center">
+				<p class="subtext newstext" style="margin-bottom: 50px">
+					Welcome to New Aeven! Account registration has been enabled, feel free to create an account using the button below.
 				</p>
+
+				<button id="createbutton" class="clickable"></button>
 			</div>
 		</div>
 	</div>

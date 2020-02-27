@@ -1,44 +1,38 @@
 <!DOCTYPE HTML>
 <html lang="en">
 	<head>
-		<meta name="viewport" content="width=device-width,maximum-scale=1.0">
-		<title>New Aeven</title>
+		<meta name="description" content="A multi-platform isometric MMO based on the nostalgic MMO Endless Online.">
+		<meta name="robots" content="index, follow">
+		<title>New Aeven - Arena Beta</title>
 		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-		<link rel="stylesheet" type="text/css" href="css/main.css">
+		<meta charset="utf-8" />
+		<link rel="stylesheet" type="text/css" href="css/index.css">
 		<link rel="stylesheet" type="text/css" href="views/css/home.css">
+		<link rel="stylesheet" type="text/css" href="views/css/registration.css">
 		<link rel="stylesheet" type="text/css" href="views/css/charactercreation.css">
-		<link rel="stylesheet" type="text/css" href="views/css/register.css">
-		<link rel="stylesheet" type="text/css" href="views/css/uicontainer.css">
+		<link rel="stylesheet" type="text/css" href="views/css/characterselection.css">
 		<link rel="stylesheet" type="text/css" href="views/css/hotkeys.css">
-		<link rel="stylesheet" type="text/css" href="views/css/mainbuttons.css">
-		<link rel="stylesheet" type="text/css" href="views/css/settings.css">
-		<link rel="stylesheet" type="text/css" href="views/css/inventory.css">
 		<link rel="stylesheet" type="text/css" href="views/css/chat.css">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.21.0/phaser.min.js" integrity="sha256-rKsA3o0QRMbJHYIBPIAduhW5KbR4N4SqzBGpK4b1vBA=" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="	sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
 	</head>
-	
+
 	<body>
-		<div id="page">
-			<div id="header">
-				<div class="basicheader">
-					<p class="headertext">Welcome to New Aeven!</p>
-				</div>
-			</div>
+		<div id="container">
+			<div id="gamecanvas"></div>
+			<div id="views"></div>
 
-			<div id="cvs">
-				<div id="game_elements">
-					<div id="container">
-
-					</div>
-				</div>
-			</div>
-
+			<p class="servertext left" id="ipinfo">connected to (127.0.0.1:8443)</p>
+			<p class="servertext right" id="version">v1.0</p>
 		</div>
 
-		<script type="module" src="js/viewLoader.js"></script>
-		<script type="module" src="js/main.js"></script>
-		<script type="module" src="js/client.js"></script>
+		<script src="https://rawgit.com/kawanet/msgpack-lite/master/dist/msgpack.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/phaser/3.21.0/phase
+		r.min.js" integrity="sha256-rKsA3o0QRMbJHYIBPIAduhW5KbR4N4SqzBGpK4b1vBA=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js" integrity="sha256-KM512VNnjElC30ehFwehXjx1YCHPiQkOPmqnrWtpccM=" crossorigin="anonymous"></script>
+		<script src="/js/lib/primus.js"></script>
+
+		<script type="module" src="/js/main.js"></script>
+		<script type="module" src="/js/client.js"></script>
+		<script type="module" src="/js/game.js"></script>
 	</body>
 </html>
