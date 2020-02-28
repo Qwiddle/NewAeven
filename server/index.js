@@ -252,9 +252,9 @@ class Server {
 
 			const equipmentData = {
 				username: packet.username, 
-				armorID: '',
-				bootsID: '',
-				weaponID: '',
+				armorID: 0,
+				bootsID: 0,
+				weaponID: 0,
 			}
 
 			const onSuccess = () => {
@@ -363,8 +363,7 @@ class Server {
 
 		for (const key in this.worldManager.players) {
 			this.updatePlayer(this.worldManager.players[key], key);
-			const player = this.worldManager.players[key];
-			//this.worldManager.players[key].mapData = this.worldManager.dynamicMapData[player.map];
+			this.worldManager.players[key].mapData = this.worldManager.dynamicMapData[player.map];
 		}
 	}
 

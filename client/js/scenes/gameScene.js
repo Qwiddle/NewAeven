@@ -51,7 +51,7 @@ export default class GameScene extends Phaser.Scene {
         	y: this.client.game.player.targetPos.y,
         });
 
-        this.cameras.main.startFollow(this.player, true, 0.3, 0.3);
+        this.cameras.main.startFollow(this.player, true);
 	}
 
 	cullMap() {

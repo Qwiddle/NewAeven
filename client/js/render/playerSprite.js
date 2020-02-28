@@ -109,6 +109,13 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 			ease: 'Power2'
 		});
 
+		this.scene.tweens.add({
+			targets: this.chatBubbleText,
+			alpha: 0,
+			duration: 300,
+			ease: 'Power2'
+		});
+
 		this.chatBubble.fillStyle(0x402B00, 1);
 		this.chatBubble.fillRoundedRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth - 5, bubbleHeight, 4);
 		this.chatBubbleText.setPosition(4 + (-bubbleWidth / 2), 2 + (-bubbleHeight));
@@ -135,6 +142,13 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 
 			this.scene.tweens.add({
 				targets: this.chatBubble,
+				alpha: 0,
+				duration: 300,
+				ease: 'Power2'
+			});
+
+			this.scene.tweens.add({
+				targets: this.chatBubbleText,
 				alpha: 0,
 				duration: 300,
 				ease: 'Power2'
@@ -195,22 +209,22 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 			walkDown: { 
 				key: 'down',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
-				duration: 450,
+				duration: 400,
 			},
 			walkRight: {
 				key: 'right',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
-				duration: 450,
+				duration: 400,
 			},
 			walkLeft: {
 				key: 'left',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
-				duration: 450,
+				duration: 400,
 			},
 			walkUp: {
 				key: 'up',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
-				duration: 450,
+				duration: 400,
 			},
 			attackDown: {
 				key: 'attackDown',

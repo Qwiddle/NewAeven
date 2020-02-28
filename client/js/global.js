@@ -1,8 +1,8 @@
 const global = {
     //server settings
     numMaps: 1,
-    serverTick: 35,
-    physicsTick: 45,
+    serverTick: 20,
+    physicsTick: 40,
 
     //player settings
     startMapID: 0,
