@@ -30,7 +30,7 @@ export default class GameScene extends Phaser.Scene {
 		this.client.game.mapRenderer.drawMap();
     	this.cameras.main.fadeIn(750);
     	this.cameras.main.setZoom(1);
-    	this.cameras.main.setRoundPixels(true);
+    	this.cameras.main.setRoundPixels(false);
 
     	this.playerGroup = this.add.group();
     	//this.enemyGroup = this.add.group();
@@ -51,7 +51,7 @@ export default class GameScene extends Phaser.Scene {
         	y: this.client.game.player.targetPos.y,
         });
 
-        this.cameras.main.startFollow(this.player, true);
+        this.cameras.main.startFollow(this.player, false, 0.4 , 0.4);
 	}
 
 	cullMap() {

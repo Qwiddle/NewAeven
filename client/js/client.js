@@ -4,7 +4,7 @@ import Game from './game.js';
 export default class Client {
 	constructor() {
 		this.ip = {
-			address: '127.0.0.1',
+			address: 'ws://157.245.125.191',
 			port: '8443',
 		};
 

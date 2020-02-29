@@ -190,8 +190,10 @@ export default class MapRenderer {
 		});
 
 		sprite.on('pointerdown', (pointer) => {
-			if(pointer.button === 0) {
-				this.updateTileClickSpritePosition(sprite.x, sprite.y, sprite.isoX, sprite.isoY);
+			if(pointer.downElement.nodeName === 'CANVAS') {
+				if(pointer.button === 0) {
+					this.updateTileClickSpritePosition(sprite.x, sprite.y, sprite.isoX, sprite.isoY);
+				}
 			}
 		});
 	}

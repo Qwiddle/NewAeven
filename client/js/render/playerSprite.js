@@ -87,8 +87,9 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		}
 	}
 
-	drawChatBubble(width, height) {
+	drawChatBubble(width, height, text) {
 		this.chatBubble.destroy();
+		this.chatBubbleText.destroy();
 
 		let arrowRad = 2;
 		let bubbleWidth = width + arrowRad * 2
@@ -99,8 +100,19 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		this.bubble = this.scene.add.container();
 		this.chatBubble = this.scene.add.graphics();
 		this.chatBubble.setAlpha(0);
-
+		this.chatBubbleText = this.scene.add.text();
+		this.chatBubbleText.setFontFamily('Tahoma');
+		this.chatBubbleText.setFontSize(13);
 		this.bubble.depth = this.depth * 2;
+		this.chatBubble.fillStyle(0x402B00, 1);
+		this.chatBubble.fillRoundedRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth - 5, bubbleHeight, 4);
+		this.chatBubbleText.setText(text);
+		this.chatBubbleText.setPosition(4 + (-bubbleWidth / 2), 2 + (-bubbleHeight));
+		this.bubble.add(this.chatBubble);
+		this.bubble.add(this.chatBubbleText);
+		this.bubble.bringToTop(this.chatBubbleText);
+		this.bubble.y = -30;
+		this.bubble.x = 3;
 
 		this.scene.tweens.add({
 			targets: this.chatBubble,
@@ -111,19 +123,11 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 
 		this.scene.tweens.add({
 			targets: this.chatBubbleText,
-			alpha: 0,
+			alpha: 0.9,
 			duration: 300,
 			ease: 'Power2'
 		});
 
-		this.chatBubble.fillStyle(0x402B00, 1);
-		this.chatBubble.fillRoundedRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth - 5, bubbleHeight, 4);
-		this.chatBubbleText.setPosition(4 + (-bubbleWidth / 2), 2 + (-bubbleHeight));
-		this.bubble.add(this.chatBubble);
-		this.bubble.add(this.chatBubbleText);
-		this.bubble.bringToTop(this.chatBubbleText);
-		this.bubble.y = -30;
-		this.bubble.x = 3;
 		this.add(this.bubble);
 	}
 
@@ -177,14 +181,13 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 				newLineCount++;
 			}
 
-			let chatWidth = 2 * (Math.round((maxLength + 10) / 2));
+			let chatWidth = 2 * Math.round((maxLength + 10) / 2);
 			let chatHeight = 2 * Math.round((15 * newLineCount) / 2);
 
-			let bubbleWidth = chatWidth + 2 * 2
+			let bubbleWidth = chatWidth + 2 * 2;
 			let bubbleHeight = chatHeight * 2;
 
-			this.chatBubbleText.setText(finalStr);
-			this.drawChatBubble(chatWidth, chatHeight);
+			this.drawChatBubble(chatWidth, chatHeight, finalStr);
 		}
 	}
 

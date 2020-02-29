@@ -2,7 +2,7 @@ export default class InputManager {
 	constructor(client) {
 		this.keys = [];
 		this.keyTimer = 0;
-		this.keyDelay = 20; //ms between keypress events
+		this.keyDelay = 40; //ms between keypress events
 
 		this.client = client;
 		this.game = this.client.game;
