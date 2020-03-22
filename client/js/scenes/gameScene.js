@@ -4,6 +4,7 @@ import PlayerSprite from '../render/playerSprite.js';
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'game'});
+		this.sprites = [];
 	}
 
 	init(data) {
@@ -14,11 +15,27 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	update() {
-   		this.playerGroup.children.entries.forEach((sprite) => {
+        this.cullMap();
+
+        for(let key in this.client.game.players) {
+        	if(this.sprites.hasOwnProperty(key)) {
+        		//console.log('exists');
+        	} else {
+        		let player = new PlayerSprite({
+	        		scene: this,
+	        		key: 'base_0_0',
+	        		player: this.client.game.players[key],
+	        		x: this.client.game.players[key].targetPos.x,
+	        		y: this.client.game.players[key].targetPos.y,
+	        	});
+
+	        	this.sprites[key] = player;
+        	}
+        }
+
+        this.playerGroup.children.entries.forEach((sprite) => {
         	sprite.update();
         });
-
-        this.cullMap();
     }
 
 	create() {
@@ -26,11 +43,12 @@ export default class GameScene extends Phaser.Scene {
 		this.sound.play('login');
 
 		this.client.game.clientController.addKeyListeners();
+		this.client.game.scene = this;
 
 		this.client.game.mapRenderer.drawMap();
     	this.cameras.main.fadeIn(750);
     	this.cameras.main.setZoom(1);
-    	this.cameras.main.setRoundPixels(false);
+    	this.cameras.main.setRoundPixels(true);
 
     	this.playerGroup = this.add.group();
     	//this.enemyGroup = this.add.group();
@@ -51,7 +69,8 @@ export default class GameScene extends Phaser.Scene {
         	y: this.client.game.player.targetPos.y,
         });
 
-        this.cameras.main.startFollow(this.player, false, 0.4 , 0.4);
+        this.cameras.main.startFollow(this.player, true, 0.4 , 0.4);
+        this.sound.pauseOnBlur = false;
 	}
 
 	cullMap() {

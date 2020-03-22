@@ -5,6 +5,7 @@ import LoadScene from './scenes/loadScene.js';
 import HomeScene from './scenes/homeScene.js';
 import GameScene from './scenes/gameScene.js';
 import Player from './entity/player.js';
+import PlayerSprite from './render/playerSprite.js';
 import PlayerController from './entity/playerController.js';
 import ClientController from './clientController.js';
 import ChatManager from './util/chatManager.js';
@@ -319,6 +320,7 @@ export default class Game {
 
 	createNewPlayer(key, packet, map) {
 		this.players[key] = new Player();
+		this.players[key].id = key;
 		this.players[key].map = map;
 		this.players[key].prevPos.x = packet[key].pos.x;
 		this.players[key].prevPos.y = packet[key].pos.y;
@@ -331,6 +333,7 @@ export default class Game {
 		this.players[key].hair = packet[key].hair;
 
 		PlayerController.updateTargetPos(this.players[key]);
+
 	}
 
 	sendMessage(message) {

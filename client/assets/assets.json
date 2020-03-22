@@ -16,6 +16,9 @@
 		},
 		"login": {
 			"ogg": "assets/sfx/login.ogg"
+		},
+		"attack": {
+			"wav": "assets/sfx/attack_blank.wav"
 		}
 	},
 	"json": {

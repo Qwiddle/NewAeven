@@ -3,46 +3,50 @@ import global from '../global.js';
 export default class PlayerSprite extends Phaser.GameObjects.Container {
 	constructor(config) {
 		super(config.scene, config.x, config.y);
+
 		this.scene = config.scene;
 		this.scene.add.existing(this);
-
 		this.player = config.player;
 		this.name = this.player.username;
 		this.sex = this.player.sex;
 		this.race = this.player.race;
-
 		this.entity = this.scene.add.sprite(0, 0, 'base_' + this.player.sex + '_' + this.player.race);
-
-		this.setSize(this.entity.width, this.entity.width);
-		this.entity.depth = this.player.targetPos.y + 128;
-
-		this.addAnimations();
-
 		this.player.isMoving = false;
 		this.player.isAttacking = false;
 		this.player.positionUpdated = false;
 		this.bubble = this.scene.add.container();
 		this.chatBubbleText = this.scene.add.text();
 		this.chatBubble = this.scene.add.graphics();
-
 		this.chatBubbleText.setFontFamily('Tahoma');
 		this.chatBubbleText.setFontSize(13);
+		this.nameText = this.scene.add.text(0, -40).setOrigin(0.5);
+		this.nameText.setFontFamily('Tahoma');
+		this.nameText.setFontSize(13);
 
 		this.add(this.entity);
-
 		this.scene.playerGroup.add(this);
+		this.setSize(this.entity.width, this.entity.width);
+		this.addAnimations();
+		this.addHover();
 	}
 
 	update() {
 		this.depth = this.y + this.height;
-		this.interpolate();
+
+		if(!this.player.isMoving) {
+			this.interpolate();
+
+			if(this.player.isAttacking) {
+				this.attack();
+			}
+		}
+	
 		this.updateChat();
 	}
 
 	interpolate() {	
 		if(!this.player.isMoving) {
 			if(this.player.targetPos.x != this.x || this.player.targetPos.y != this.y) {
-				this.player.isMoving = true;
 				if (this.left()) {
 					this.entity.flipX = false;
 					this.entity.play('left');
@@ -57,6 +61,7 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 					this.entity.play('down');
 				}
 
+				this.player.isMoving = true;
 				this.tween = this.scene.tweens.add({
 					targets: this,
 					x: this.player.targetPos.x,
@@ -70,21 +75,26 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 					}
 				});
 			} else {
-				if (this.player.dir == global.direction.staticDown ||
-					this.player.dir == global.direction.staticLeft ||
-					this.player.dir == global.direction.down ||
-					this.player.dir == global.direction.left) {
-					this.entity.flipX = false;
-				} else if (this.player.dir == global.direction.staticRight ||
-					this.player.dir == global.direction.staticUp ||
-					this.player.dir == global.direction.up ||
-					this.player.dir == global.direction.right) {
-					this.entity.flipX = true;
-				}
-
 				this.entity.setFrame(this.dirFrame[this.player.dir]);
 			}
 		}
+	}
+
+	attack() {
+		this.player.isAttacking = true;
+		this.player.isMoving = true;
+
+		if(this.player.dir == global.direction.left) {
+			this.entity.play('attackLeft');
+		} else if(this.player.dir == 1) {
+			this.entity.play('attackRight');
+		} else if(this.player.dir == 2) {
+			this.entity.play('attackUp');
+		} else if(this.player.dir == 3) {
+			this.entity.play('attackDown');
+		}
+		
+		this.scene.sound.play('attack');
 	}
 
 	drawChatBubble(width, height, text) {
@@ -95,15 +105,15 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		let bubbleWidth = width + arrowRad * 2
 		let bubbleHeight = height + arrowRad * 2;
 		let curr = {x: width / 2, y: height + arrowRad};
-		const cornerLength = 2;
+		let cornerLength = 2;
 
 		this.bubble = this.scene.add.container();
 		this.chatBubble = this.scene.add.graphics();
-		this.chatBubble.setAlpha(0);
 		this.chatBubbleText = this.scene.add.text();
+
+		this.chatBubble.setAlpha(0);
 		this.chatBubbleText.setFontFamily('Tahoma');
 		this.chatBubbleText.setFontSize(13);
-		this.bubble.depth = this.depth * 2;
 		this.chatBubble.fillStyle(0x402B00, 1);
 		this.chatBubble.fillRoundedRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth - 5, bubbleHeight, 4);
 		this.chatBubbleText.setText(text);
@@ -111,6 +121,7 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		this.bubble.add(this.chatBubble);
 		this.bubble.add(this.chatBubbleText);
 		this.bubble.bringToTop(this.chatBubbleText);
+		this.bubble.depth = this.depth * 2;
 		this.bubble.y = -30;
 		this.bubble.x = 3;
 
@@ -137,13 +148,6 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 			this.chatIsVisible = true;
 			this.updateChatBubble();
 		} else if (Date.now() > this.player.messageDelay) {
-			this.scene.tweens.add({
-				targets: this.bubble,
-				alpha: 0,
-				duration: 300,
-				ease: 'Power2'
-			});
-
 			this.scene.tweens.add({
 				targets: this.chatBubble,
 				alpha: 0,
@@ -191,6 +195,14 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		}
 	}
 
+	animComplete(animation, frame) {
+		if(animation.key === 'attackDown' || animation.key === 'attackRight' || animation.key === 'attackLeft' || animation.key === 'attackUp') {
+			this.player.isAttacking = false;
+			this.player.isMoving = false;
+			this.entity.setFrame(this.dirFrame[this.player.dir]);
+		}
+	}
+
 	left() {
 		return this.player.targetPos.x < this.x && this.player.targetPos.y < this.y;
 	}
@@ -232,22 +244,22 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 			attackDown: {
 				key: 'attackDown',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
-				duration: 500,
+				duration: 400,
 			},
 			attackRight: {
 				key: 'attackRight',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
-				duration: 500,
+				duration: 400,
 			},
 			attackLeft: {
 				key: 'attackLeft',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
-				duration: 500,
+				duration: 400,
 			},
 			attackUp: {
 				key: 'attackUp',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
-				duration: 500,
+				duration: 400,
 			},
 		}
 
@@ -260,7 +272,10 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		this.scene.anims.create(this.animations.attackLeft);
 		this.scene.anims.create(this.animations.attackUp);
 
+		this.entity.on('animationcomplete', this.animComplete, this);
+
 		this.initDirFrames();
+		this.initAttackFrames();
 	}
 
 	initDirFrames() {
@@ -274,6 +289,37 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		this.dirFrame[global.direction.down] = 0;
 		this.dirFrame[global.direction.staticDown] = 0;
 		this.dirFrame[global.direction.none] = 0;
+	}
+
+	initAttackFrames() {
+		this.attackFrame = new Array(9);
+		this.attackFrame[global.direction.left] = 'attackLeft';
+		this.attackFrame[global.direction.staticLeft] = 'attackLeft';
+		this.attackFrame[global.direction.right] = 'attackDown';
+		this.attackFrame[global.direction.staticRight] = 'attackDown';
+		this.attackFrame[global.direction.up] = 'attackLeft';
+		this.attackFrame[global.direction.staticUp] = 'attackLeft';
+		this.attackFrame[global.direction.down] = 'attackDown'
+		this.attackFrame[global.direction.staticDown] = 'attackDown';
+		this.attackFrame[global.direction.none] = 'attackDown';
+	}
+
+	addHover() {
+		this.add(this.nameText);
+		this.nameText.setText(this.player.username);
+		this.nameText.setVisible(false);
+
+		this.entity.setInteractive({
+			pixelPerfect: true
+		});
+
+		this.entity.on('pointerover', (pointer) => {
+			this.nameText.setVisible(true);
+		});
+
+		this.entity.on('pointerout', (pointer) => {
+			this.nameText.setVisible(false);
+		});
 	}
 
 	removeFromScene() {
