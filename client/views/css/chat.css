@@ -24,19 +24,16 @@
 	height: 130px;
 	float: left;
 	margin-left: 15px;
+
 }
 
 #chat #chatarea #textarea {
-	width: 420px;
+	width: 410px;
 	height: 97px;
 	text-align: left;
+	overflow-y: scroll;
 }
 
-#chat #chatarea #publicmsg {
-	width: 95%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.1);
-}
 
 #chat #chatarea #inputbox {
 	width: 403px;
@@ -48,9 +45,8 @@
 	height: 14px;
 	border: none;
 	margin-left: 2px;
-	margin-top: 0px;
 	background: none;
-	color: 	#F5DEB3;
+	color: #FAF2E3;
 }
 
 #chat #chatarea #chatinput::selection {
@@ -58,7 +54,49 @@
 }
 
 .chattext {
-	font-size: 14px;
+	font-size: 12px;
 	font-family: 'Arial';
-	color: #f2dcb3;
+	color: #fffaf0;
+	float: left;
+	cursor: default;
+	max-width: 300px;
+}
+
+.username {
+	font-size: 12px;
+	font-family: 'Arial';
+	color: #FFFFFF;
+	font-weight: bold;
+	float: left;
+	cursor: default;
+	text-shadow:
+		1px 2px 0 #000,
+		-1px -1px 0 #000,  
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		1px 1px 0 #000;
+}
+
+.username:hover {
+	text-shadow: 0 0 5px #FAF2E3;
+}
+
+.indicator {
+	width: 13px;
+	height: 13px;
+	background-image: url('../../assets/game/icon/indicators.png');
+	float: left;
+	margin-right: 4px;
+}
+
+.chatmsg {
+	display: block;
+}
+
+::-webkit-scrollbar {
+	width: 4px;
+}
+ 
+::-webkit-scrollbar-thumb {
+	background: #000; 
 }

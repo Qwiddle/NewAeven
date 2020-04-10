@@ -11,8 +11,11 @@ const global = require('../client/js/global.js').default;
 const DatabaseManager = require('./util/databaseManager.js').default;
 const WorldManager = require('./util/worldManager.js').default;
 const MapManager = require('./util/mapManager.js').default;
+const CombatManager = require('./util/combatManager.js').default;
 const Player = require('../client/js/entity/player.js').default;
+const Enemy = require('../client/js/entity/Enemy.js').default;
 const PlayerController = require('../client/js/entity/PlayerController.js').default;
+const EnemyController = require('../client/js/entity/EnemyController.js').default;
 
 class Server {
 	constructor() {
@@ -361,9 +364,15 @@ class Server {
 			this.worldManager.dynamicMapData[i] = this.worldManager.mapData[i];
 		}
 
+		for(let i = 0; i < this.worldManager.enemies[0].length; i++) {
+			this.worldManager.enemies[0][i].mapData = this.worldManager.dynamicMapData[0];
+			EnemyController.update(this.worldManager.enemies[0][i]);
+			//this.worldManager.enemies[0][i].mapData[enemy.pos.x][enemy.pos.y] = global.tile.enemy;
+		}
+
 		for (const key in this.worldManager.players) {
 			this.updatePlayer(this.worldManager.players[key], key);
-			this.worldManager.players[key].mapData = this.worldManager.dynamicMapData[player.map];
+			//this.worldManager.players[key].mapData = this.worldManager.dynamicMapData[this.worldManager.players[key].map];
 		}
 	}
 
@@ -418,7 +427,7 @@ class Server {
 
 		if (PlayerController.pressedKey(player)) {
 			if (PlayerController.hasAttacked(player)) {
-			   // this.handleCombat(player, id);
+			   this.handleCombat(player, id);
 			} else if (!PlayerController.hasRotated(player)) {
 				player.lastMoveTime = Date.now();
 			}
@@ -458,7 +467,7 @@ class Server {
 			};
 			
 			this.worldManager.players[key].message = "";
-			this.worldManager.players[key].processedPackets = []
+			this.worldManager.players[key].processedPackets = [];
 		}
 	
 		return packet;
@@ -489,14 +498,23 @@ class Server {
 
 	serverUpdate() {
 		this.dbManager.saveWorldState(this.worldManager);
+
 		let packet = this.bundleServerPacket();
-		const disconnects = this.getDisconnects();
+		let ePackets = this.bundleEnemyPackets();
+		let disconnects = this.getDisconnects();
+
+		//this.removeDeadEnemies();
 
 		this.primus.forEach((socket, id, connections) => {
-			if(!socket.authenticated) { return; }
+			if(!socket.authenticated) { 
+				return;
+			}
 
 			let player = this.worldManager.players[id];	
-			if(typeof player === 'undefined') { return; }
+
+			if(typeof player === 'undefined') { 
+				return;
+			}
 			
 			const bundledPacket = {
 				event: 'serverUpdate',
@@ -504,6 +522,7 @@ class Server {
 				disconnects: disconnects[player.map],
 				map: player.map,
 				mapData: this.worldManager.dynamicMapData[player.map],
+				enemies: ePackets[player.map],
 				moves: packet[player.map],
 				equipment: player.equipment,
 				stats: player.stats,
@@ -516,6 +535,125 @@ class Server {
 		});
 
 		this.worldManager.clearMessages();
+	}
+
+	spawnEnemies(numEnemies, map) {
+		this.worldManager.numEnemiesSpawned = 0;
+		this.worldManager.enemySpawnInterval = setInterval(() => this.spawnEnemy(numEnemies, map), 1000);
+	}
+
+	spawnEnemy(numEnemies, map) {
+		let enemy = new Enemy(map, this.worldManager.dynamicMapData[map], uuid());
+
+		//hard coded temporarily
+		enemy.prevPos = {x: 5, y: 2};
+		enemy.pos = {x: 5, y: 2};
+		EnemyController.updateTargetPos(enemy);
+
+		this.worldManager.enemies[map].push(enemy);
+		this.worldManager.numEnemiesSpawned++;
+	}
+
+	getEnemiesTargettingPlayer(id, map) {
+		for(let i = 0; i < this.worldManager.enemies[map].length; i++) {
+			if(this.worldManager.enemies[map][i].targetId === id) {
+				this.worldManager.enemies[map][i].target = {};
+				this.worldManager.enemies[map][i].targetId = "";
+			}
+		}
+	}
+
+	findPlayerAtCoordinate(coord, map) {
+		for (let key in this.worldManager.players) {
+			let player = this.worldManager.players[key];
+
+			if (player.map == map && player.pos.x == coord.x && player.pos.y == coord.y) {
+				console.log("hit!");
+				break;
+			}
+		}
+	}
+	
+	findEnemyAtCoord(coord, map) {
+		for (let i = 0; i < this.worldManager.enemies[map].length; i++) {
+			let enemy = this.worldManager.enemies[map][i];
+
+			if (EnemyController.positionEquals(enemy.pos, coord) && !enemy.inCombat) {
+				return enemy;
+			}
+		}
+
+		return null;
+	}
+
+	getAttackCoordinate(player) {
+		let pos = {x: 0, y: 0};
+
+		switch (player.dir) {
+			case 0: // left
+				pos = {x: player.pos.x - 1, y: player.pos.y};
+				break;
+			case 1: // right
+				pos = {x: player.pos.x + 1, y: player.pos.y};
+				break;
+			case 2: // up
+				pos = {x: player.pos.x, y: player.pos.y - 1};
+				break;
+			case 3: // down
+				pos = {x: player.pos.x, y: player.pos.y + 1};
+				break;
+			default:
+				return null;
+		}
+		
+		return pos;
+	}
+
+	handleCombat(player, id) {
+		player.lastMoveTime = Date.now();
+		let coord = this.getAttackCoordinate(player);
+
+		if(coord != undefined) {
+			let enemy = this.findEnemyAtCoord(coord, player.map);
+			if (enemy != null) {
+				CombatManager.attack(player, enemy);
+				EnemyController.setTarget(enemy, player, id);
+				enemy.packets.push(EnemyController.buildStatsPacket(enemy));
+			}
+		}
+	}
+
+	removeDeadEnemies() {
+		for(let i = 0; i < global.numMaps; i++) {
+			for(let j = 0; j < this.worldManager.enemies[i].length; j++) {
+				let enemy = this.worldManager.enemies[i][j];
+
+				if(CombatManager.isDead(enemy)) {
+					//drop item
+					this.worldManager.enemies[i].splice(j, 1);
+				}
+			}
+		}
+	}
+
+	bundleEnemyPackets() {
+		let packets = [];
+
+		for(let i = 0; i < global.numMaps; i++) {
+			packets[i] = {};
+
+			for(let j = 0; j < this.worldManager.enemies[i].length; j++) {
+				let enemy = this.worldManager.enemies[i][j];	
+				packets[i][enemy.eid] = this.worldManager.enemies[i][j].packets.slice();
+				this.worldManager.enemies[i][j].packets.splice(0, this.worldManager.enemies[i][j].packets.length);
+			}
+
+			return packets;
+		}
+	}
+
+	getDistance(x1, y1, x2, y2) {
+		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
 	removeTags(value) {

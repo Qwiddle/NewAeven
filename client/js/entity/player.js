@@ -26,7 +26,7 @@ export default class Player {
 
 		this.lastMoveTime = 0;
 		this.walkTime = 450;
-		this.attackTime = 500;
+		this.attackTime = 450;
 		this.dir = 0;
 	}
 

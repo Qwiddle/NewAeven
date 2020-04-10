@@ -1,10 +1,12 @@
 import MapRenderer from '../render/mapRenderer.js';
 import PlayerSprite from '../render/playerSprite.js';
+import EnemySprite from '../render/enemySprite.js';
 
 export default class GameScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'game'});
 		this.sprites = [];
+		this.enemies = [];
 	}
 
 	init(data) {
@@ -12,78 +14,104 @@ export default class GameScene extends Phaser.Scene {
 	}
 
 	preload() {
+
 	}
 
 	update() {
-        this.cullMap();
+		this.cullMap();
+		this.updateSprites();
+	}
 
-        for(let key in this.client.game.players) {
-        	if(this.sprites.hasOwnProperty(key)) {
-        		//console.log('exists');
-        	} else {
-        		let player = new PlayerSprite({
-	        		scene: this,
-	        		key: 'base_0_0',
-	        		player: this.client.game.players[key],
-	        		x: this.client.game.players[key].targetPos.x,
-	        		y: this.client.game.players[key].targetPos.y,
-	        	});
+	updateSprites() {
+		this.updatePlayers();
+		this.updateEnemies();
+	}
 
-	        	this.sprites[key] = player;
-        	}
-        }
+	updatePlayers() {
+		this.playerGroup.children.entries.forEach((sprite) => {
+			sprite.update();
+		});
 
-        this.playerGroup.children.entries.forEach((sprite) => {
-        	sprite.update();
-        });
-    }
+		for(let key in this.client.game.players) {
+			if(this.client.game.sprites.hasOwnProperty(key)) {
+				//console.log('exists');
+			} else {
+				let player = new PlayerSprite({
+					scene: this,
+					key: 'base_0_0',
+					player: this.client.game.players[key],
+					x: this.client.game.players[key].targetPos.x,
+					y: this.client.game.players[key].targetPos.y,
+				});
 
+				this.client.game.sprites[key] = player;
+			}
+		}
+	}
+
+	updateEnemies() {
+		this.enemyGroup.children.entries.forEach((enemy) => {
+			enemy.update();
+		});
+
+		for (let key in this.client.game.enemies) {
+			console.log(this.client.game.enemies[key])
+			if (this.enemies.hasOwnProperty(key)) {
+				//exists
+			} else {
+				this.enemies[key] = new EnemySprite({
+					scene: this,
+					key: this.client.game.enemies[key].type,
+					enemy: this.client.game.enemies[key],
+					x: this.client.game.enemies[key].targetPos.x,
+					y: this.client.game.enemies[key].targetPos.y,
+				});
+			}
+		}
+	}
+		
 	create() {
 		this.client.game.mapRenderer = new MapRenderer(this, this.client.game.player.mapJson);
+		this.client.game.mapRenderer.drawMap();
+		this.client.game.clientController.addKeyListeners();
+
+		this.cameras.main.fadeIn(450);
+
+		this.playerGroup = this.add.group();
+		this.enemyGroup = this.add.group();
+
+		this.player = new PlayerSprite({
+			scene: this,
+			key: 'base_0_0',
+			player: this.client.game.player,
+			x: this.client.game.player.targetPos.x,
+			y: this.client.game.player.targetPos.y,
+		});
+
+		this.cameras.main.startFollow(this.player, true, 0.45, 0.45);
+		this.sound.pauseOnBlur = false;
 		this.sound.play('login');
 
-		this.client.game.clientController.addKeyListeners();
-		this.client.game.scene = this;
-
-		this.client.game.mapRenderer.drawMap();
-    	this.cameras.main.fadeIn(750);
-    	this.cameras.main.setZoom(1);
-    	this.cameras.main.setRoundPixels(true);
-
-    	this.playerGroup = this.add.group();
-    	//this.enemyGroup = this.add.group();
-
-    	this.game.events.on('hidden', function() {
-    		//hidden
+		this.game.events.on('hidden', function() {
+			//hidden
 		}, this);
 
 		this.game.events.on('visible', function() {
-    		//catch up
+			//catch up
 		}, this);
-
-        this.player = new PlayerSprite({
-        	scene: this,
-        	key: 'base_0_0',
-        	player: this.client.game.player,
-        	x: this.client.game.player.targetPos.x,
-        	y: this.client.game.player.targetPos.y,
-        });
-
-        this.cameras.main.startFollow(this.player, true, 0.4 , 0.4);
-        this.sound.pauseOnBlur = false;
 	}
 
 	cullMap() {
-    	let children = this.children.getChildren();
+		let children = this.children.getChildren();
 
-	    for (let child of children)
-	        child.visible = false;
+		for (let child of children)
+			child.visible = false;
 
-	    let visible = this.cameras.main.cull(children);
-	    
-	    for (let child of visible)
-	        child.visible = true;
-    }
+		let visible = this.cameras.main.cull(children);
+		
+		for (let child of visible)
+			child.visible = true;
+	}
 
 	mouseEvent(sprite, pointer) {
 

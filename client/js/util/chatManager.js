@@ -27,8 +27,8 @@ export default class ChatManager {
 		return value.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 	}
 
-	appendToPublic(msg) {
-		$('<p class="chattext">' + msg + '</p>').appendTo("#publicmsg");
+	appendToPublic(player, msg) {
+		$('<div class="chatmsg"><div class="indicator"></div><p class="username">' + player + ':&nbsp;</p><p class="chattext">' + msg + '</p></div').appendTo("#textarea");
 	}
 
 	appendToGlobal(msg) {
@@ -36,22 +36,23 @@ export default class ChatManager {
 	}
 
 	scrollPublic() {
-		let glb = document.getElementById("publicmsg");
-		glb.scrollTop = glb.scrollHeight + 3;
+		let glb = document.getElementById("textarea");
+		glb.scrollTop = glb.scrollHeight + 4;
 	}
 
 	scrollGlobal() {
 		let glb = document.getElementById("globalmsg");
-		glb.scrollTop = glb.scrollHeight + 3;
+		glb.scrollTop = glb.scrollHeight + 4;
 	}
 
 	updateChat(messages) {
 		while (messages.length > 0) {
 			const msg = messages.shift();
-			const formattedMsg = msg.username + ": " + msg.value;
+			const formattedMsg = msg.value;
+			const playerName = msg.username;
 
 			if (msg.state == global.chatState.public) {
-				this.appendToPublic(formattedMsg);
+				this.appendToPublic(playerName, formattedMsg);
 				this.scrollPublic();
 			} else if (msg.state == global.chatState.global) {
 				this.appendToGlobal(formattedMsg);

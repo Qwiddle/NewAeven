@@ -9,9 +9,9 @@ export default class LoadScene extends Phaser.Scene {
 	}
 
 	preload() {
-		this.load.atlas('objects', 'assets/map/objects.png', 'assets/map/objects.json');
+		this.load.multiatlas('objects', 'assets/map/objects.json');
 		this.load.atlas('walls', 'assets/map/walls.png', 'assets/map/walls.json');
-		this.load.atlas('tiles', 'assets/map/tiles.png', 'assets/map/tiles.json');
+		this.load.multiatlas('tiles', 'assets/map/tiles.json');
 		this.loadAssets(this.cache.json.get('assets'));
 		this.label = this.add.text((this.scale.width / 2), (this.scale.height / 2), 'Loading...', { fontFamily: 'Verdana', align: 'center' });
 		this.label.setOrigin(0.5);

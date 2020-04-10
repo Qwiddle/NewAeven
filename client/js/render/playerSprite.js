@@ -22,6 +22,8 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		this.nameText = this.scene.add.text(0, -40).setOrigin(0.5);
 		this.nameText.setFontFamily('Tahoma');
 		this.nameText.setFontSize(13);
+		this.nameText.setStroke('#000', 3)
+		this.cameraDolly = new Phaser.Geom.Point(this.x, this.y);
 
 		this.add(this.entity);
 		this.scene.playerGroup.add(this);
@@ -31,13 +33,25 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 	}
 
 	update() {
-		this.depth = this.y + this.height;
+		this.cameraDolly.x = Math.floor(this.x);
+   		this.cameraDolly.y = Math.floor(this.y);
+		this.depth = (this.y + this.height) + 64;
 
-		if(!this.player.isMoving) {
-			this.interpolate();
+		/*if(this.player.isAttacking) {
+			this.player.isMoving = true;
+			this.player.isAttacking = false;
+			this.attack();
+		} else*/ if(!this.player.isMoving) {
+			if(this.player.targetPos.x != this.x || this.player.targetPos.y != this.y) {
+				this.interpolate();
+			} else {
+				if(this.player.dir == global.direction.left || global.direction.staticLeft || this.player.dir == global.direction.down || this.player.dir == global.direction.staticDown) {
+					this.flipX = false;
+				} else if(this.player.dir == global.direction.right || this.player.dir == global.direction.staticRight || this.player.dir == global.direction.up || this.player.dir == global.direction.staticUp) {
+					this.flipX = true;
+				}
 
-			if(this.player.isAttacking) {
-				this.attack();
+				this.entity.setFrame(this.dirFrame[this.player.dir]);
 			}
 		}
 	
@@ -45,52 +59,44 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 	}
 
 	interpolate() {	
-		if(!this.player.isMoving) {
-			if(this.player.targetPos.x != this.x || this.player.targetPos.y != this.y) {
-				if (this.left()) {
-					this.entity.flipX = false;
-					this.entity.play('left');
-				} else if (this.right()) {
-					this.entity.flipX = true;
-					this.entity.play('right');
-				} else if (this.up()) {
-					this.entity.flipX = true;
-					this.entity.play('up');
-				} else if (this.down()) {
-					this.entity.flipX = false;
-					this.entity.play('down');
-				}
-
-				this.player.isMoving = true;
-				this.tween = this.scene.tweens.add({
-					targets: this,
-					x: this.player.targetPos.x,
-					y: this.player.targetPos.y,
-					duration: this.player.walkTime,
-					ease: 'Linear',
-					onComplete: () => {  
-						this.entity.setFrame(this.dirFrame[this.player.dir]);
-						this.player.isMoving = false;
-						this.positionUpdated = false;
-					}
-				});
-			} else {
-				this.entity.setFrame(this.dirFrame[this.player.dir]);
-			}
+		this.player.isMoving = true;
+		this.entity.anims.stop();
+			
+		if (this.left()) {
+			this.entity.flipX = false;
+			this.entity.play('left');
+		} else if (this.right()) {
+			this.entity.flipX = true;
+			this.entity.play('right');
+		} else if (this.up()) {
+			this.entity.flipX = true;
+			this.entity.play('up');
+		} else if (this.down()) {
+			this.entity.flipX = false;
+			this.entity.play('down');
 		}
+
+		this.tween = this.scene.tweens.add({
+			targets: this,
+			x: this.player.targetPos.x,
+			y: this.player.targetPos.y,
+			duration: this.player.walkTime,
+			ease: 'Power0',
+			onComplete: () => {  
+				this.player.isMoving = false;
+				this.positionUpdated = false;
+			}
+		});
 	}
 
 	attack() {
-		this.player.isAttacking = true;
-		this.player.isMoving = true;
-
 		if(this.player.dir == global.direction.left) {
 			this.entity.play('attackLeft');
-		} else if(this.player.dir == 1) {
+		} else if(this.player.dir == global.direction.right) {
 			this.entity.play('attackRight');
-		} else if(this.player.dir == 2) {
+		} else if(this.player.dir == global.direction.up) {
 			this.entity.play('attackUp');
-		} else if(this.player.dir == 3) {
+		} else if(this.player.dir == global.direction.down) {
 			this.entity.play('attackDown');
 		}
 		
@@ -118,10 +124,10 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		this.chatBubble.fillRoundedRect(-bubbleWidth / 2, -bubbleHeight, bubbleWidth - 5, bubbleHeight, 4);
 		this.chatBubbleText.setText(text);
 		this.chatBubbleText.setPosition(4 + (-bubbleWidth / 2), 2 + (-bubbleHeight));
-		this.bubble.add(this.chatBubble);
 		this.bubble.add(this.chatBubbleText);
+		this.bubble.add(this.chatBubble);
+		
 		this.bubble.bringToTop(this.chatBubbleText);
-		this.bubble.depth = this.depth * 2;
 		this.bubble.y = -30;
 		this.bubble.x = 3;
 
@@ -224,42 +230,42 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 			walkDown: { 
 				key: 'down',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
-				duration: 400,
+				duration: 450,
 			},
 			walkRight: {
 				key: 'right',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 2, end: 5}),
-				duration: 400,
+				duration: 450,
 			},
 			walkLeft: {
 				key: 'left',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
-				duration: 400,
+				duration: 450,
 			},
 			walkUp: {
 				key: 'up',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 6, end: 9}),
-				duration: 400,
+				duration: 450,
 			},
 			attackDown: {
 				key: 'attackDown',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
-				duration: 400,
+				duration: 450,
 			},
 			attackRight: {
 				key: 'attackRight',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
-				duration: 400,
+				duration: 450,
 			},
 			attackLeft: {
 				key: 'attackLeft',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
-				duration: 400,
+				duration: 450,
 			},
 			attackUp: {
 				key: 'attackUp',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
-				duration: 400,
+				duration: 450,
 			},
 		}
 
@@ -325,5 +331,6 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 	removeFromScene() {
 		this.scene.playerGroup.remove(this);
 		this.destroy();
+		this.remove();
 	}
 }

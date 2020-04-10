@@ -28,19 +28,20 @@ export default class MapRenderer {
 
 		let tileSprite = this.scene.add.image(iCoord, jCoord, 'tiles', id + ".png").setInteractive({
 			pixelPerfect: true
-		}).setOrigin(0.5);
+		});
 
 		tileSprite.isoX = x;
 		tileSprite.isoY = y;
 
 		tileSprite.depth = 0;
+		tileSprite.setOrigin(0.5);
 
 		this.addMouseListeners(tileSprite);
 		this.tileGroup.add(tileSprite, true);
 	}
 
 	drawWall(x, y, offx, offy, id) {
-		let wallSprite = this.scene.add.image(0, 0, 'walls', id + ".png").setOrigin(0.5);
+		let wallSprite = this.scene.add.image(0, 0, 'walls', id + ".png");
 
 		const tileWidthHalf = this.tileWidth / 2;
 		const tileHeightHalf = this.tileHeight / 2;
@@ -48,19 +49,18 @@ export default class MapRenderer {
 		const wallWidth = wallSprite.width;
 
 		const depthY = this.isoToCartesian(x, y).y + wallHeight / 2;
-		console.log(id);
 
 		const iCoord = ((y - x) * tileWidthHalf) - wallWidth / 2 + offx;
 		const jCoord = ((y + x) * tileHeightHalf) - wallHeight / 2 + this.tileHeight + 16;
 
 		wallSprite.depth = jCoord + wallHeight;
 		wallSprite.x = iCoord;
-		wallSprite.y = jCoord;
+		wallSprite.y = Math.floor(jCoord);
 		this.wallGroup.add(wallSprite);
 	}
 
 	drawObject(x, y, offx, offy, id) {
-		let objectSprite = this.scene.add.image(0, 0, 'objects', id + ".png").setOrigin(0.5);
+		let objectSprite = this.scene.add.image(0, 0, 'objects', id + ".png");
 
 		const tileWidthHalf = this.tileWidth / 2;
 		const tileHeightHalf = this.tileHeight / 2;
@@ -68,17 +68,18 @@ export default class MapRenderer {
 		const objectWidth = objectSprite.width;
 
 		const iCoord = ((y - x) * tileWidthHalf);
-		const jCoord = ((y + x) * tileHeightHalf) - objectHeight / 2 + this.tileHeight + 16;
+		const jCoord = ((y + x) * tileHeightHalf) - Math.floor(objectHeight / 2) + this.tileHeight + 16;
 
 		if(objectHeight >= 165)
 			objectHeight = 165;
 
-		let depthY = jCoord + objectHeight
+		let depthY = jCoord + objectHeight;
 
 		objectSprite.depth = depthY;
 		objectSprite.x = iCoord;
 		objectSprite.y = jCoord;
 		this.objectGroup.add(objectSprite);
+
 	}
 
 	drawMap() {
@@ -88,7 +89,6 @@ export default class MapRenderer {
 			for(let j = 0; j < this.mapWidth; j++) {
 				this.drawTile(i, j, this.map.layers[0].data[tileCount]);
 				tileCount++
-				console.log(this.map.layers[0].data[tileCount])
 			}
 		}
 
@@ -97,7 +97,7 @@ export default class MapRenderer {
 		for(let i = 0; i < this.mapHeight; i++) {
 			for(let j = 0; j < this.mapWidth; j++) {
 				if(this.map.layers[1].data[tileCount] != 0) {
-					//this.drawObject(i, j, 0, 0, this.map.layers[1].data[tileCount]);
+					this.drawObject(i, j, 0, 0, this.map.layers[1].data[tileCount]);
 					//console.log(this.map.layers[1].data[tileCount]);
 				}
 				tileCount++;
@@ -140,7 +140,6 @@ export default class MapRenderer {
             this.objects[i].destroy();
         }
         
-        //this.tileGroup
         this.walls = [];
         this.objects = [];
 	}
@@ -233,7 +232,6 @@ export default class MapRenderer {
 		}
 
 		this.scene.client.game.findPath(this.tileClick.isoY, this.tileClick.isoX);
-		console.log(this.scene.client.game.pathFinder);
 	}
 
 	addTileClickSprite(x, y) {

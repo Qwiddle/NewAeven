@@ -3,9 +3,12 @@ const global = require('../../client/js/global.js').default;
 export default class WorldManager {
 	constructor() {
 		this.players = {};
+		this.enemies = [];
 		this.updates = [];
 		this.mapData = [];
 		this.dynamicMapData = [];
+		this.numEnemiesSpawned = 0;
+		this.enemySpawnInterval = {};
 
 		this.messages = {
 			publicMessages: [],
@@ -29,6 +32,7 @@ export default class WorldManager {
 			this.messages.publicMessages[i] = [];
 			this.dynamicMapData[i] = [];
 			this.mapData[i] = [];
+			this.enemies[i] = [];
 		}
 	}
 }

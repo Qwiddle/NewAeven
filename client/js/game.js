@@ -5,8 +5,11 @@ import LoadScene from './scenes/loadScene.js';
 import HomeScene from './scenes/homeScene.js';
 import GameScene from './scenes/gameScene.js';
 import Player from './entity/player.js';
+import Enemy from './entity/enemy.js';
 import PlayerSprite from './render/playerSprite.js';
+import EnemySprite from './render/enemySprite.js';
 import PlayerController from './entity/playerController.js';
+import EnemyController from './entity/enemyController.js';
 import ClientController from './clientController.js';
 import ChatManager from './util/chatManager.js';
 import PathFinder from './util/pathFinder.js';
@@ -19,7 +22,6 @@ export default class Game {
 			pixelArt: true,
 			roundPixels: true,
 			disableContextMenu: true,
-			antialias: false,
 			parent: 'gamecanvas',
 			width: 640,
 			height: 480,
@@ -35,11 +37,16 @@ export default class Game {
 					width: 1920,
 					height: 1080
 				},
+				autoRound: true,
+				autoCenter: Phaser.Scale.CENTER_BOTH
 			},
+			
 			scene: [
 				BootScene, LoadScene, HomeScene, GameScene
 			],
 		};
+
+		this.sprites = [];
 
 		this.client = client;
 		this.phaser = new Phaser.Game(this.config);
@@ -67,6 +74,8 @@ export default class Game {
 
 	playerConnected(packet) {
 		this.players = {};
+		this.enemies = {};
+
 		this.initPlayer(packet);
 		this.initWorld(packet);
 		this.initPhysicsTick();
@@ -108,10 +117,11 @@ export default class Game {
 	}
 
 	physicsUpdate() {
-		this.checkFocus();
+		//this.checkFocus();
 		this.updateKeyPressed();
 		this.sendPhysicsPacket();
 		this.updatePlayers();
+		this.updateEnemies();
 	}
 
 	deleteDisconnectedPlayerData(key) {
@@ -135,7 +145,7 @@ export default class Game {
 				let packet = player.packets.shift();
 
 				if (packet.input == global.key.attack) {
-					player.lastMoveTime = Date.now();
+					//player.lastMoveTime = Date.now();
 					player.isAttacking = true;
 					continue;
 				}
@@ -250,6 +260,7 @@ export default class Game {
 		this.updateDisconnectedPlayers(packet.disconnects);
 		this.updateOtherClients(packet.moves, packet.map);
 		this.updateChats(packet.messages, packet.globalMessages);
+		this.updateEnemyData(packet.enemies);
 	}
 
 	updateMyMessage(me) {
@@ -288,6 +299,81 @@ export default class Game {
 				this.createNewPlayer(key, packet, map);
 			}
 		}
+	}
+
+	updateEnemyData(enemyPackets) {
+		for(let key in enemyPackets) {
+			let packets = enemyPackets[key];
+
+			if (packets.length == 0) {
+				continue;
+			}
+
+			if(this.enemies.hasOwnProperty(key)) {
+				while(packets.length > 0) {
+					this.enemies[key].packets.push(packets.shift());
+				}
+			} else {
+				let mostRecent = packets[packets.length - 1];
+				this.enemies[key] = new Enemy(0, this.player.mapData, mostRecent.eid);
+				this.enemies[key].dir = mostRecent.dir;
+				this.enemies[key].pos.x = mostRecent.pos.x;
+				this.enemies[key].pos.y = mostRecent.pos.y;
+
+				EnemyController.updateTargetPos(this.enemies[key]);
+			}
+		}
+	}
+
+	updateEnemies() {
+		for(let key in this.enemies) {
+			let enemy = this.enemies[key];
+
+			if(enemy.map != this.player.map) {
+				this.deleteEnemy(key);
+			}
+
+			if(enemy.packets.length > 0 && enemy.packets[enemy.packets.length - 1].type === 'stats') {
+				let packet = enemy.packets.shift();
+				enemy.stats = packet.stats;
+
+				if(enemy.stats.hp <= 0) {
+					this.deleteEnemy(key);
+				}
+			}
+
+			if(EnemyController.isMovable(enemy) && enemy.packets.length > 0) {
+				let packet = enemy.packets.shift();
+				enemy.stats = packet.stats;
+
+				if(enemy.stats.hp <= 0) {
+					this.deleteEnemy(key);
+				}
+
+				if(packet.action == global.key.attack) {
+					enemy.dir = packet.dir;
+					enemy.lastMoveTime = Date.now();
+					enemy.isAttacking = true;
+				}
+
+				enemy.dir = packet.dir;
+				enemy.prevPos.x = enemy.pos.x;
+				enemy.prevPos.y = enemy.pos.y;
+				enemy.pos.x = packet.pos.x;
+				enemy.pos.y = packet.pos.y;
+
+				EnemyController.updateTargetPos(enemy);
+
+				if(enemy.prevPos.x !== enemy.pos.x || enemy.prevPos.y !== enemy.pos.y) {
+					enemy.lastMoveTime = Date.now();
+				}
+			}
+		}
+	}
+
+	deleteEnemy(key) {
+		delete this.enemies[key];
+		//delete sprite
 	}
 
 	reconcileClientPredictionsWithServer(packets) {
@@ -344,8 +430,10 @@ export default class Game {
 	updateDisconnectedPlayers(disconnects) {
 		for (let i = 0; i < disconnects.length; i++) {
 			if (this.players.hasOwnProperty(disconnects[i])) {
+				console.log(this.sprites[disconnects[i]]);
+				this.sprites[disconnects[i]].removeFromScene();
+				delete this.sprites[disconnects[i]];
 				delete this.players[disconnects[i]];
-				//delete sprite
 			}
 		}
 	}

@@ -4,7 +4,7 @@ import Game from './game.js';
 export default class Client {
 	constructor() {
 		this.ip = {
-			address: 'ws://157.245.125.191',
+			address: '173.79.32.4',
 			port: '8443',
 		};
 
@@ -29,7 +29,7 @@ export default class Client {
 		    	minDelay: 500,
 		    	retries: 10
 			},
-			strategy: ['online', 'disconnect', 'timeout'],
+			strategy: ['online', 'timeout'],
 		});
 
 		this.primus.on("open", () => {
@@ -39,12 +39,16 @@ export default class Client {
 		this.primus.on('data', (data) => {
 			const decodedData = msgpack.decode(data.data);
 			const packet = JSON.parse(decodedData);
-
-			//console.log(packet);
-
+			
 			if (this.events.hasOwnProperty(packet.event)) {
 				this.events[packet.event](packet);
 			};
+		});
+
+		this.primus.on('end', () => {
+			
+			location.reload();
+			alert('disconnected from server.');
 		});
 	}
 

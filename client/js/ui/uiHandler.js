@@ -9,7 +9,10 @@ export default class UIHandler {
 	loadHandlers() {
 		$('#views').on('click', '.login3d', (e) => {
 			const playerID = parseInt(e.target.id);
-			this.client.playerLogin(playerID);
+
+			if(playerID <= 3) {
+				this.client.playerLogin(playerID);
+			}		
 		});
 
 		$('#views').on('click', '.create3d', (e) => {
@@ -19,7 +22,6 @@ export default class UIHandler {
 		});
 
 		$('#views').on('click', '.arrow', (e) => {
-			console.log('hi');
 			let id = $(e.target).data('id');
 			let value = $('#' + id)[0].innerHTML;
 			let newValue = parseInt(value);
