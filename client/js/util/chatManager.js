@@ -6,6 +6,7 @@ export default class ChatManager {
 		this.commandQueue = [];
 		this.state = global.chatState.public;
 		this.chatActive = false;
+		this.storedMessages = 200;
 	}
 	
 	sendMessage(msg) {
@@ -28,6 +29,10 @@ export default class ChatManager {
 	}
 
 	appendToPublic(player, msg) {
+		if($('#textarea .chatmsg').length >= this.storedMessages) {
+			$('#textarea').find('.chatmsg').first().remove();
+		}
+		
 		$('<div class="chatmsg"><div class="indicator"></div><p class="username">' + player + ':&nbsp;</p><p class="chattext">' + msg + '</p></div').appendTo("#textarea");
 	}
 

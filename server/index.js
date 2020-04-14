@@ -400,21 +400,26 @@ class Server {
 
 			if(messageContainer.messages.length > 0) {
 				const message = messageContainer.messages[messageContainer.messages.length - 1];
+				let messageLength = message.value.length;
 
-				if(message.state == global.chatState.public) {
-					player.message = messageContainer.messages[messageContainer.messages.length - 1];
-					player.message.value = this.removeTags(player.message.value);
-					let msg = messageContainer.messages.shift();
+				if(messageLength <= global.messageCap) {
+					if(message.state == global.chatState.public) {
+						player.message = messageContainer.messages[messageContainer.messages.length - 1];
+						player.message.value = this.removeTags(player.message.value);
+						let msg = messageContainer.messages.shift();
 
-					msg.id = update.id;
-					msg.username = player.username;
-					msg.value = this.removeTags(msg.value);
+						msg.id = update.id;
+						msg.username = player.username;
+						msg.value = this.removeTags(msg.value);
 
-					if (msg.state == global.chatState.public) {
-						this.worldManager.messages.publicMessages[player.map].push(msg);
-					} else if (msg.state == global.chatState.global) {
-						this.worldManager.messages.globalMessages.push(msg);
+						if (msg.state == global.chatState.public) {
+							this.worldManager.messages.publicMessages[player.map].push(msg);
+						} else if (msg.state == global.chatState.global) {
+							this.worldManager.messages.globalMessages.push(msg);
+						}
 					}
+				} else {
+					messageContainer.messages.shift();
 				}
 			}
 		}

@@ -1,6 +1,8 @@
 const global = {
     //server settings
     numMaps: 1,
+    messageCap: 180,
+
     serverTick: 20,
     physicsTick: 40,
 
