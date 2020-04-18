@@ -37,8 +37,7 @@ export default class Game {
 					width: 1920,
 					height: 1080
 				},
-				autoRound: true,
-				autoCenter: Phaser.Scale.CENTER_BOTH
+				autoRound: true
 			},
 			
 			scene: [
@@ -145,7 +144,7 @@ export default class Game {
 				let packet = player.packets.shift();
 
 				if (packet.input == global.key.attack) {
-					//player.lastMoveTime = Date.now();
+					player.lastMoveTime = Date.now();
 					player.isAttacking = true;
 					continue;
 				}
@@ -278,7 +277,7 @@ export default class Game {
 
 	updateMyClient(packet) {
 		const me = packet.moves[this.clientController.getClientId()];
-		this.reconcileClientPredictionsWithServer(me);
+		//this.reconcileClientPredictionsWithServer(me);
 		this.updateMyMessage(me);
 		delete packet.moves[this.clientController.getClientId()];
 	}
@@ -315,7 +314,7 @@ export default class Game {
 				}
 			} else {
 				let mostRecent = packets[packets.length - 1];
-				this.enemies[key] = new Enemy(0, this.player.mapData, mostRecent.eid);
+				this.enemies[key] = new Enemy(this.player.map, this.player.mapData, mostRecent.eid);
 				this.enemies[key].dir = mostRecent.dir;
 				this.enemies[key].pos.x = mostRecent.pos.x;
 				this.enemies[key].pos.y = mostRecent.pos.y;
@@ -372,20 +371,20 @@ export default class Game {
 	}
 
 	deleteEnemy(key) {
+		this.clientController.deleteEnemy(key);
 		delete this.enemies[key];
-		//delete sprite
 	}
 
 	reconcileClientPredictionsWithServer(packets) {
 		let mostRecent = packets.processed;
+		let index = 0;
 
 		if (mostRecent.length == 0) {
 			return;
 		}
 
 		mostRecent = packets.processed.pop();
-		let index = 0;
-
+		
 		for (let i = 0; i < this.player.packets.length; i++) {
 			if (this.player.packets[i].seq == mostRecent.seq) {
 				index = i;
@@ -419,7 +418,6 @@ export default class Game {
 		this.players[key].hair = packet[key].hair;
 
 		PlayerController.updateTargetPos(this.players[key]);
-
 	}
 
 	sendMessage(message) {
@@ -430,10 +428,7 @@ export default class Game {
 	updateDisconnectedPlayers(disconnects) {
 		for (let i = 0; i < disconnects.length; i++) {
 			if (this.players.hasOwnProperty(disconnects[i])) {
-				console.log(this.sprites[disconnects[i]]);
-				this.sprites[disconnects[i]].removeFromScene();
-				delete this.sprites[disconnects[i]];
-				delete this.players[disconnects[i]];
+				this.clientController.deleteSprite(disconnects[i]);
 			}
 		}
 	}

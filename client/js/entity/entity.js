@@ -11,7 +11,7 @@ export default class Entity {
 		this.packets = [];
 
 		this.lastMoveTime = 0;
-		this.lerpTime = 400;
+		this.lerpTime = 2500;
 		this.dir = 3;
 
 		this.stats = { 

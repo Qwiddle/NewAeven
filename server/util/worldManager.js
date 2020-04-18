@@ -1,7 +1,10 @@
 const global = require('../../client/js/global.js').default;
+const PubManager = require('./pubManager.js').default;
 
 export default class WorldManager {
 	constructor() {
+		this.items = [];
+		this.npcs = [];
 		this.players = {};
 		this.enemies = [];
 		this.updates = [];
@@ -15,8 +18,11 @@ export default class WorldManager {
 			globalMessages: []
 		};
 
+		//this.loadPub();
 		this.reset();
 	}
+
+	
 
 	clearMessages() { 
 		this.messages.globalMessages = [];
@@ -28,7 +34,6 @@ export default class WorldManager {
 
 	reset() {
 		for(let i = 0; i < global.numMaps; i++) {
-			console.log('reset');
 			this.messages.publicMessages[i] = [];
 			this.dynamicMapData[i] = [];
 			this.mapData[i] = [];

@@ -5,9 +5,10 @@ export default class ClientController {
 	constructor(client, phaser) {
 		this.client = client;
 		this.phaser = phaser;
-		this.inputManager = new InputManager(this.client);
+		this.inputManager = new InputManager();
 		this.initKeys();
 
+		this.rotateMs = 50;
 	}
 
 	initKeys() {
@@ -52,7 +53,7 @@ export default class ClientController {
 	}
 
 	getKeyboardInput(initialKey) {
-		return Date.now() < this.inputManager.keyTimer ? 
+		return Date.now() < (this.inputManager.keyTimer + this.rotateMs) ? 
 			this.getStaticKeyboardInput(initialKey) : this.getKineticKeyboardInput();
 	}
 
@@ -61,6 +62,10 @@ export default class ClientController {
 	}
 
 	deleteSprite(key) {
-	  //
+		this.phaser.scene.scenes[3].sprites[key].removeFromScene();
+	}
+
+	deleteEnemy(key) {
+		this.phaser.scene.scenes[3].enemies[key].removeFromScene();
 	}
 }

@@ -1,8 +1,0 @@
-{
-    "json": {
-    	"blank": "assets/map/blank.json",
-    	"objectatlas": "assets/map/objects.json",
-    	"wallatlas": "assets/map/walls.json",
-		"tileatlas": "assets/map/tiles.json"
-    }
-}

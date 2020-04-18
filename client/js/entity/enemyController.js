@@ -1,4 +1,5 @@
 import EntityController from './entityController.js';
+import PathFinder from '../util/pathFinder.js';
 import global from '../global.js';
 
 export default class EnemyController extends EntityController {
@@ -31,18 +32,36 @@ export default class EnemyController extends EntityController {
 					this.attackTarget(enemy);
 				} else {
 					enemy.action = global.direction.none;
+					this.followTarget(enemy);
 				}
 			} else {
 				enemy.action = global.direction.none;
 				enemy.lastMoveTime = Date.now();
 
-				let pos = Math.floor(Math.random() * 4);
+				let pos = Math.floor(Math.random() * 5);
 				this.updatePosition(enemy, pos);
 			}
 		}
 
 		//enemy.mapData[enemy.prevPos.x][enemy.prevPos.y] = global.tile.empty;
 		//enemy.mapData[enemy.pos.x][enemy.pos.y] = global.tile.enemy;
+	}
+
+	static attackTarget(enemy) {
+		if (enemy.target.pos.x < enemy.pos.x) {
+			enemy.dir = global.direction.left;
+		} else if (enemy.target.pos.x > enemy.pos.x) {
+			enemy.dir = global.direction.right;
+		} else if (enemy.target.pos.y < enemy.pos.y) {
+			enemy.dir = global.direction.up;
+		} else if (enemy.target.pos.y > enemy.pos.y) {
+			enemy.dir = global.direction.down;
+		}
+
+		enemy.action = global.key.attack;
+
+		enemy.lastMoveTime = Date.now();
+		enemy.packets.push(this.buildPacket(enemy));
 	}
 
 	static followTarget(enemy) {
@@ -53,7 +72,15 @@ export default class EnemyController extends EntityController {
 		if(targetMoved) {
 			enemy.lastTargetPos.x = enemy.targetPos.x;
 			enemy.lastTargetPos.y = enemy.targetPos.y;	
+			
+			let pathFinder = new PathFinder(enemy.mapData);
+			let path = pathFinder.search(enemy.pos.x, enemy.pos.y, enemy.target.pos.x, enemy.target.pos.y);
+			enemy.pathStack = pathFinder.getPath(enemy.target.pos.x, enemy.target.pos.y);
 		}
+
+		let pos = enemy.pathStack.pop();
+		enemy.lastMoveTime = Date.now();
+		this.updatePosition(enemy, pos);
 	}
 
 	static updatePosition(enemy, pos) {
@@ -69,7 +96,7 @@ export default class EnemyController extends EntityController {
 				enemy.dir = global.direction.right;
 				enemy.pos.x++;
 				break;
-			case global.direction.uo:
+			case global.direction.up:
 				enemy.dir = global.direction.up;
 				enemy.pos.y--;
 				break;
@@ -78,7 +105,7 @@ export default class EnemyController extends EntityController {
 				enemy.pos.y++;
 				break;
 			default:
-				// enemy.dir = global.Direction.NONE;
+				enemy.dir = global.direction.none;
 				break;
 		}
 
@@ -86,15 +113,11 @@ export default class EnemyController extends EntityController {
 		if(this.inBounds(enemy, enemy.pos, enemy.map)) {
 			this.updateTargetPos(enemy);
 		} else {
-			enemy.prevPos.x = enemy.pos.x;
-			enemy.prevPos.y = enemy.pos.y;
+			enemy.pos.x = enemy.prevPos.x;
+			enemy.pos.y = enemy.prevPos.y;
 		}
 
-		if(enemy.pos.x === enemy.prevPos.x && enemy.pos.y === enemy.prevPos.y) {
-			enemy.packets.push(this.buildPacket(enemy));
-		} else {
-			enemy.packets.push(this.buildPacket(enemy));
-		}
+		enemy.packets.push(this.buildPacket(enemy));
 	}
 
 	static inBounds(entity, pos, map) {
@@ -120,7 +143,11 @@ export default class EnemyController extends EntityController {
 			eid: enemy.eid,
 			pos: {x: enemy.pos.x, y: enemy.pos.y},
 			stats: enemy.stats,
-		}
+			action: enemy.action,
+			dir: enemy.dir
+		};
+
+		return packet;
 	}
 
 	static setTarget(enemy, target, id) {

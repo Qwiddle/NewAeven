@@ -11,6 +11,7 @@ const global = require('../client/js/global.js').default;
 const DatabaseManager = require('./util/databaseManager.js').default;
 const WorldManager = require('./util/worldManager.js').default;
 const MapManager = require('./util/mapManager.js').default;
+const PubManager = require('./util/pubManager.js').default;
 const CombatManager = require('./util/combatManager.js').default;
 const Player = require('../client/js/entity/player.js').default;
 const Enemy = require('../client/js/entity/Enemy.js').default;
@@ -22,6 +23,7 @@ class Server {
 		this.dbManager = new DatabaseManager();
 		this.worldManager = new WorldManager();
 		this.mapManager = new MapManager();
+		this.pubManager = new PubManager();
 
 		this.events = {
 			'login': (packet) => this.onLoginAttempt(packet),
@@ -33,6 +35,8 @@ class Server {
 	}
 
 	start() {
+		this.worldManager.mapData = this.mapManager.mapsData;
+
 		const app = express();
 		app.use(express.static(path.join(__dirname, '../client')));
 
@@ -55,6 +59,8 @@ class Server {
 
 		setInterval(() => this.serverUpdate(), global.serverTick);
 		setInterval(() => this.physicsUpdate(), global.physicsTick);
+
+		this.spawnEnemies(3, 0);
 	}
 
 
@@ -64,7 +70,6 @@ class Server {
 		socket.on('data', (data) => {
 			let decodedData = msgpack.decode(data.data);
 			let packet = JSON.parse(decodedData);
-			console.error(packet);
 
 			if(this.events.hasOwnProperty(packet.event)) {
 				packet.id = socket.id;
@@ -365,7 +370,7 @@ class Server {
 		}
 
 		for(let i = 0; i < this.worldManager.enemies[0].length; i++) {
-			this.worldManager.enemies[0][i].mapData = this.worldManager.dynamicMapData[0];
+			//this.worldManager.enemies[0][i].mapData = this.worldManager.dynamicMapData[0];
 			EnemyController.update(this.worldManager.enemies[0][i]);
 			//this.worldManager.enemies[0][i].mapData[enemy.pos.x][enemy.pos.y] = global.tile.enemy;
 		}
@@ -508,7 +513,7 @@ class Server {
 		let ePackets = this.bundleEnemyPackets();
 		let disconnects = this.getDisconnects();
 
-		//this.removeDeadEnemies();
+		this.removeDeadEnemies();
 
 		this.primus.forEach((socket, id, connections) => {
 			if(!socket.authenticated) { 
@@ -548,11 +553,17 @@ class Server {
 	}
 
 	spawnEnemy(numEnemies, map) {
+		if (this.worldManager.numEnemiesSpawned === numEnemies) { 
+			clearInterval(this.worldManager.enemySpawnInterval);
+			return;
+		}
+
 		let enemy = new Enemy(map, this.worldManager.dynamicMapData[map], uuid());
 
 		//hard coded temporarily
 		enemy.prevPos = {x: 5, y: 2};
 		enemy.pos = {x: 5, y: 2};
+		enemy.map = map;
 		EnemyController.updateTargetPos(enemy);
 
 		this.worldManager.enemies[map].push(enemy);
@@ -646,7 +657,9 @@ class Server {
 
 		for(let i = 0; i < global.numMaps; i++) {
 			packets[i] = {};
+		}
 
+		for(let i = 0; i < global.numMaps; i++) {
 			for(let j = 0; j < this.worldManager.enemies[i].length; j++) {
 				let enemy = this.worldManager.enemies[i][j];	
 				packets[i][enemy.eid] = this.worldManager.enemies[i][j].packets.slice();

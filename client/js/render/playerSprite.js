@@ -4,32 +4,37 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 	constructor(config) {
 		super(config.scene, config.x, config.y);
 
+		this.textStyle = {
+			font: '13px Tahoma',
+			fill: 'white',
+			stroke: '#000',
+			strokeThickness: 3
+		}
+
 		this.scene = config.scene;
 		this.scene.add.existing(this);
 		this.player = config.player;
 		this.name = this.player.username;
 		this.sex = this.player.sex;
 		this.race = this.player.race;
-		this.entity = this.scene.add.sprite(0, 0, 'base_' + this.player.sex + '_' + this.player.race);
-		this.player.isMoving = false;
-		this.player.isAttacking = false;
-		this.player.positionUpdated = false;
+		this.entity = this.scene.add.sprite(0, 0, 'base_' + this.player.sex + '_' + this.player.race).setOrigin(0.5);
 		this.bubble = this.scene.add.container();
 		this.chatBubbleText = this.scene.add.text();
 		this.chatBubble = this.scene.add.graphics();
-		this.chatBubbleText.setFontFamily('Tahoma');
-		this.chatBubbleText.setFontSize(13);
 		this.nameText = this.scene.add.text(0, -40).setOrigin(0.5);
-		this.nameText.setFontFamily('Tahoma');
-		this.nameText.setFontSize(13);
-		this.nameText.setStroke('#000', 3)
+		this.nameText.setStyle(this.textStyle);
+	
 		this.cameraDolly = new Phaser.Geom.Point(this.x, this.y);
 
 		this.add(this.entity);
-		this.scene.playerGroup.add(this);
 		this.setSize(this.entity.width, this.entity.width);
 		this.addAnimations();
 		this.addHover();
+		this.scene.playerGroup.add(this);
+
+		this.player.isMoving = false;
+		this.player.isAttacking = false;
+		this.player.positionUpdated = false;
 	}
 
 	update() {
@@ -37,18 +42,18 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
    		this.cameraDolly.y = Math.floor(this.y);
 		this.depth = (this.y + this.height) + 64;
 
-		/*if(this.player.isAttacking) {
+		if (this.player.isAttacking && !this.player.inAttack) {
 			this.player.isMoving = true;
-			this.player.isAttacking = false;
+			this.player.inAttack = true;
 			this.attack();
-		} else*/ if(!this.player.isMoving) {
+		} else if(!this.player.isMoving) {
 			if(this.player.targetPos.x != this.x || this.player.targetPos.y != this.y) {
 				this.interpolate();
 			} else {
-				if(this.player.dir == global.direction.left || global.direction.staticLeft || this.player.dir == global.direction.down || this.player.dir == global.direction.staticDown) {
-					this.flipX = false;
-				} else if(this.player.dir == global.direction.right || this.player.dir == global.direction.staticRight || this.player.dir == global.direction.up || this.player.dir == global.direction.staticUp) {
-					this.flipX = true;
+				if(this.player.dir == global.direction.right || this.player.dir == global.direction.staticRight || this.player.dir == global.direction.up || this.player.dir == global.direction.staticUp) {
+					this.entity.flipX = true;
+				} else if(this.player.dir == global.direction.left || this.player.dir == global.direction.staticLeft || this.player.dir == global.direction.down || this.player.dir == global.direction.staticDown) {
+					this.entity.flipX = false;
 				}
 
 				this.entity.setFrame(this.dirFrame[this.player.dir]);
@@ -60,7 +65,6 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 
 	interpolate() {	
 		this.player.isMoving = true;
-		this.entity.anims.stop();
 			
 		if (this.left()) {
 			this.entity.flipX = false;
@@ -90,17 +94,19 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 	}
 
 	attack() {
-		if(this.player.dir == global.direction.left) {
-			this.entity.play('attackLeft');
-		} else if(this.player.dir == global.direction.right) {
-			this.entity.play('attackRight');
-		} else if(this.player.dir == global.direction.up) {
-			this.entity.play('attackUp');
-		} else if(this.player.dir == global.direction.down) {
-			this.entity.play('attackDown');
-		}
-		
-		this.scene.sound.play('attack');
+		if(!this.inAttack) {
+			if(this.player.dir == global.direction.left) {
+				this.entity.play('attackLeft');
+			} else if(this.player.dir == global.direction.right) {
+				this.entity.play('attackRight');
+			} else if(this.player.dir == global.direction.up) {
+				this.entity.play('attackUp');
+			} else if(this.player.dir == global.direction.down) {
+				this.entity.play('attackDown');
+			}
+
+			this.scene.sound.play('attack');
+		}		
 	}
 
 	drawChatBubble(width, height, text) {
@@ -133,15 +139,15 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 
 		this.scene.tweens.add({
 			targets: this.chatBubble,
-			alpha: 0.6,
-			duration: 300,
+			alpha: 0.7,
+			duration: 200,
 			ease: 'Power2'
 		});
 
 		this.scene.tweens.add({
 			targets: this.chatBubbleText,
 			alpha: 0.9,
-			duration: 300,
+			duration: 200,
 			ease: 'Power2'
 		});
 
@@ -176,7 +182,6 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		if (Date.now() < this.player.messageDelay) {
 			let finalStr = "";
 			let str = this.player.message;
-			console.log(str);
 			let newLineCount = 0;
 			let maxLength = 0;
 
@@ -205,6 +210,7 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 		if(animation.key === 'attackDown' || animation.key === 'attackRight' || animation.key === 'attackLeft' || animation.key === 'attackUp') {
 			this.player.isAttacking = false;
 			this.player.isMoving = false;
+			this.player.inAttack = false;
 			this.entity.setFrame(this.dirFrame[this.player.dir]);
 		}
 	}
@@ -250,22 +256,22 @@ export default class PlayerSprite extends Phaser.GameObjects.Container {
 			attackDown: {
 				key: 'attackDown',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
-				duration: 450,
+				duration: 400,
 			},
 			attackRight: {
 				key: 'attackRight',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 12, end: 13}),
-				duration: 450,
+				duration: 400,
 			},
 			attackLeft: {
 				key: 'attackLeft',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
-				duration: 450,
+				duration: 400,
 			},
 			attackUp: {
 				key: 'attackUp',
 				frames: this.scene.anims.generateFrameNumbers('base_0_0', {start: 14, end: 15}),
-				duration: 450,
+				duration: 400,
 			},
 		}
 

@@ -33,8 +33,8 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		for(let key in this.client.game.players) {
-			if(this.client.game.sprites.hasOwnProperty(key)) {
-				//console.log('exists');
+			if(this.sprites.hasOwnProperty(key)) {
+				//exists
 			} else {
 				let player = new PlayerSprite({
 					scene: this,
@@ -44,7 +44,7 @@ export default class GameScene extends Phaser.Scene {
 					y: this.client.game.players[key].targetPos.y,
 				});
 
-				this.client.game.sprites[key] = player;
+				this.sprites[key] = player;
 			}
 		}
 	}
@@ -55,7 +55,6 @@ export default class GameScene extends Phaser.Scene {
 		});
 
 		for (let key in this.client.game.enemies) {
-			console.log(this.client.game.enemies[key])
 			if (this.enemies.hasOwnProperty(key)) {
 				//exists
 			} else {
@@ -88,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
 			y: this.client.game.player.targetPos.y,
 		});
 
-		this.cameras.main.startFollow(this.player, true, 0.45, 0.45);
+		this.cameras.main.startFollow(this.player, true, 0.5, 0.5);
 		this.sound.pauseOnBlur = false;
 		this.sound.play('login');
 

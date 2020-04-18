@@ -1,28 +1,27 @@
 export default class InputManager {
-	constructor(client) {
+	constructor() {
 		this.keys = [];
 		this.keyTimer = 0;
-		this.keyDelay = 40; //ms between keypress events
-
-		this.client = client;
-		this.game = this.client.game;
+		this.keyDelay = 20;
 	}
 
 	addListeners() {
 		addEventListener("keydown", (key) => {
 			if (!this.keys[key.keyCode]) {
-				this.keyTimer = Date.now() + this.keyDelay;
+				if(key.keyCode == 37 || key.keyCode == 38 || key.keyCode == 39 || key.keyCode == 40 || key.keyCode == 17) {
+					this.keyTimer = Date.now() + this.keyDelay;
+					this.keys[key.keyCode] = true;
+				}
 			}
-
-			this.keys[key.keyCode] = true;
 		});
 
 		addEventListener("keyup", (key) => {
 			if (this.keys[key.keyCode]) {
-				this.keyTimer = Date.now() + this.keyDelay;
+				if(key.keyCode == 37 || key.keyCode == 38 || key.keyCode == 39 || key.keyCode == 40 || key.keyCode == 17) {
+					this.keyTimer = Date.now() + this.keyDelay;
+					this.keys[key.keyCode] = false;
+				}
 			}
-
-			this.keys[key.keyCode] = false;
 		});
 	}
 }

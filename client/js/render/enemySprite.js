@@ -7,42 +7,44 @@ export default class EnemySprite extends Phaser.GameObjects.Container {
 		this.scene.add.existing(this);
 		this.enemy = config.enemy;
 		this.key = config.key;
-		this.nameText = this.scene.add.text(0, -40).setOrigin(0.5);
+		this.nameText = this.scene.add.text(0, -16).setOrigin(0.5);
 		this.nameText.setFontFamily('Tahoma');
 		this.nameText.setFontSize(13);
+		this.nameText.setStroke('#000', 3);
 
-		this.entity = this.scene.add.sprite(0, 0).setOrigin(0.5);
+		this.entity = this.scene.add.sprite(0, 22).setOrigin(0.5);
 
 		this.entity.setTexture(this.key);
 		this.add(this.entity);
 		this.scene.enemyGroup.add(this);
-		this.setSize(this.entity.width, this.entity.height);
+		this.setSize(64, 32);
 		this.addAnimations();
 		this.addHover();
 	}
 
 	update() {
-		this.depth = this.y + this.height;
+		this.depth = (this.y + this.height) + 60;
 
-		if(!this.enemy.isMoving) {
+		if(this.enemy.isAttacking) {
+			this.enemy.isMoving = true;
+			this.enemy.isAttacking = false;
+			this.attack();
+		} else if(!this.enemy.isMoving) {
 			this.interpolate();
-
-			if(this.enemy.isAttacking) {
-				this.attack();
-			}
 		}
 	}
 
 	interpolate() {
 		if(this.enemy.targetPos.x != this.x || this.enemy.targetPos.y != this.y) {
 			this.enemy.isMoving = true;
+
 			this.playAnimation(this.enemy);
 
 			this.tween = this.scene.tweens.add({
 				targets: this,
 				x: this.enemy.targetPos.x,
 				y: this.enemy.targetPos.y,
-				duration: 550,
+				duration: 450,
 				ease: 'Linear',
 				onComplete: () => {  
 					this.entity.setFrame(this.dirFrame[this.enemy.dir]);
@@ -55,9 +57,36 @@ export default class EnemySprite extends Phaser.GameObjects.Container {
 	}
 
 	attack() {
-		this.enemy.isMoving = true;
-		this.playAnimation();
+		switch(this.enemy.dir) {
+			case global.direction.left: {
+				this.entity.flipX = false;
+				this.entity.play('enemyAttackLeft');
+				break;
+			}
+
+			case global.direction.right: {
+				this.entity.play('enemyAttackRight');
+				this.entity.flipX = true;
+				break;
+			}
+
+			case global.direction.up: {
+				this.entity.flipX = true;
+				this.entity.play('enemyAttackUp');
+				break;
+			}
+
+			case global.direction.down: {
+				this.entity.flipX = false;
+				this.entity.play('enemyAttackDown');
+				break;
+			}
+		}
 		this.scene.sound.play('attack');
+	}
+
+	animComplete(animation, frame) {
+		this.enemy.isMoving = false;
 	}
 
 	addHover() {
@@ -101,22 +130,22 @@ export default class EnemySprite extends Phaser.GameObjects.Container {
 				duration: 550,
 			},
 			attackDown: {
-				key: 'attackDown',
+				key: 'enemyAttackDown',
 				frames: this.scene.anims.generateFrameNumbers(this.key, {start: 12, end: 13}),
 				duration: 550,
 			},
 			attackRight: {
-				key: 'attackRight',
+				key: 'enemyAttackRight',
 				frames: this.scene.anims.generateFrameNumbers(this.key, {start: 12, end: 13}),
 				duration: 550,
 			},
 			attackLeft: {
-				key: 'attackLeft',
+				key: 'enemyAttackLeft',
 				frames: this.scene.anims.generateFrameNumbers(this.key, {start: 10, end: 11}),
 				duration: 550,
 			},
 			attackUp: {
-				key: 'attackUp',
+				key: 'enemyAttackUp',
 				frames: this.scene.anims.generateFrameNumbers(this.key, {start: 10, end: 11}),
 				duration: 550,
 			},
@@ -133,6 +162,8 @@ export default class EnemySprite extends Phaser.GameObjects.Container {
 
 		this.initDirFrames();
 		this.initAttackFrames();
+
+		this.entity.on('animationcomplete', this.animComplete, this);
 	}
 
 	initDirFrames() {
@@ -161,53 +192,35 @@ export default class EnemySprite extends Phaser.GameObjects.Container {
 		this.attackFrame[global.direction.none] = 'enemyAttackDown';
 	}
 
-	playAnimation(enemy) {
-		if(enemy.isAttacking) {
-			switch(enemy.dir) {
-				case global.direction.left: {
-					this.entity.flipX = false;
-					this.entity.play('enemyAttackLeft');
-					break;
-				}
-
-				case global.direction.right: {
-					this.entity.flipX = true;
-					this.entity.play('enemyAttackRight');
-				}
-
-				case global.direction.up: {
-					this.entity.flipX = true;
-					this.entity.play('enemyAttackUp');
-				}
-
-				case global.direction.down: {
-					this.entity.flipX = false;
-					this.entity.play('enemyAttackDown');
-				}
+	playAnimation() {
+		switch(this.enemy.dir) {
+			case global.direction.left: {
+				this.entity.flipX = false;
+				this.entity.play('enemyLeft');
+				break;
 			}
-		} else {
-			switch(enemy.dir) {
-				case global.direction.left: {
-					this.entity.flipX = false;
-					this.entity.play('enemyLeft');
-					break;
-				}
 
-				case global.direction.right: {
-					this.entity.flipX = true;
-					this.entity.play('enemyRight');
-				}
+			case global.direction.right: {
+				this.entity.flipX = true;
+				this.entity.play('enemyRight');
+				break;
+			}
 
-				case global.direction.up: {
-					this.entity.flipX = true;
-					this.entity.play('enemyUp');
-				}
+			case global.direction.up: {
+				this.entity.flipX = true;
+				this.entity.play('enemyUp');
+				break;
+			}
 
-				case global.direction.down: {
-					this.entity.flipX = false;
-					this.entity.play('enemyDown');
-				}
+			case global.direction.down: {
+				this.entity.flipX = false;
+				this.entity.play('enemyDown');
+				break;
 			}
 		}
+	}
+
+	removeFromScene() {
+		this.destroy();
 	}
 }
