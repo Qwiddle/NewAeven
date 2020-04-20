@@ -1,0 +1,9 @@
+{
+	"slime": {
+		"id": 0,
+		"name": "Slime",
+		"hp": 12,
+		"type": 1,
+		"subtype": 0
+	}
+}

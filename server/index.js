@@ -21,9 +21,7 @@ const EnemyController = require('../client/js/entity/EnemyController.js').defaul
 class Server {
 	constructor() {
 		this.dbManager = new DatabaseManager();
-		this.worldManager = new WorldManager();
-		this.mapManager = new MapManager();
-		this.pubManager = new PubManager();
+		this.worldManager = new WorldManager(this);
 
 		this.events = {
 			'login': (packet) => this.onLoginAttempt(packet),
@@ -35,8 +33,6 @@ class Server {
 	}
 
 	start() {
-		this.worldManager.mapData = this.mapManager.mapsData;
-
 		const app = express();
 		app.use(express.static(path.join(__dirname, '../client')));
 
@@ -46,7 +42,7 @@ class Server {
 		this.primus = new Primus(server);
 
 		server.listen(port, () => {
-			console.log("New Aeven Game Server || Listening on port: " + port +".");
+			console.log("World successfully loaded. Connection launched, Listening on port: " + port +".");
 		});
 
 		this.primus.on('connection', (socket) => {
@@ -310,7 +306,7 @@ class Server {
 
 		newPlayer.username = username;
 		newPlayer.map = startMapID;
-		newPlayer.mapData = this.mapManager.mapsData[startMapID];
+		newPlayer.mapData = this.worldManager.mapData[startMapID];
 
 		const loadPlayer = (player, data) => {
 			player.accountname = data.account_name;
@@ -339,8 +335,8 @@ class Server {
 				id: socket.id,
 				username: player.username,
 				map: player.map,
-				mapData: this.mapManager.mapsData[player.map],
-				mapJson: this.mapManager.mapsJson[player.map],
+				mapData: this.worldManager.mapData[player.map],
+				mapJson: this.worldManager.mapJson[player.map],
 				pos: player.pos,
 				dir: player.dir,
 				race: player.race,
@@ -691,4 +687,4 @@ class Server {
 	}
 }
 
-new Server().start();
+new Server();

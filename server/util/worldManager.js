@@ -2,7 +2,11 @@ const global = require('../../client/js/global.js').default;
 const PubManager = require('./pubManager.js').default;
 
 export default class WorldManager {
-	constructor() {
+	constructor(server) {
+		this.server = server;
+		this.pubManager = new PubManager();
+
+		this.initialized = false;
 		this.items = [];
 		this.npcs = [];
 		this.players = {};
@@ -12,17 +16,41 @@ export default class WorldManager {
 		this.dynamicMapData = [];
 		this.numEnemiesSpawned = 0;
 		this.enemySpawnInterval = {};
-
 		this.messages = {
 			publicMessages: [],
 			globalMessages: []
 		};
 
-		//this.loadPub();
 		this.reset();
+		this.loadData();
 	}
 
-	
+	loadData() {
+		this.pubManager.read('./data/pub/', () => {
+			this.items = this.pubManager.items;
+			this.npcs = this.pubManager.npcs;
+
+			console.log(Object.keys(this.items).length + " items loaded.");
+			console.log(Object.keys(this.npcs).length + " npcs loaded.");
+
+			this.pubManager.read('./data/maps/', () => {
+				this.mapData = this.pubManager.mapData;
+				this.mapJson = this.pubManager.mapJson;
+				
+				console.log(Object.keys(this.mapData).length + " maps loaded.");
+
+				this.initializeWorld();
+			});
+		});
+	}
+
+	initializeWorld() {
+		//npc spawns
+		//put items in chest
+		//etc
+
+		this.server.start();
+	}
 
 	clearMessages() { 
 		this.messages.globalMessages = [];

@@ -68,7 +68,7 @@ export default class PlayerController {
 		entity.targetPos.y = (entity.pos.x + entity.pos.y) * 16;
 	}
 
-	 static updatePosition(player) {
+	static updatePosition(player) {
 		let playerRotated = player.keyPressed > 4;
 
 		if (!playerRotated) {

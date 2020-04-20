@@ -1,0 +1,23 @@
+{
+	"gold": {
+		"id": 0,
+		"name": "Gold",
+		"weight": 0,
+		"type": 1,
+		"subtype": 0
+	},
+	"health_potion": {
+		"id": 0,
+		"name": "Health Potion",
+		"weight": 0,
+		"type": 1,
+		"subtype": 0
+	},
+	"worn_shirt": {
+		"id": 2,
+		"name": "Worn Shirt",
+		"weight": 2,
+		"type": 1,
+		"subtype": 0
+	}
+}
