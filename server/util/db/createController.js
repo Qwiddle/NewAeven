@@ -4,7 +4,7 @@ export default class CreateController {
 
 		mysql.query('SELECT count(*) as count FROM information_schema.TABLES WHERE (TABLE_SCHEMA = ?) AND (TABLE_NAME = ?)', [mysql.config.database, tableName], (err, rows) => {
 			if (err) {
-				console.log.error(err);
+				console.error(err);
 				throw err;
 			}
 
