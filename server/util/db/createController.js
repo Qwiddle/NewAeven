@@ -50,7 +50,7 @@ export default class CreateController {
 			'CREATE TABLE players (' +
 			'account_name VARCHAR(64) NOT NULL,' + 
 			'username VARCHAR(64) NOT NULL,' +
-			'admin INT unsigned NOT NULL,' +
+			'admin INT unsigned NOT NULL DEFAULT 0,' +
 			'sex INT unsigned NOT NULL,' +
 			'race INT unsigned NOT NULL,' +
 			'hairColor INT unsigned NOT NULL,' +
