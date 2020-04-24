@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "lint": "eslint ./",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "author": "andrew rubenstein",
   "license": "ISC",
@@ -20,5 +22,10 @@
     "primus-msgpack": "^1.0.2",
     "uuid": "^3.4.0",
     "ws": "^7.2.1"
+  },
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "nodemon": "^2.0.3"
   }
 }
