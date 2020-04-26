@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-export default class PubManager {
+module.exports = class PubManager {
 	constructor() {
 		this.items = [];
 		this.npcs = [];

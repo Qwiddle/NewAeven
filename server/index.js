@@ -1,3 +1,4 @@
+/* eslint-disable no-global-assign */
 require = require("esm")(module);
 const Primus = require('primus');
 const express = require('express');
@@ -7,12 +8,13 @@ const uuid = require('uuid/v4');
 const bcrypt = require('bcrypt');
 const msgpack = require("msgpack-lite");
 
+const DatabaseManager = require('./util/databaseManager');
+const WorldManager = require('./util/worldManager');
+// const MapManager = require('./util/mapManager');
+// const PubManager = require('./util/pubManager');
+const CombatManager = require('./util/combatManager');
+
 const global = require('../client/js/global.js').default;
-const DatabaseManager = require('./util/databaseManager.js').default;
-const WorldManager = require('./util/worldManager.js').default;
-const MapManager = require('./util/mapManager.js').default;
-const PubManager = require('./util/pubManager.js').default;
-const CombatManager = require('./util/combatManager.js').default;
 const Player = require('../client/js/entity/player.js').default;
 const Enemy = require('../client/js/entity/enemy.js').default;
 const PlayerController = require('../client/js/entity/playerController.js').default;
@@ -67,7 +69,7 @@ class Server {
 			let decodedData = msgpack.decode(data.data);
 			let packet = JSON.parse(decodedData);
 
-			if(this.events.hasOwnProperty(packet.event)) {
+			if(Object.prototype.hasOwnProperty.call(this.events, packet.event)) {
 				packet.id = socket.id;
 				this.events[packet.event](packet, socket);
 			}

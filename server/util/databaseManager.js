@@ -5,7 +5,7 @@ const CreateController = require('./db/createController.js').default;
 const SaveController = require('./db/saveController.js').default;
 const GetController = require('./db/getController.js').default;
 
-export default class DatabaseManager {
+module.exports = class DatabaseManager {
 	constructor(world) {
 		this.dbconfig = {
 			//leave blank if you are using environment variables

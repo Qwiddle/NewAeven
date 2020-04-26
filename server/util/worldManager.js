@@ -1,7 +1,7 @@
 const global = require('../../client/js/global.js').default;
-const PubManager = require('./pubManager.js').default;
+const PubManager = require('./pubManager');
 
-export default class WorldManager {
+module.exports = class WorldManager {
 	constructor(server) {
 		this.server = server;
 		this.pubManager = new PubManager();

@@ -1,7 +1,7 @@
 const fs = require('fs');
 const global = require('../../client/js/global.js').default;
 
-export default class MapManager {
+module.exports = class MapManager {
 	constructor() {
 		this.mapsData = [];
 		this.mapsJson = [];
