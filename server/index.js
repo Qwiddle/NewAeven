@@ -48,8 +48,6 @@ class Server {
 
 		const __filename = fileURLToPath(import.meta.url);
 		const __dirname = path.dirname(__filename);
-		
-		console.log(path.join(__dirname, '../client'));
 
 		app.use(express.static(path.join(__dirname, '../client')));
 
@@ -84,7 +82,7 @@ class Server {
 			let decodedData = msgpack.decode(data.data);
 			let packet = JSON.parse(decodedData);
 
-			if(this.events.hasOwnProperty(packet.event)) {
+			if(Object.prototype.hasOwnProperty.call(this.events, packet.event)) {
 				packet.id = socket.id;
 				this.events[packet.event](packet, socket);
 			}
@@ -96,7 +94,7 @@ class Server {
 	}
 
 	onLoginAttempt(packet) {
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket) => {
 			if (socket.id === packet.id) {
 				this.isValidLoginAttempt(socket, packet.username, packet.password);		
 			}
@@ -148,7 +146,7 @@ class Server {
 	}
 
 	onRegisterAttempt(packet) {
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket) => {
 			if (socket.id === packet.id) {	
 				this.attemptRegistration(socket, packet);		
 			}
@@ -201,7 +199,7 @@ class Server {
 	}
 
 	isValidEmail(email) {
-		const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		return re.test(String(email).toLowerCase());
 	}
 
@@ -316,8 +314,8 @@ class Server {
 
 	playerLogin(socket, username) {
 		const startMapID = global.startMapID;
-		const startMapX = global.startMapX;
-		const startMapY = global.startMapY;
+		//const startMapX = global.startMapX;
+		//const startMapY = global.startMapY;
 
 		const newPlayer = new Player();
 
@@ -450,11 +448,10 @@ class Server {
 
 		if (PlayerController.pressedKey(player)) {
 			if (PlayerController.hasAttacked(player)) {
-			   this.handleCombat(player, id);
+				this.handleCombat(player, id);
 			} else if (!PlayerController.hasRotated(player)) {
 				player.lastMoveTime = Date.now();
 			}
-
 
 			PlayerController.updatePosition(player);
 			player.processedPackets[player.processedPackets.length - 1].pos = player.pos;
@@ -505,7 +502,7 @@ class Server {
 
 		let playerKeys = new Set(Object.keys(this.worldManager.players));   
 
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket) => {
 			playerKeys.delete(socket.id);
 		});
 
@@ -528,7 +525,7 @@ class Server {
 
 		this.removeDeadEnemies();
 
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket, id) => {
 			if(!socket.authenticated) { 
 				return;
 			}
@@ -696,7 +693,7 @@ class Server {
 	}
 
 	hasMetaData(update, key) {
-		return update.hasOwnProperty(key) && !this.isJsonObjectEmpty(update[key]);
+		return Object.prototype.hasOwnProperty.call(update, key) && !this.isJsonObjectEmpty(update[key]);
 	}
 
 	send(packet, socket) {

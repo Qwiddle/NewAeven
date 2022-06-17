@@ -7,7 +7,7 @@ import { CreateController } from './db/createController.js';
 import { GetController } from './db/getController.js';
 import { SaveController } from './db/saveController.js';
 export default class DatabaseManager {
-	constructor(world) {
+	constructor() {
 		this.dbconfig = {
 			//leave blank if you are using environment variables
 			user: process.env.DBUSER || '',

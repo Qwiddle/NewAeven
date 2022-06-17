@@ -15,7 +15,7 @@ export class SaveController {
 				throw err;
 			}
 
-			mysql.query('INSERT INTO `players` SET ? ON DUPLICATE KEY UPDATE ?', [playerData, playerData], (err, res) => {
+			mysql.query('INSERT INTO `players` SET ? ON DUPLICATE KEY UPDATE ?', [playerData, playerData], (err) => {
 				if (err) {
 					mysql.rollback(function() {
 						throw err;
@@ -23,7 +23,7 @@ export class SaveController {
 				}
 			});
 
-			mysql.query('INSERT INTO `player_stats` SET ? ON DUPLICATE KEY UPDATE ?', [playerStats, playerStats], (err, res) => {
+			mysql.query('INSERT INTO `player_stats` SET ? ON DUPLICATE KEY UPDATE ?', [playerStats, playerStats], (err) => {
 				if (err) {
 					mysql.rollback(function() {
 						throw err;
@@ -31,7 +31,7 @@ export class SaveController {
 				}
 			});
 
-			mysql.query('INSERT INTO `player_equipment` SET ? ON DUPLICATE KEY UPDATE ?', [playerEquipment, playerEquipment], (err, res) => {
+			mysql.query('INSERT INTO `player_equipment` SET ? ON DUPLICATE KEY UPDATE ?', [playerEquipment, playerEquipment], (err) => {
 				if (err) {
 					mysql.rollback(function() {
 						throw err;
@@ -47,7 +47,7 @@ export class SaveController {
 				gridNumbers: '',
 			}
 
-			mysql.query('INSERT INTO `player_inventory` SET ? ON DUPLICATE KEY UPDATE ?', [inventoryData, inventoryData], (err, res) => {
+			mysql.query('INSERT INTO `player_inventory` SET ? ON DUPLICATE KEY UPDATE ?', [inventoryData, inventoryData], (err) => {
 				if (err) {
 					mysql.rollback(function() {
 						throw err;
@@ -75,7 +75,7 @@ export class SaveController {
 		mysql.query('INSERT INTO `accounts` SET ? ON DUPLICATE KEY UPDATE ?', [formattedAccountData, formattedAccountData], this._handleSaveError);        
 	}
 
-	static _handleSaveError(error, result) {
+	static _handleSaveError(error) {
 		if (error) {
 			console.log(error);
 		}

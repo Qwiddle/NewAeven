@@ -1,6 +1,6 @@
 export class GetController {
-	static getPlayer(mysql, player, loadPlayerData, createNewPlayer) {
-		mysql.query('SELECT * FROM players WHERE players.username=?', [player.username], (error, rows, fields) => {
+	static getPlayerData(mysql, player, loadPlayerData, createNewPlayer) {
+		mysql.query('SELECT * FROM players WHERE players.username=?', [player.username], (error, rows) => {
 			if (rows.length === 1) {            
 				const data = rows.shift();
 				this._logUsernameMismatch(data, player, 'player');
@@ -12,7 +12,7 @@ export class GetController {
 	}
 
 	static getInventory(mysql, player, loadInventoryData, createNewInventory) {
-		mysql.query('SELECT * FROM player_inventory WHERE player_inventory.username=?', [player.username], (error, rows, fields) => {
+		mysql.query('SELECT * FROM player_inventory WHERE player_inventory.username=?', [player.username], (error, rows) => {
 			if (rows.length === 1) {            
 				const data = rows.shift();
 				this._logUsernameMismatch(data, player, 'player');
@@ -24,7 +24,7 @@ export class GetController {
 	}
 
 	static getAccount(mysql, username, onSuccess, onFail) {
-		mysql.query('SELECT * FROM accounts WHERE accounts.account_name=?', [username], (error, rows, fields) => {
+		mysql.query('SELECT * FROM accounts WHERE accounts.account_name=?', [username], (error, rows) => {
 			if (rows.length === 1) {
 				const data = rows.shift();
 				onSuccess(data);  
@@ -35,7 +35,7 @@ export class GetController {
 	}
 
 	static getPlayer(mysql, username, onSuccess, onFailure) {
-		mysql.query('SELECT * FROM players WHERE players.username=?', [username], (error, rows, fields) => {
+		mysql.query('SELECT * FROM players WHERE players.username=?', [username], (error, rows) => {
 			if (rows.length === 1) {
 				const data = rows.shift();
 				onSuccess(data);  
@@ -46,7 +46,7 @@ export class GetController {
 	}
 
 	static getCharacters(mysql, accountName, onCharactersExist, onNoCharacters) {
-		mysql.query('SELECT * FROM players WHERE players.account_name=?', [accountName], (error, rows, fields) => {
+		mysql.query('SELECT * FROM players WHERE players.account_name=?', [accountName], (error, rows) => {
 			if (rows.length > 0) {
 				onCharactersExist(rows);
 			} else {
@@ -55,16 +55,19 @@ export class GetController {
 		});
 	}
 	
-
-	static getStats(mysql, username) {
-		mysql.query('SELECT * FROM `player_stats` WHERE `player_stats.username`=?', [username], (error, rows, fields) => {
-			const data = rows.shift();
-			this._logUsernameMismatch(data, player, 'player_stats');
+	static getStats(mysql, username, onSuccess, onFailure) {
+		mysql.query('SELECT * FROM `player_stats` WHERE `player_stats.username`=?', [username], (error, rows) => {
+			if (rows.length === 1) {
+				const data = rows.shift();
+				onSuccess(data);
+			} else {
+				onFailure();
+			}
 		});
 	}
 
 	static getAllPlayerData(mysql, player, loadPlayer) {
-		mysql.query('SELECT * FROM players INNER JOIN player_inventory ON players.username = player_inventory.username INNER JOIN player_stats ON players.username = player_stats.username INNER JOIN player_equipment ON player_equipment.username = players.username WHERE players.username=?', [player.username], (error, rows, fields) => {
+		mysql.query('SELECT * FROM players INNER JOIN player_inventory ON players.username = player_inventory.username INNER JOIN player_stats ON players.username = player_stats.username INNER JOIN player_equipment ON player_equipment.username = players.username WHERE players.username=?', [player.username], (error, rows) => {
 			if (rows.length === 1) {            
 				const data = rows.shift();
 				this._logUsernameMismatch(data, player, 'all_player_data');
