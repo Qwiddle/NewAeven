@@ -14,9 +14,9 @@ const MapManager = require('./util/mapManager.js').default;
 const PubManager = require('./util/pubManager.js').default;
 const CombatManager = require('./util/combatManager.js').default;
 const Player = require('../client/js/entity/player.js').default;
-const Enemy = require('../client/js/entity/Enemy.js').default;
-const PlayerController = require('../client/js/entity/PlayerController.js').default;
-const EnemyController = require('../client/js/entity/EnemyController.js').default;
+const Enemy = require('../client/js/entity/enemy.js').default;
+const PlayerController = require('../client/js/entity/playerController.js').default;
+const EnemyController = require('../client/js/entity/enemyController.js').default;
 
 class Server {
 	constructor() {
