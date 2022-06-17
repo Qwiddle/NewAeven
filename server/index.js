@@ -1,22 +1,33 @@
-require = require("esm")(module);
-const Primus = require('primus');
+//require = require("esm")(module);
+/*const Primus = require('primus');
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const bcrypt = require('bcrypt');
-const msgpack = require("msgpack-lite");
+const msgpack = require("msgpack-lite");*/
 
-const global = require('../client/js/global.js').default;
-const DatabaseManager = require('./util/databaseManager.js').default;
-const WorldManager = require('./util/worldManager.js').default;
-const MapManager = require('./util/mapManager.js').default;
-const PubManager = require('./util/pubManager.js').default;
-const CombatManager = require('./util/combatManager.js').default;
-const Player = require('../client/js/entity/player.js').default;
-const Enemy = require('../client/js/entity/Enemy.js').default;
-const PlayerController = require('../client/js/entity/PlayerController.js').default;
-const EnemyController = require('../client/js/entity/EnemyController.js').default;
+import Primus from 'primus';
+import express from 'express';
+import http from 'http';
+import path from 'path';
+import uuid from 'uuid';
+import bcrypt from 'bcrypt';
+import msgpack from 'msgpack-lite';
+
+import { fileURLToPath } from 'url';
+
+import { global } from '../client/js/global.mjs';
+
+import DatabaseManager from './util/databaseManager.js';
+import WorldManager from './util/worldManager.js';
+import CombatManager from './util/combatManager.js';
+
+import { Player } from '../client/js/entity/player.mjs';
+import { Enemy } from '../client/js/entity/enemy.mjs';
+
+import { PlayerController } from '../client/js/entity/playerController.mjs';
+import { EnemyController } from '../client/js/entity/enemyController.mjs';
 
 class Server {
 	constructor() {
@@ -34,6 +45,10 @@ class Server {
 
 	start() {
 		const app = express();
+
+		const __filename = fileURLToPath(import.meta.url);
+		const __dirname = path.dirname(__filename);
+
 		app.use(express.static(path.join(__dirname, '../client')));
 
 		const server = http.createServer(app);
@@ -67,7 +82,7 @@ class Server {
 			let decodedData = msgpack.decode(data.data);
 			let packet = JSON.parse(decodedData);
 
-			if(this.events.hasOwnProperty(packet.event)) {
+			if(Object.prototype.hasOwnProperty.call(this.events, packet.event)) {
 				packet.id = socket.id;
 				this.events[packet.event](packet, socket);
 			}
@@ -79,7 +94,7 @@ class Server {
 	}
 
 	onLoginAttempt(packet) {
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket) => {
 			if (socket.id === packet.id) {
 				this.isValidLoginAttempt(socket, packet.username, packet.password);		
 			}
@@ -131,7 +146,7 @@ class Server {
 	}
 
 	onRegisterAttempt(packet) {
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket) => {
 			if (socket.id === packet.id) {	
 				this.attemptRegistration(socket, packet);		
 			}
@@ -184,7 +199,7 @@ class Server {
 	}
 
 	isValidEmail(email) {
-		const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 		return re.test(String(email).toLowerCase());
 	}
 
@@ -299,8 +314,8 @@ class Server {
 
 	playerLogin(socket, username) {
 		const startMapID = global.startMapID;
-		const startMapX = global.startMapX;
-		const startMapY = global.startMapY;
+		//const startMapX = global.startMapX;
+		//const startMapY = global.startMapY;
 
 		const newPlayer = new Player();
 
@@ -433,11 +448,10 @@ class Server {
 
 		if (PlayerController.pressedKey(player)) {
 			if (PlayerController.hasAttacked(player)) {
-			   this.handleCombat(player, id);
+				this.handleCombat(player, id);
 			} else if (!PlayerController.hasRotated(player)) {
 				player.lastMoveTime = Date.now();
 			}
-
 
 			PlayerController.updatePosition(player);
 			player.processedPackets[player.processedPackets.length - 1].pos = player.pos;
@@ -488,7 +502,7 @@ class Server {
 
 		let playerKeys = new Set(Object.keys(this.worldManager.players));   
 
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket) => {
 			playerKeys.delete(socket.id);
 		});
 
@@ -511,7 +525,7 @@ class Server {
 
 		this.removeDeadEnemies();
 
-		this.primus.forEach((socket, id, connections) => {
+		this.primus.forEach((socket, id) => {
 			if(!socket.authenticated) { 
 				return;
 			}
@@ -679,7 +693,7 @@ class Server {
 	}
 
 	hasMetaData(update, key) {
-		return update.hasOwnProperty(key) && !this.isJsonObjectEmpty(update[key]);
+		return Object.prototype.hasOwnProperty.call(update, key) && !this.isJsonObjectEmpty(update[key]);
 	}
 
 	send(packet, socket) {

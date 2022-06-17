@@ -1,10 +1,10 @@
-export default class CreateController { 
+export class CreateController { 
 	static _createTableIfNotExists(mysql, tableName, ifNotExists) {
 		let exists = 0;
 
 		mysql.query('SELECT count(*) as count FROM information_schema.TABLES WHERE (TABLE_SCHEMA = ?) AND (TABLE_NAME = ?)', [mysql.config.database, tableName], (err, rows) => {
 			if (err) {
-				console.log.error(err);
+				console.error(err);
 				throw err;
 			}
 
@@ -50,7 +50,7 @@ export default class CreateController {
 			'CREATE TABLE players (' +
 			'account_name VARCHAR(64) NOT NULL,' + 
 			'username VARCHAR(64) NOT NULL,' +
-			'admin INT unsigned NOT NULL,' +
+			'admin INT unsigned NOT NULL DEFAULT 0,' +
 			'sex INT unsigned NOT NULL,' +
 			'race INT unsigned NOT NULL,' +
 			'hairColor INT unsigned NOT NULL,' +

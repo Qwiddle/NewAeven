@@ -23,17 +23,6 @@ export default class MapManager {
 			mapData[i].fill(0);
 		}
 
-		let count = 0;
-
-		const TILE_WALL = 2;
-
-		for(let i = 0; i < width; i++) {
-			for(let j = 0; j < height; j++) {
-				//addwalls
-				count++;
-			}
-		}
-
 		return mapData;
 	}
 }

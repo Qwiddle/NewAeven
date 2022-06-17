@@ -1,4 +1,4 @@
-const global = {
+export const global = {
     //server settings
     numMaps: 1,
     messageCap: 180,
@@ -38,5 +38,3 @@ const global = {
     tilePlayer: 9,
     tileEmpty: 0,
 };
-
-module.exports = global

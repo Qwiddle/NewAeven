@@ -1,21 +1,20 @@
-const mysql = require("mysql");
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const CreateController = require('./db/createController.js').default;
-const SaveController = require('./db/saveController.js').default;
-const GetController = require('./db/getController.js').default;
+import mysql from 'mysql2';
 
+import { CreateController } from './db/createController.js';
+import { GetController } from './db/getController.js';
+import { SaveController } from './db/saveController.js';
 export default class DatabaseManager {
-	constructor(world) {
-		this.dbuser = "";
-		this.dbpassword = "";
-
+	constructor() {
 		this.dbconfig = {
 			//leave blank if you are using environment variables
-			user: process.env.DBUSER || this.dbuser,
-			password: process.env.DBPASSWORD || this.dbpassword,
-			host: "localhost",
-			database: "new_aeven",
+			user: process.env.DBUSER || '',
+			password: process.env.DBPASSWORD || '',
+			host: process.env.DBHOST || 'localhost',
+      port: process.env.DBPORT || 3306,
+			database: process.env.DB || "new_aeven"
 		};
 
 		this.connect();

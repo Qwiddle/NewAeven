@@ -1,4 +1,4 @@
-import global from '../global.js';
+import { global } from '../global.mjs';
 
 export class PathFinder {
 	constructor(grid) {

@@ -1,6 +1,6 @@
 import { Entity } from './entity.mjs';
 
-export default class Enemy extends Entity {
+export class Enemy extends Entity {
 	constructor(map, mapData, eid) {
 		super();
 

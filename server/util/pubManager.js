@@ -1,6 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
+import fs from 'fs';
 export default class PubManager {
 	constructor() {
 		this.items = [];
@@ -12,7 +10,7 @@ export default class PubManager {
 	read(path, done) {
 		fs.readdir(path, (error, files) => {
 			if(error) {
-				throw err;
+				throw error;
 			} else {
 				let remaining = files.length;
 
@@ -22,7 +20,7 @@ export default class PubManager {
 							throw err;
 
 						let file = JSON.parse(data);
-						let length = Object.keys(file).length;
+						
 						remaining--;
 
 						if(files[i].includes('items')) {
@@ -47,7 +45,6 @@ export default class PubManager {
 		const width = map.width;
 		const height = map.height;
 		let mapData = [];
-		let count = 0;
 
 		for(let i = 0; i < width; i++) {
 			mapData[i] = [];
@@ -55,15 +52,12 @@ export default class PubManager {
 			mapData[i].fill(0);
 		}
 
-		const TILE_WALL = 2;
-
-		for(let i = 0; i < width; i++) {
+		/*for(let i = 0; i < width; i++) {
 			for(let j = 0; j < height; j++) {
 				//check for specs
 
-				count++;
 			}
-		}
+		}*/
 
 		return mapData;
 	}
