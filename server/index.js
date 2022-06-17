@@ -552,8 +552,8 @@ class Server {
 			return;
 		}
 
-		let enemy = new Enemy(map, this.worldManager.dynamicMapData[map], uuid());
-
+		let enemy = new Enemy(map, this.worldManager.dynamicMapData[map], uuid.v4());
+		
 		//hard coded temporarily
 		enemy.prevPos = {x: 5, y: 2};
 		enemy.pos = {x: 5, y: 2};
