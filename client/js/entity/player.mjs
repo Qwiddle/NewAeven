@@ -1,4 +1,4 @@
-class Player {
+export class Player {
 	constructor(sex, race, username) {
 		this.initCosmetics(sex, race);
 		this.initKinematics();
@@ -71,5 +71,3 @@ class Player {
 		this.messageDelay = 0;
     }
 }
-
-export { Player };

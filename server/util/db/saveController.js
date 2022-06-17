@@ -1,4 +1,4 @@
-export default class SaveController {
+export class SaveController {
 	static savePlayerState(mysql, player) {
 		const playerData = this._getFormattedPlayerData(player);
 		const playerStats = this._getFormattedPlayerStats(player);

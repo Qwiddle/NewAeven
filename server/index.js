@@ -1,20 +1,33 @@
-require = require("esm")(module);
-const Primus = require('primus');
+//require = require("esm")(module);
+/*const Primus = require('primus');
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const uuid = require('uuid/v4');
+const uuid = require('uuid');
 const bcrypt = require('bcrypt');
-const msgpack = require("msgpack-lite");
+const msgpack = require("msgpack-lite");*/
 
-const global = require('../client/js/global.js').default;
-const DatabaseManager = require('./util/databaseManager.js').default;
-const WorldManager = require('./util/worldManager.js').default;
-const CombatManager = require('./util/combatManager.js').default;
-const Player = require('../client/js/entity/player.js').default;
-const Enemy = require('../client/js/entity/enemy.js').default;
-const PlayerController = require('../client/js/entity/playerController.js').default;
-const EnemyController = require('../client/js/entity/enemyController.js').default;
+import Primus from 'primus';
+import express from 'express';
+import http from 'http';
+import path from 'path';
+import uuid from 'uuid';
+import bcrypt from 'bcrypt';
+import msgpack from 'msgpack-lite';
+
+import { fileURLToPath } from 'url';
+
+import { global } from '../client/js/global.mjs';
+
+import DatabaseManager from './util/databaseManager.js';
+import WorldManager from './util/worldManager.js';
+import CombatManager from './util/combatManager.js';
+
+import { Player } from '../client/js/entity/player.mjs';
+import { Enemy } from '../client/js/entity/enemy.mjs';
+
+import { PlayerController } from '../client/js/entity/playerController.mjs';
+import { EnemyController } from '../client/js/entity/enemyController.mjs';
 
 class Server {
 	constructor() {
@@ -32,6 +45,12 @@ class Server {
 
 	start() {
 		const app = express();
+
+		const __filename = fileURLToPath(import.meta.url);
+		const __dirname = path.dirname(__filename);
+		
+		console.log(path.join(__dirname, '../client'));
+
 		app.use(express.static(path.join(__dirname, '../client')));
 
 		const server = http.createServer(app);

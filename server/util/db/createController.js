@@ -1,4 +1,4 @@
-export default class CreateController { 
+export class CreateController { 
 	static _createTableIfNotExists(mysql, tableName, ifNotExists) {
 		let exists = 0;
 

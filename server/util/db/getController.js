@@ -1,4 +1,4 @@
-export default class GetController {
+export class GetController {
 	static getPlayer(mysql, player, loadPlayerData, createNewPlayer) {
 		mysql.query('SELECT * FROM players WHERE players.username=?', [player.username], (error, rows, fields) => {
 			if (rows.length === 1) {            
