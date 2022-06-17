@@ -1,8 +1,8 @@
-import MapRenderer from '../render/mapRenderer.js';
-import PlayerSprite from '../render/playerSprite.js';
-import EnemySprite from '../render/enemySprite.js';
+import { MapRenderer } from '../render/mapRenderer.mjs';
+import { PlayerSprite } from '../render/playerSprite.mjs';
+import { EnemySprite } from '../render/enemySprite.mjs';
 
-export default class GameScene extends Phaser.Scene {
+export class GameScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'game'});
 		this.sprites = [];

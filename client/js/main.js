@@ -1,4 +1,4 @@
-import Client from './client.js';
+import { Client } from './client.mjs';
 
 class Main {
 	constructor() {

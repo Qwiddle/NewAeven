@@ -1,6 +1,6 @@
-import ViewLoader from '../ui/viewLoader.js';
+import { ViewLoader } from '../ui/viewLoader.mjs';
 
-export default class HomeScene extends Phaser.Scene {
+export class HomeScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'home'});
 		this.viewLoader = new ViewLoader();

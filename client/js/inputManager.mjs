@@ -1,4 +1,4 @@
-export default class InputManager {
+export class InputManager {
 	constructor() {
 		this.keys = [];
 		this.keyTimer = 0;

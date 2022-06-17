@@ -1,7 +1,7 @@
-import global from './global.js'
-import InputManager from './inputManager.js';
+import { global } from './global.mjs'
+import { InputManager } from './inputManager.mjs';
 
-export default class ClientController {
+export class ClientController {
 	constructor(client, phaser) {
 		this.client = client;
 		this.phaser = phaser;

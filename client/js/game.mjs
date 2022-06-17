@@ -1,24 +1,21 @@
-import ViewLoader from './ui/viewLoader.js';
-import UIHandler from './ui/uiHandler.js';
-import BootScene from './scenes/bootScene.js';
-import LoadScene from './scenes/loadScene.js';
-import HomeScene from './scenes/homeScene.js';
-import GameScene from './scenes/gameScene.js';
-import Player from './entity/player.js';
-import Enemy from './entity/enemy.js';
-import PlayerSprite from './render/playerSprite.js';
-import EnemySprite from './render/enemySprite.js';
-import PlayerController from './entity/playerController.js';
-import EnemyController from './entity/enemyController.js';
-import ClientController from './clientController.js';
-import ChatManager from './util/chatManager.js';
-import PathFinder from './util/pathFinder.js';
-import global from './global.js';
+import { UIHandler } from './ui/uiHandler.mjs';
+import { BootScene } from './scenes/bootScene.mjs';
+import { LoadScene } from './scenes/loadScene.mjs';
+import { HomeScene } from './scenes/homeScene.mjs';
+import { GameScene } from './scenes/gameScene.mjs';
+import { Player } from './entity/player.mjs';
+import { Enemy } from './entity/enemy.mjs';
+import { PlayerController } from './entity/playerController.mjs';
+import { EnemyController } from './entity/enemyController.mjs';
+import { ClientController } from './clientController.mjs';
+import { ChatManager } from './util/chatManager.mjs';
+import { PathFinder } from './util/pathFinder.mjs';
+import { global } from './global.mjs';
 
-export default class Game {
+export class Game {
 	constructor(client) {
 		this.config = {
-			type: Phaser.WEBGL,
+			type: Phaser.AUTO,
 			pixelArt: true,
 			roundPixels: true,
 			disableContextMenu: true,

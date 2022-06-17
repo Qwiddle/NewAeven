@@ -1,4 +1,4 @@
-export default class UIHandler {
+export class UIHandler {
 	constructor(game) {
 		this.game = game;
 		this.client = game.client;
