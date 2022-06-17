@@ -1,4 +1,4 @@
-import global from '../../client/js/global.js';
+import { global } from '../../client/js/global.mjs';
 import PubManager from '../util/pubManager.js';
 export default class WorldManager {
 	constructor(server) {

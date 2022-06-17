@@ -1,17 +1,9 @@
-//require = require("esm")(module);
-/*const Primus = require('primus');
-const express = require('express');
-const http = require('http');
-const path = require('path');
-const uuid = require('uuid');
-const bcrypt = require('bcrypt');
-const msgpack = require("msgpack-lite");*/
-
-import Primus from 'primus';
 import express from 'express';
+import colyseus from 'colyseus';
+import { WebSocketTransport } from "@colyseus/ws-transport"
 import http from 'http';
 import path from 'path';
-import uuid from 'uuid';
+import * as uuid from 'uuid';
 import bcrypt from 'bcrypt';
 import msgpack from 'msgpack-lite';
 
@@ -52,26 +44,18 @@ class Server {
 		app.use(express.static(path.join(__dirname, '../client')));
 
 		const server = http.createServer(app);
-		const port = process.env.PORT || 8443;
 
-		this.primus = new Primus(server);
+		const port = 8443;
 
-		server.listen(port, () => {
-			console.log("World successfully loaded. Connection launched, Listening on port: " + port +".");
+		const gameServer = new colyseus.Server({
+			transport: new WebSocketTransport({
+				server: server
+			})
 		});
 
-		this.primus.on('connection', (socket) => {
-			this.onConnection(socket);
-		});
+		gameServer.listen(port);
 
-		this.primus.on('disconnection', (socket) => {
-			this.onDisconnect(socket);
-		});
-
-		setInterval(() => this.serverUpdate(), global.serverTick);
-		setInterval(() => this.physicsUpdate(), global.physicsTick);
-
-		this.spawnEnemies(3, 0);
+		console.log(`Listening on port: ${port}`)
 	}
 
 
@@ -568,8 +552,8 @@ class Server {
 			return;
 		}
 
-		let enemy = new Enemy(map, this.worldManager.dynamicMapData[map], uuid());
-
+		let enemy = new Enemy(map, this.worldManager.dynamicMapData[map], uuid.v4());
+		
 		//hard coded temporarily
 		enemy.prevPos = {x: 5, y: 2};
 		enemy.pos = {x: 5, y: 2};
