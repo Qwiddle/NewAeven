@@ -4,6 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
+		"lint": "eslint ./",
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"start": "node index.js",
 		"dev": "nodemon index.js"
@@ -17,10 +18,13 @@
 		"express": "^4.17.1",
 		"msgpack-lite": "^0.1.26",
 		"mysql2": "^2.3.3",
-		"nodemon": "^2.0.16",
 		"primus": "^7.3.4",
 		"primus-msgpack": "^1.0.2",
 		"uuid": "^3.4.0",
 		"ws": "^7.2.1"
+	},
+	"devDependencies": {
+		"eslint": "^8.17.0",
+		"nodemon": "^2.0.16"
 	}
 }
