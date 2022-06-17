@@ -1,12 +1,3 @@
-//require = require("esm")(module);
-/*const Primus = require('primus');
-const express = require('express');
-const http = require('http');
-const path = require('path');
-const uuid = require('uuid');
-const bcrypt = require('bcrypt');
-const msgpack = require("msgpack-lite");*/
-
 import Primus from 'primus';
 import express from 'express';
 import http from 'http';
