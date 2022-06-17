@@ -1,4 +1,4 @@
-const mysql = require("mysql");
+const mysql = require("mysql2");
 require('dotenv').config();
 
 const CreateController = require('./db/createController.js').default;
@@ -7,7 +7,7 @@ const GetController = require('./db/getController.js').default;
 
 export default class DatabaseManager {
 	constructor(world) {
-    this.dbconfig = {
+		this.dbconfig = {
 			//leave blank if you are using environment variables
 			user: process.env.DBUSER || '',
 			password: process.env.DBPASSWORD || '',
