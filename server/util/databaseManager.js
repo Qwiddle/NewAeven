@@ -7,15 +7,13 @@ const GetController = require('./db/getController.js').default;
 
 export default class DatabaseManager {
 	constructor(world) {
-		this.dbuser = "";
-		this.dbpassword = "";
-
-		this.dbconfig = {
+    this.dbconfig = {
 			//leave blank if you are using environment variables
-			user: process.env.DBUSER || this.dbuser,
-			password: process.env.DBPASSWORD || this.dbpassword,
-			host: "localhost",
-			database: "new_aeven",
+			user: process.env.DBUSER || '',
+			password: process.env.DBPASSWORD || '',
+			host: process.env.DBHOST || 'localhost',
+      port: process.env.DBPORT || 3306,
+			database: process.env.DB || "new_aeven"
 		};
 
 		this.connect();
