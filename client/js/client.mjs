@@ -1,10 +1,10 @@
-import ViewLoader from './ui/viewLoader.js';
-import Game from './game.js';
+import { ViewLoader } from './ui/viewLoader.mjs';
+import { Game } from './game.mjs';
 
-export default class Client {
+export class Client {
 	constructor() {
 		this.ip = {
-			address: '173.79.32.4',
+			address: '127.0.0.1',
 			port: '8443',
 		};
 

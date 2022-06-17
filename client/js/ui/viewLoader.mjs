@@ -1,4 +1,4 @@
-export default class ViewLoader {
+export class ViewLoader {
 	constructor() {
 		this.fadeInTime = 450;
 		this.fadeOutTime = 450;

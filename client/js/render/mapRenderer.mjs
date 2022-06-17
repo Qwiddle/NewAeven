@@ -1,4 +1,4 @@
-export default class MapRenderer {
+export class MapRenderer {
 	constructor(scene, json) {
 		this.tileWidth = 64;
 		this.tileHeight = 32;

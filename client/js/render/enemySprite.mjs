@@ -1,6 +1,6 @@
-import global from '../global.js';
+import { global } from '../global.mjs';
 
-export default class EnemySprite extends Phaser.GameObjects.Container {
+export class EnemySprite extends Phaser.GameObjects.Container {
 	constructor(config) {
 		super(config.scene, config.x, config.y);
 		this.scene = config.scene;

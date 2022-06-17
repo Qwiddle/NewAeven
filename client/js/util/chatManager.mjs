@@ -1,6 +1,6 @@
-import global from '../global.js';
+import { global } from '../global.mjs';
 
-export default class ChatManager {
+export class ChatManager {
 	constructor() {
 		this.messageQueue = [];
 		this.commandQueue = [];

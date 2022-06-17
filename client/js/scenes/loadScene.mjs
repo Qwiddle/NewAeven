@@ -1,4 +1,4 @@
-export default class LoadScene extends Phaser.Scene {
+export class LoadScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'load'});
 	}
