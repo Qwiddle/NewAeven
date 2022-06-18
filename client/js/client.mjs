@@ -22,21 +22,16 @@ export class Client {
 		};
 	}
 
-	connect() {
-		this.primus = new Primus(this.ip.address + ":" + this.ip.port, {
-			reconnect: {
-		    	maxDelay: Infinity,
-		    	minDelay: 500,
-		    	retries: 10
-			},
-			strategy: ['online', 'timeout'],
+	async connect() {
+		this.colyseus = new Colyseus.Client(`ws://${this.ip.address}:${this.ip.port}`);
+
+		const relay = await this.colyseus.joinOrCreate("main_room").then( room => {
+			console.log(room.sessionId, "joined", room.name);
+		}).catch(e => {
+			console.log(e);
 		});
 
-		this.primus.on("open", () => {
-			console.log('successfully connected to the game server.');
-		});
-
-		this.primus.on('data', (data) => {
+		/*this.primus.on('data', (data) => {
 			const decodedData = msgpack.decode(data.data);
 			const packet = JSON.parse(decodedData);
 			
@@ -49,7 +44,7 @@ export class Client {
 			
 			location.reload();
 			alert('disconnected from server.');
-		});
+		});*/
 	}
 
 	login(username, password) {
