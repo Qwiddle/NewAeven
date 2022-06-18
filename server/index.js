@@ -17,22 +17,14 @@ import CombatManager from './util/combatManager.js';
 
 import { Player } from '../client/js/entity/player.mjs';
 import { Enemy } from '../client/js/entity/enemy.mjs';
-
 import { PlayerController } from '../client/js/entity/playerController.mjs';
 import { EnemyController } from '../client/js/entity/enemyController.mjs';
 
+import { MainRoom } from './rooms/mainRoom.js';
 class Server {
 	constructor() {
 		this.dbManager = new DatabaseManager();
 		this.worldManager = new WorldManager(this);
-
-		this.events = {
-			'login': (packet) => this.onLoginAttempt(packet),
-			'register': (packet) => this.onRegisterAttempt(packet),
-			'playerCreate': (packet, socket) => this.onPlayerCreateAttempt(packet, socket),
-			'playerLogin': (packet, socket) => this.onPlayerLoginAttempt(packet, socket),
-			'physicsUpdate': (packet) => this.onPhysicsUpdate(packet)
-		};
 	}
 
 	start() {
@@ -54,6 +46,8 @@ class Server {
 		});
 
 		gameServer.listen(port);
+
+		gameServer.define("main_room", MainRoom);
 
 		console.log(`Listening on port: ${port}`)
 	}
