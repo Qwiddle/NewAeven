@@ -1,85 +1,58 @@
 import { Account } from "./models/account.js";
+import { Player } from "./models/player.js";
 
 export class GetController {
-	static getPlayerData(mysql, player, loadPlayerData, createNewPlayer) {
-		mysql.query('SELECT * FROM players WHERE players.username=?', [player.username], (error, rows) => {
-			if (rows.length === 1) {            
-				const data = rows.shift();
-				this._logUsernameMismatch(data, player, 'player');
-				loadPlayerData(player, data);
-			} else {
-				createNewPlayer(player);
-			}
+	static async getAccount(accountName, onSuccess, onFail) {
+		const account = await Account.exists({ account: accountName }, (err, account) => {
+			if (err) 
+				onFail(err);
+			else
+				onSuccess(account);
 		});
 	}
 
-	static getInventory(mysql, player, loadInventoryData, createNewInventory) {
-		mysql.query('SELECT * FROM player_inventory WHERE player_inventory.username=?', [player.username], (error, rows) => {
-			if (rows.length === 1) {            
-				const data = rows.shift();
-				this._logUsernameMismatch(data, player, 'player');
-				loadInventoryData(player, data);
-			} else {
-				createNewInventory(player);
-			}
-		});
-	}
-
-	static async getAccount(username, onSuccess, onFail) {
-		const account = await Account.exists({ account_name: username });
-
-		if(typeof(account) !== null)
-			onSuccess(account);
-		else
-			onFail();
-
-	}
-
-	static getPlayer(mysql, username, onSuccess, onFailure) {
-		mysql.query('SELECT * FROM players WHERE players.username=?', [username], (error, rows) => {
-			if (rows.length === 1) {
-				const data = rows.shift();
-				onSuccess(data);  
-			} else {
-				onFailure();
-			}
-		});
-	}
-
-	static getCharacters(mysql, accountName, onCharactersExist, onNoCharacters) {
-		mysql.query('SELECT * FROM players WHERE players.account_name=?', [accountName], (error, rows) => {
-			if (rows.length > 0) {
-				onCharactersExist(rows);
-			} else {
-				onNoCharacters();
-			}
+	static async getPlayers(accountName, onSuccess, onFail) {
+		const characters = await Player.find({ account: accountName }, (err, player) => {
+			if (err) 
+				onFail(err);
+			else
+				onSuccess(player);
 		});
 	}
 	
-	static getStats(mysql, username, onSuccess, onFailure) {
-		mysql.query('SELECT * FROM `player_stats` WHERE `player_stats.username`=?', [username], (error, rows) => {
-			if (rows.length === 1) {
-				const data = rows.shift();
-				onSuccess(data);
-			} else {
-				onFailure();
-			}
+	static async getPlayer(username, onSuccess, onFail) {
+		const player = await Player.exists({ username: username }, (err, player) => {
+			if (err) 
+				onFail(err);
+			else
+				onSuccess(player);
+		});
+	}
+	
+	static async getStats(username, onSuccess, onFail) {
+		const stats = await Player.find({ username: username }, (err, player) => {
+			if (err) 
+				onFail(err);
+			else
+				onSuccess(player.stats);
 		});
 	}
 
-	static getAllPlayerData(mysql, player, loadPlayer) {
-		mysql.query('SELECT * FROM players INNER JOIN player_inventory ON players.username = player_inventory.username INNER JOIN player_stats ON players.username = player_stats.username INNER JOIN player_equipment ON player_equipment.username = players.username WHERE players.username=?', [player.username], (error, rows) => {
-			if (rows.length === 1) {            
-				const data = rows.shift();
-				this._logUsernameMismatch(data, player, 'all_player_data');
-				loadPlayer(player, data);
-			}
+	static async getInventory(username, onSuccess, onFail) {
+		const inventory = await Player.exists({ username: username }, (err, player) => {
+			if (err) 
+				onFail(err);
+			else
+				onSuccess(player.inventory);
 		});
 	}
 
-	static _logUsernameMismatch(data, player, dataType) {
-		if (data.username !== player.username) {
-			console.log('Mismatch while retrieving ' + dataType + ' data for: ' + player.username);
-		}
+	static async getEquipment(username, onSuccess, onFail) {
+		const inventory = await Player.exists({ username: username }, (err, player) => {
+			if (err) 
+				onFail(err);
+			else
+				onSuccess(player.equipment);
+		});
 	}
 }
