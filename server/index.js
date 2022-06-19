@@ -1,18 +1,19 @@
 import express from 'express';
 import colyseus from 'colyseus';
+import mongoose from 'mongoose';
 import { WebSocketTransport } from "@colyseus/ws-transport"
 import http from 'http';
 import path from 'path';
 import * as uuid from 'uuid';
-import bcrypt from 'bcrypt';
+
 import msgpack from 'msgpack-lite';
 
 import { fileURLToPath } from 'url';
 
 import { global } from '../client/js/global.mjs';
 
-import DatabaseManager from './util/databaseManager.js';
-import WorldManager from './util/worldManager.js';
+import { WorldManager } from './util/worldManager.js';
+import { DatabaseManager } from './util/databaseManager.js';
 import CombatManager from './util/combatManager.js';
 
 import { Player } from '../client/js/entity/player.mjs';
@@ -21,10 +22,11 @@ import { PlayerController } from '../client/js/entity/playerController.mjs';
 import { EnemyController } from '../client/js/entity/enemyController.mjs';
 
 import { MainRoom } from './rooms/mainRoom.js';
+
 class Server {
 	constructor() {
-		this.dbManager = new DatabaseManager();
 		this.worldManager = new WorldManager(this);
+		this.databaseManager = new DatabaseManager();
 	}
 
 	start() {
@@ -36,7 +38,6 @@ class Server {
 		app.use(express.static(path.join(__dirname, '../client')));
 
 		const server = http.createServer(app);
-
 		const port = 8443;
 
 		const gameServer = new colyseus.Server({
@@ -46,12 +47,12 @@ class Server {
 		});
 
 		gameServer.listen(port);
-
 		gameServer.define("main_room", MainRoom);
 
-		console.log(`Listening on port: ${port}`)
-	}
+		mongoose.connect('mongodb://localhost/new_aeven');
 
+		console.log(`Listening on port: ${port}`);
+	}
 
 	onConnection(socket) {
 		console.log("client connected: " + socket.id);

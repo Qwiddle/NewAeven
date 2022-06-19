@@ -1,3 +1,5 @@
+import { Account } from "./models/account.js";
+
 export class GetController {
 	static getPlayerData(mysql, player, loadPlayerData, createNewPlayer) {
 		mysql.query('SELECT * FROM players WHERE players.username=?', [player.username], (error, rows) => {
@@ -23,15 +25,14 @@ export class GetController {
 		});
 	}
 
-	static getAccount(mysql, username, onSuccess, onFail) {
-		mysql.query('SELECT * FROM accounts WHERE accounts.account_name=?', [username], (error, rows) => {
-			if (rows.length === 1) {
-				const data = rows.shift();
-				onSuccess(data);  
-			} else {
-				onFail();
-			}
-		});
+	static async getAccount(username, onSuccess, onFail) {
+		const account = await Account.exists({ account_name: username });
+
+		if(typeof(account) !== null)
+			onSuccess(account);
+		else
+			onFail();
+
 	}
 
 	static getPlayer(mysql, username, onSuccess, onFailure) {
