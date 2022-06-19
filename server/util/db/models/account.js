@@ -3,8 +3,7 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const accountSchema = new Schema({
-  id: Number,
-  account_name: String,
+  account: String,
   password: String,
   email: String,
   ip: String,
