@@ -66,13 +66,3 @@ export class SaveController {
 		});
 	}
 }
-
-account: String,
-	password: String,
-	email: String,
-	ip: String,
-	created: {
-		type: Date,
-		default: Date.now
-	},
-	last_online: Date
