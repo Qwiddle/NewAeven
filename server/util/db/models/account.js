@@ -7,7 +7,10 @@ const accountSchema = new Schema({
 	password: String,
 	email: String,
 	ip: String,
-	created: Date,
+	created: {
+		type: Date,
+		default: Date.now
+	},
 	last_online: Date
 });
 
