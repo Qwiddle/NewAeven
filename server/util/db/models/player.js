@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 const { Schema, model } = mongoose;
 
 const playerSchema = new Schema({
-  account: String,
-  username: String,
-  admin: Number,
-  sex: Number,
-  race: Number,
+	account: String,
+	username: String,
+	admin: Number,
+	sex: Number,
+	race: Number,
 	hairColor: Number,
 	hairStyle: Number,
 	dir: Number,
