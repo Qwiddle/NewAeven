@@ -1,137 +1,78 @@
+import { Account } from "./models/account.js";
+import { Player } from "./models/player.js";
+import { GetController } from "./getController.js";
+
 export class SaveController {
-	static savePlayerState(mysql, player) {
+	static async savePlayerState(player) {
 		const playerData = this._getFormattedPlayerData(player);
 		const playerStats = this._getFormattedPlayerStats(player);
 		const playerEquipment = this._getFormattedEquipmentData(player);
-		
-		mysql.query('INSERT INTO `players` SET ? ON DUPLICATE KEY UPDATE ?', [playerData, playerData], this._handleSaveError);
-		mysql.query('INSERT INTO `player_stats` SET ? ON DUPLICATE KEY UPDATE ?', [playerStats, playerStats], this._handleSaveError);
-		mysql.query('INSERT INTO `player_equipment` SET ? ON DUPLICATE KEY UPDATE ?', [playerEquipment, playerEquipment], this._handleSaveError);
+
+		GetController.getPlayer(player.username, onSuccess, onFail);
+
+		const onSuccess = async (result) => {
+			result.username = player.username;
+			result.sex = player.sex;
+			result.race = player.race;
+			result.hairColor = player.hair.color;
+			result.hairStyle = player.hair.style;
+			result.map = player.map;
+			result.x = player.pos.x;
+			result.y = player.pos.y;
+			result.dir = player.dir;
+			result.stats = player.stats;
+			result.inventory = player.inventory;
+			result.equipment = player.equipment;
+
+			await result.save();
+		}
+
+		const onFail = (err) => { 
+			console.log(err);
+		}
 	}
 
-	static createNewPlayer(mysql, playerData, playerStats, playerEquipment, onSuccess) {
-		mysql.beginTransaction((err) => {
-			if (err) {
-				throw err;
-			}
-
-			mysql.query('INSERT INTO `players` SET ? ON DUPLICATE KEY UPDATE ?', [playerData, playerData], (err) => {
-				if (err) {
-					mysql.rollback(function() {
-						throw err;
-					})
-				}
-			});
-
-			mysql.query('INSERT INTO `player_stats` SET ? ON DUPLICATE KEY UPDATE ?', [playerStats, playerStats], (err) => {
-				if (err) {
-					mysql.rollback(function() {
-						throw err;
-					})
-				}
-			});
-
-			mysql.query('INSERT INTO `player_equipment` SET ? ON DUPLICATE KEY UPDATE ?', [playerEquipment, playerEquipment], (err) => {
-				if (err) {
-					mysql.rollback(function() {
-						throw err;
-					})
-				}
-			});
-
-			const inventoryData = {
-				username: playerData.username,
-				ids: '',
-				names: '',
-				amounts: '',
-				gridNumbers: '',
-			}
-
-			mysql.query('INSERT INTO `player_inventory` SET ? ON DUPLICATE KEY UPDATE ?', [inventoryData, inventoryData], (err) => {
-				if (err) {
-					mysql.rollback(function() {
-						throw err;
-					})
-				}
-			});
-
-			mysql.commit(function(err) {
-				if (err) {
-					mysql.rollback(function() {
-						throw err;
-					})
-				}
-				onSuccess();
-			});
+	static async createNewPlayer(data, onSuccess, onFail) {
+		await Player.create({
+			account: data.account,
+			username: data.username,
+			admin: data.admin,
+			sex: data.sex,
+			race: data.race,
+			hairColor: data.hairColor,
+			hairStyle: data.hairStyle,
+			dir: data.dir,
+			map: data.map,
+			x: data.x,
+			y: data.y,
+		}, (err, player) => {
+			if (err)
+				onFail(err);
+			else
+				onSuccess(player);
 		});
 	}
 
-	static saveInventoryState(mysql, player, inventory) {
-		const formattedData = this._getFormattedInventoryData(player, inventory);
-		mysql.query('INSERT INTO `player_inventory` SET ? ON DUPLICATE KEY UPDATE ?', [formattedData, formattedData], this._handleSaveError);
-	}
-
-	static saveAccountState(mysql, formattedAccountData) {
-		mysql.query('INSERT INTO `accounts` SET ? ON DUPLICATE KEY UPDATE ?', [formattedAccountData, formattedAccountData], this._handleSaveError);        
-	}
-
-	static _handleSaveError(error) {
-		if (error) {
-			console.log(error);
-		}
-	}
-
-	static _getFormattedPlayerData(player) {
-		return {
-			account_name: player.accountname,
-			username: player.username,
-			sex: player.sex,
-			race: player.race,
-			hairColor: player.hair.color,
-			hairStyle: player.hair.style,
-			map: player.map,
-			x: player.pos.x,
-			y: player.pos.y,
-			dir: player.dir
-		};
-	}
-
-	static _getFormattedPlayerStats(player) {
-		return {
-			username: player.username,
-			level: player.stats.level,
-			hp: player.stats.hp,
-			maxhp: player.stats.maxhp
-		}
-	}
-
-	static _getFormattedInventoryData(player, inventory) {
-		let formattedData = {
-			username: player.username,
-			ids: '',
-			names: '',
-			amounts: '',
-			gridNumbers: '',
-		}
-
-		for (let i = 0; i < inventory.length; i++) {
-			if (!inventory[i]) continue;
-			const item = inventory[i];
-			formattedData.ids += item.id + ' ';
-			formattedData.names += item.name + ' ';
-			formattedData.amounts += item.amount + ' ';
-			formattedData.gridNumbers += item.gridNumber + ' ';
-		}
-
-		return formattedData;
-	}
-
-	static _getFormattedEquipmentData(player) {
-		return {
-			username: player.username, 
-			armorID: player.equipment.armor.id,
-			bootsID: player.equipment.boots.id,
-			weaponID: player.equipment.weapon.id,
-		}
+	static async createNewAccount(data, onSuccess, onFail) {
+		await Account.create({
+			account: data.account,
+			email: data.email,
+			ip: data.ip
+		}, (err, account) => {
+			if (err)
+				onFail(err);
+			else
+				onSuccess(account);
+		});
 	}
 }
+
+account: String,
+	password: String,
+	email: String,
+	ip: String,
+	created: {
+		type: Date,
+		default: Date.now
+	},
+	last_online: Date
