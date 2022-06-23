@@ -1,46 +1,30 @@
 import Colyseus from 'colyseus';
 
+import { LoginHandler } from '../handlers/account/login.js';
+import { RegisterHandler } from '../handlers/account/register.js';
+
 export class MainRoom extends Colyseus.Room {
-	constructor(world) {
+	constructor() {
 		super();
 
 		this.events = {
-			'login': (message) => this.onLoginAttempt(message),
-			'register': (message) => this.onRegisterAttempt(message),
-			'playerCreate': (message, client) => this.onPlayerCreateAttempt(message, client),
-			'playerLogin': (message, client) => this.onPlayerLoginAttempt(message, client)
+			'login': (packet, client) => LoginHandler.onLogin(packet, client),
+			'register': (packet, client) => RegisterHandler.onRegister(packet, client)
 		};
-
-		this.world = world;
 	}
 
 	onCreate(options) {
-		this.onMessage("*", (client, type, message) => {
-			if(Object.prototype.hasOwnProperty.call(this.events, type)) {
-				//message.id = client.id;
-
-				this.events[type](message, client);
-			}
+		this.onMessage("*", (client, type, packet) => {
+			this.handleEvents(client, type, packet);
 		});
 	}
 	
 	onJoin(client, options) {
-		console.log(`[GameServer] - {client.sessionId}`);
+		console.log(`[GameServer] - ${client.sessionId}`);
 	}
 
-	onLoginAttempt(message) {
-
-	}
-
-	onRegisterAttmpt(message) {
-
-	}
-
-	onPlayerCreateAttempt(message, client) {
-
-	}
-
-	onPlayerLoginAttempt(message, client) {
-
+	handleEvents(client, type, packet) {
+		if(Object.prototype.hasOwnProperty.call(this.events, type))
+				this.events[type](packet, client);
 	}
 }

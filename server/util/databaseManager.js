@@ -1,34 +1,27 @@
 import { GetController } from './db/getController.js';
 import { SaveController } from './db/saveController.js';
 export class DatabaseManager {
-	createNewPlayer(formattedPlayerData, formattedStatsData, formattedEquipmentData, onSuccess) {
-		SaveController.createNewPlayer(formattedPlayerData, formattedStatsData, formattedEquipmentData, onSuccess);
+	static async createAccount (data) {
+		return await SaveController.createAccount(data);
 	}
 
-	createAccount(accountData, passwordHash, ip) {
-		const formattedAccountData = {
-			account_name: accountData.username,
-			password: passwordHash, 
-			email: accountData.email, 
-			ip: ip,
-		}
-
-		SaveController.saveAccountState(formattedAccountData);
+	static async createPlayer (data) {
+		return await SaveController.createPlayer(data);
 	}
 
-	getAccount(accountName, onSuccess, onFail) {
-		GetController.getAccount(accountName, onSuccess, onFail);
+	static async getAccount (accountName, onSuccess, onFail) {
+		return await GetController.getAccount(accountName);
 	}
 
-	getPlayer(username, onSuccess, onFail) {
-		GetController.getPlayer(username, onSuccess, onFail);        
+	static async getPlayer (username, onSuccess, onFail) {
+		return await GetController.getPlayer(username, onSuccess, onFail);        
 	}
 
-	getPlayers(accountName, onSuccess, onFail) {
-		GetController.getPlayers(accountName, onSuccess, onFail);
+	static async getPlayers (accountName, onSuccess, onFail) {
+		return await GetController.getPlayers(accountName, onSuccess, onFail);
 	}
 
-	saveWorldState(world) {
+	static async saveWorldState (world) {
 		for (const key in world.players) {
 			SaveController.savePlayerState(world.players[key]);
 		}

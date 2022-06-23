@@ -27,34 +27,23 @@ export class Client {
 
 		const relay = await this.colyseus.joinOrCreate("main_room").then( room => {
 			console.log(room.sessionId, "joined", room.name);
+			this.room = room;
 		}).catch(e => {
 			console.log(e);
 		});
 
-		/*this.primus.on('data', (data) => {
-			const decodedData = msgpack.decode(data.data);
-			const packet = JSON.parse(decodedData);
-			
-			if (this.events.hasOwnProperty(packet.event)) {
-				this.events[packet.event](packet);
-			};
-		});
-
-		this.primus.on('end', () => {
-			
-			location.reload();
-			alert('disconnected from server.');
-		});*/
+		//this.register('andrewbob', 'password', 'abc@abc.com');
+		this.login('andrewbob', 'password');
 	}
 
-	login(username, password) {
+	login(account, password) {
 		const loginPacket = {
 			'event': 'login',
-			'username': username,
+			'account': account,
 			'password': password,
 		};
 
-		this.send(loginPacket);
+		this.send(loginPacket, this.room);
 	}
 
 	onLogin(packet) {
@@ -84,16 +73,15 @@ export class Client {
 		}
 	}
 
-	register(username, password, passwordConfirm, email) {
-		const registerPacket = {
+	register(username, password, email) {
+		const packet = {
 			'event': 'register',
-			'username': username,
+			'account': username,
 			'password': password,
-			'passwordConfirm': passwordConfirm,
 			'email': email,
 		};
 
-		this.send(registerPacket);
+		this.send(packet, this.room);
 	}
 
 	onRegister(packet) {
@@ -158,7 +146,7 @@ export class Client {
 		});	
 	}
 
-	send(packet) {
-		this.primus.write(msgpack.encode(JSON.stringify(packet)));
+	send(packet, room) {
+		room.send(packet.event, packet);
 	}
 }
