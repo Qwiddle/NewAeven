@@ -3,7 +3,6 @@ import { ViewLoader } from '../ui/viewLoader.mjs';
 export class HomeScene extends Phaser.Scene {
 	constructor() {
 		super({key: 'home'});
-		this.viewLoader = new ViewLoader();
 	}
 
 	init(data) {
@@ -30,7 +29,7 @@ export class HomeScene extends Phaser.Scene {
 		this.header = this.add.image(this.centerX(), this.centerY() / 4, 'header');
 		this.scale.on('resize', this.resize, this);
 
-		this.viewLoader.loadView("home", true, () => {
+		ViewLoader.loadView("home", true, () => {
 			this.client.connect();
 		});
 
