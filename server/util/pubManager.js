@@ -1,5 +1,5 @@
 import fs from 'fs';
-export default class PubManager {
+export class PubManager {
 	constructor() {
 		this.items = [];
 		this.npcs = [];
