@@ -3,7 +3,6 @@ import { DatabaseManager } from "../../util/databaseManager.js";
 
 export class RegisterHandler {
 	static onRegister(packet, client) {
-		console.log(packet);
 		this.register(packet, client);
 	}
 
@@ -17,12 +16,10 @@ export class RegisterHandler {
 			ip: '127.0.0.1', //todo pass IP
 		};
 
-		const account = await DatabaseManager.createAccount(data);
-
-		console.log(account);
+		await DatabaseManager.createAccount(data);
 
 		const registerPacket = {
-			event: 'register',
+			event: 'account_register',
 			success: true,
 		};
 

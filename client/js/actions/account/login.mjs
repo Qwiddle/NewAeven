@@ -1,11 +1,13 @@
 export class AccountLoginAction {
 	static login(client, data) {
 		const packet = {
-			'event': 'login',
+			'event': 'account_login',
 			'account': data.account,
 			'password': data.password,
 		};
 
-		client.send(packet.event, packet);
+		client.account = packet.account;
+
+		client.room.send(packet.event, packet);
 	}
 }

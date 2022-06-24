@@ -1,10 +1,11 @@
 export class PlayerLoginAction {
 	static login(client, data) {
 		const packet = {
-			'event': 'playerLogin',
-			'playerID': data.id
+			'event': 'player_login',
+			'id': data.id,
+			'account': client.account
 		};
 	
-		client.send(packet.event, packet);
+		client.room.send(packet.event, packet);
 	}
 }

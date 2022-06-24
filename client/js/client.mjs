@@ -14,11 +14,11 @@ export class Client {
 		};
 
 		this.events = {
-			'register': (packet) => AccountRegisterHandler.onRegister(packet),
-			'login': (packet) => AccountLoginHandler.onLogin(packet),
-			'playerCreate': (packet) => PlayerCreateHandler.onCreate(packet),
-			'playerLogin': (packet) => PlayerLoginHandler.onLogin(packet),
-			'playerWelcome': (packet) => PlayerLoginHandler.onWelcome(packet)
+			'account_register': (packet) => AccountRegisterHandler.onRegister(packet),
+			'account_login': (packet) => AccountLoginHandler.onLogin(packet),
+			'player_create': (packet) => PlayerCreateHandler.onCreate(packet),
+			'player_login': (packet) => PlayerLoginHandler.onLogin(packet),
+			'player_welcome': (packet) => PlayerLoginHandler.onWelcome(packet)
 		};
 
 		this.connect();

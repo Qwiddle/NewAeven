@@ -84,19 +84,19 @@ export class Game {
 	}
 
 	playerLogin(data) {
-		this.actions.playerLogin(this.room, data);
+		this.actions.playerLogin(this.client, data);
 	}
 
 	playerCreate(data) {
-		this.actions.playerCreate(this.room, data);
+		this.actions.playerCreate(this.client, data);
 	}
 
 	accountRegister(data) {
-		this.actions.accountRegister(this.room, data);
+		this.actions.accountRegister(this.client, data);
 	}
 
 	accountLogin(data) {
-		this.actions.accountLogin(this.room, data);
+		this.actions.accountLogin(this.client, data);
 	}
 
 	playerConnected(packet) {
