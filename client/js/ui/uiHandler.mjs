@@ -3,7 +3,6 @@ import { ViewLoader } from "./viewLoader.mjs";
 export class UIHandler {
 	constructor(game) {
 		this.game = game;
-		this.client = game.client;
 		this.loadHandlers();
 	}
 
@@ -12,7 +11,7 @@ export class UIHandler {
 			const playerID = parseInt(e.target.id);
 
 			if(playerID <= 3) {
-				this.client.playerLogin(playerID);
+				this.game.playerLogin(playerID);
 			}		
 		});
 
@@ -49,7 +48,7 @@ export class UIHandler {
 
 			const skin = parseInt($('#skinnum')[0].innerHTML);
 
-			this.client.playerCreate(name, 0, skin, hair);
+			this.game.playerCreate(name, 0, skin, hair);
 		});
 
 		$('#views').on('keydown', '#chatinput', (e) => {
@@ -93,7 +92,12 @@ export class UIHandler {
 			if(userInput == "" || passInput == "") {
 				ViewLoader.showView("checkinput", true);
 			} else {
-				this.client.login(userInput, passInput);
+				const data = {
+					account: userInput,
+					password: passInput
+				};
+
+				this.game.accountLogin(data);
 			}
 		});
 
@@ -112,7 +116,13 @@ export class UIHandler {
 			if(userInput == "" || passInput == "" || passconfirmInput == "" || emailInput == "") {
 				ViewLoader.showView("checkinput", true);
 			} else {
-				this.client.register(userInput, passInput, passconfirmInput, emailInput);
+				const data = {
+					account: userInput,
+					password: passInput,
+					email: emailInput
+				};
+
+				this.game.accountRegister(data);
 			}
 		});
 

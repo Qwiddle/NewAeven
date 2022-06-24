@@ -1,7 +1,7 @@
 import { ViewLoader } from "../../ui/viewLoader.mjs";
 
 export class PlayerLoginHandler {
-	onLogin(packet) {
+	static onLogin(packet) {
 		if(packet.success) {
 			ViewLoader.removeView("characterselection", true);
 		} else {
@@ -9,7 +9,7 @@ export class PlayerLoginHandler {
 		}
 	}
 
-	onWelcome(packet) {
+	static onWelcome(packet) {
 		ViewLoader.removeView(ViewLoader.currentView, true, () => {
 			ViewLoader.loadView("hotkeys", true);
 

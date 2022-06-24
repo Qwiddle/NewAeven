@@ -1,7 +1,7 @@
 import { ViewLoader } from "../../ui/viewLoader.mjs";
 
 export class AccountLoginHandler {
-	onLogin(packet) {
+	static onLogin(packet) {
 		if (packet.success) {
 			if(packet.characters == 0) {
 				ViewLoader.removeView("home", true, () => {

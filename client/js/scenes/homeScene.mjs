@@ -30,7 +30,7 @@ export class HomeScene extends Phaser.Scene {
 		this.scale.on('resize', this.resize, this);
 
 		ViewLoader.loadView("home", true, () => {
-			this.client.connect();
+			//loaded
 		});
 
 		$('#views').on('click', '.clickable', () => {
