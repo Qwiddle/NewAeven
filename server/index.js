@@ -11,6 +11,7 @@ import msgpack from 'msgpack-lite';
 import { fileURLToPath } from 'url';
 
 import { global } from '../client/js/global.mjs';
+import { Router } from './util/routes/routes.js';
 
 import { WorldManager } from './util/worldManager.js';
 import { DatabaseManager } from './util/databaseManager.js';
@@ -35,6 +36,9 @@ class Server {
 		const __dirname = path.dirname(__filename);
 
 		app.use(express.static(path.join(__dirname, '../client')));
+		app.use(express.json());
+		app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+		app.use("/users", Router.router);
 
 		const server = http.createServer(app);
 		const port = 8443;
@@ -46,13 +50,13 @@ class Server {
 		});
 
 		gameServer.listen(port);
-		gameServer.define("main_room", MainRoom);
+		gameServer.define("main_room", MainRoom).filterBy(["map"]);
 
 		mongoose.connect('mongodb://localhost/new_aeven');
 
 		console.log(`Listening on port: ${port}`);
 	}
-	
+
 	registerAccount(packet, createAccount, registrationFailed) {
 		if (this.isValidEmail(packet.email) && this.isValidPassword(packet.password, packet.passwordConfirm)) {
 			this.isValidUsername(packet.username, createAccount, registrationFailed);
@@ -77,21 +81,6 @@ class Server {
 	isValidPassword(password, passwordConfirm) {
 		// Will add more requirements later on.
 		return password.length > 0 && password.length < 22 && password === passwordConfirm;
-	}
-
-	onPlayerLoginAttempt(packet, socket) {
-		const onCharactersExist = (rows) => {
-			const playerID = packet.playerID;
-			const player = rows[playerID];
-
-			this.playerLogin(socket, player.username);
-		}
-
-		const onNoCharacters = () => {
-			//disconnect
-		}
-
-		this.dbManager.getCharacters(socket.accountname, onCharactersExist, onNoCharacters);
 	}
 
 	onPhysicsUpdate(packet) {
