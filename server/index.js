@@ -16,7 +16,6 @@ import { WorldManager } from './util/worldManager.js';
 import { DatabaseManager } from './util/databaseManager.js';
 import CombatManager from './util/combatManager.js';
 
-import { Player } from '../client/js/entity/player.mjs';
 import { Enemy } from '../client/js/entity/enemy.mjs';
 import { PlayerController } from '../client/js/entity/playerController.mjs';
 import { EnemyController } from '../client/js/entity/enemyController.mjs';
@@ -53,114 +52,7 @@ class Server {
 
 		console.log(`Listening on port: ${port}`);
 	}
-
-	onConnection(socket) {
-		console.log("client connected: " + socket.id);
-
-		socket.on('data', (data) => {
-			let decodedData = msgpack.decode(data.data);
-			let packet = JSON.parse(decodedData);
-
-			if(Object.prototype.hasOwnProperty.call(this.events, packet.event)) {
-				packet.id = socket.id;
-				this.events[packet.event](packet, socket);
-			}
-		});
-	}
-
-	onDisconnect(socket) {
-		console.log("client disconnected: " + socket.id);
-	}
-
-	onLoginAttempt(packet) {
-		this.primus.forEach((socket) => {
-			if (socket.id === packet.id) {
-				this.isValidLoginAttempt(socket, packet.username, packet.password);		
-			}
-		});
-	}
-
-	isValidLoginAttempt(socket, username, password) {
-		const onFailure = () => {
-			const packet = {
-				event: 'login',
-				success: false,
-			}
-
-			this.send(packet, socket); 
-		}
-
-		const onSuccess = (data) => {
-			bcrypt.compare(password, data.password, (err, match) => {
-				if (match) {
-					const onCharactersExist = (data) => {
-						const packet = {
-							event: 'login',
-							success: true,
-							characters: data,
-						}
-
-						this.send(packet, socket); 
-					} 
-
-					const onNoCharacters = () => {
-						const packet = {
-							event: 'login',
-							success: true,
-							characters: 0,
-						}
-
-						this.send(packet, socket); 
-					}
-
-					socket.accountname = username;
-					this.dbManager.getCharacters(username, onCharactersExist, onNoCharacters);
-				} else {	
-					onFailure();
-				}
-			});
-		}
-
-		this.dbManager.getAccount(username, onSuccess, onFailure);
-	}
-
-	onRegisterAttempt(packet) {
-		this.primus.forEach((socket) => {
-			if (socket.id === packet.id) {	
-				this.attemptRegistration(socket, packet);		
-			}
-		});
-	}
-
-	attemptRegistration(socket, packet) {
-		const registrationSuccessful = () => {
-			const registerPacket = {
-				event: 'register',
-				success: true,
-			}
-
-			this.send(registerPacket, socket);
-		}
-
-		const registrationFailed = () => {
-			const registerPacket = {
-				event: 'register',
-				success: false,
-			}
-
-			this.send(registerPacket, socket);
-		}
-
-		const createAccount = () => {
-			bcrypt.hash(packet.password, 10, (err, hash) => {
-				this.dbManager.createAccount(packet, hash, socket.address);
-				registrationSuccessful();
-			});
-		}
-
-		this.registerAccount(packet, createAccount, registrationFailed);
-	}
-
+	
 	registerAccount(packet, createAccount, registrationFailed) {
 		if (this.isValidEmail(packet.email) && this.isValidPassword(packet.password, packet.passwordConfirm)) {
 			this.isValidUsername(packet.username, createAccount, registrationFailed);
@@ -187,95 +79,6 @@ class Server {
 		return password.length > 0 && password.length < 22 && password === passwordConfirm;
 	}
 
-	onPlayerCreateAttempt(packet, socket) {
-		const onCharactersExist = (rows) => {
-			if(rows.length < 3) {
-				if(rows.length == 1) {
-					packet.characters = 1;
-				}
-
-				if(rows.length == 2) {
-					packet.characters = 2;
-				}
-
-				if(rows.length <= 2) {
-					this.playerCreate(packet, socket);
-				}
-			}
-		}
-
-		const onNoCharacters = () => {
-			packet.characters = 0;
-			this.playerCreate(packet, socket);
-		}
-
-		this.dbManager.getCharacters(socket.accountname, onCharactersExist, onNoCharacters);
-	}
-
-	playerCreate(packet, socket) {
-		packet.username = packet.username.charAt(0).toUpperCase() + packet.username.slice(1);
-		let characters = packet.characters;
-
-		const nameUnavailable = () => {
-			const createPacket = {
-				event: 'playerCreate',
-				success: false,
-			}
-
-			this.send(createPacket, socket);
-		}
-
-		const nameAvailable = () => {
-			characters++;
-
-			const playerData = {
-				account_name: socket.accountname,
-				username: packet.username,
-				sex: packet.sex, 
-				race: packet.race,
-				hairStyle: packet.hair.style, 
-				hairColor: packet.hair.color,
-				map: 0, 
-				x: 0,
-				y: 0, 
-				dir: 0,
-			}
-
-			const statsData = {
-				username: packet.username,
-				level: 1,
-				hp: 30,
-				maxhp: 30,
-			}
-
-			const equipmentData = {
-				username: packet.username, 
-				armorID: 0,
-				bootsID: 0,
-				weaponID: 0,
-			}
-
-			const onSuccess = () => {
-				const createPacket = {
-					event: 'playerCreate',
-					success: true,
-					username: playerData.username,
-					sex: playerData.sex,
-					race: playerData.race,
-					hairStyle: playerData.hairStyle,
-					hairColor: playerData.hairColor,
-					characters: characters
-				}
-
-				this.send(createPacket, socket);
-			}
-
-			this.dbManager.createNewPlayer(playerData, statsData, equipmentData, onSuccess);
-		}
-
-		this.dbManager.getPlayer(packet.username, nameUnavailable, nameAvailable);
-	}
-
 	onPlayerLoginAttempt(packet, socket) {
 		const onCharactersExist = (rows) => {
 			const playerID = packet.playerID;
@@ -289,63 +92,6 @@ class Server {
 		}
 
 		this.dbManager.getCharacters(socket.accountname, onCharactersExist, onNoCharacters);
-	}
-
-	playerLogin(socket, username) {
-		const startMapID = global.startMapID;
-		//const startMapX = global.startMapX;
-		//const startMapY = global.startMapY;
-
-		const newPlayer = new Player();
-
-		newPlayer.username = username;
-		newPlayer.map = startMapID;
-		newPlayer.mapData = this.worldManager.mapData[startMapID];
-
-		const loadPlayer = (player, data) => {
-			player.accountname = data.account_name;
-			player.username = data.username;
-			player.sex = data.sex;
-			player.race = data.race;
-			player.map = data.map;
-			player.pos.x = data.x;
-			player.pos.y = data.y;
-			player.dir = data.dir;
-			player.hair.style = data.hairStyle
-			player.hair.color = data.hairColor;
-
-			player.equipment.armor.id = data.armorID;
-			player.equipment.weapon.id = data.weaponID;
-			player.equipment.boots.id = data.bootsID;
-
-			player.stats.hp = data.hp;
-			player.stats.maxhp = data.maxhp;
-			player.stats.level = data.level;
-
-			this.worldManager.players[socket.id] = player;
-
-			const initPacket = {
-				event: 'playerWelcome',
-				id: socket.id,
-				username: player.username,
-				map: player.map,
-				mapData: this.worldManager.mapData[player.map],
-				mapJson: this.worldManager.mapJson[player.map],
-				pos: player.pos,
-				dir: player.dir,
-				race: player.race,
-				sex: player.sex,
-				hair: player.hair,
-				equipment: player.equipment,
-				stats: player.stats
-			};
-
-			socket.authenticated = true;
-
-			this.send(initPacket, socket);
-		}
-
-		this.dbManager.getAllPlayerData(newPlayer, loadPlayer);
 	}
 
 	onPhysicsUpdate(packet) {
