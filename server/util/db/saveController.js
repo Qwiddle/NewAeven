@@ -29,12 +29,9 @@ export class SaveController {
 			admin: data.admin,
 			sex: data.sex,
 			race: data.race,
-			hairColor: data.hairColor,
-			hairStyle: data.hairStyle,
-			dir: data.dir,
-			map: data.map,
-			x: data.x,
-			y: data.y,
+			hair: data.hair,
+			pos: data.pos,
+			dir: data.dir
 		});
 	}
 

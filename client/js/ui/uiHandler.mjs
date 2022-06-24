@@ -11,7 +11,7 @@ export class UIHandler {
 			const playerID = parseInt(e.target.id);
 
 			if(playerID <= 3) {
-				this.game.playerLogin(playerID);
+				this.game.playerLogin({ id: playerID});
 			}		
 		});
 
@@ -39,16 +39,24 @@ export class UIHandler {
 		});
 
 		$('#views').on('click', '#charactercreation .ok_button', () => {
-			const name = $('#name').val();
+			const username = $('#name').val();
+			const skin = parseInt($('#skinnum')[0].innerHTML);
 
 			const hair = {
 				style: parseInt($('#hairnum')[0].innerHTML),
 				color: parseInt($('#colornum')[0].innerHTML)
 			}
 
-			const skin = parseInt($('#skinnum')[0].innerHTML);
+			const data = {
+				'account': this.game.client.account,
+				'username': username,
+				'sex': 0,
+				'race': skin,
+				'hair': hair
+			}
 
-			this.game.playerCreate(name, 0, skin, hair);
+			this.game.playerCreate(data);
+			console.log(data);
 		});
 
 		$('#views').on('keydown', '#chatinput', (e) => {
