@@ -25,6 +25,6 @@ export class MainRoom extends Colyseus.Room {
 
 	handleEvents(client, type, packet) {
 		if(Object.prototype.hasOwnProperty.call(this.events, type))
-				this.events[type](packet, client);
+			this.events[type](packet, client);
 	}
 }

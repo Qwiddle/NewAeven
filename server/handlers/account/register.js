@@ -14,7 +14,7 @@ export class RegisterHandler {
 			account: packet.account,
 			password: hash,
 			email: packet.email,
-			ip: '127.0.0.1',
+			ip: '127.0.0.1', //todo pass IP
 		};
 
 		const account = await DatabaseManager.createAccount(data);
