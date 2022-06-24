@@ -7,9 +7,13 @@ export const global = {
     physicsTick: 40,
 
     //player settings
-    startMapID: 0,
-    startMapX: 15,
-    startMapY: 15,
+		defaultPosition: {
+			map: 0,
+			x: 15,
+			y: 15
+		},
+
+		defaultDir: 0,
 
     //game constants
     direction: {
