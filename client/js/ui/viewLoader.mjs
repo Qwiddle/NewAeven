@@ -6,7 +6,7 @@ export class ViewLoader {
 		this.previousView = "";
 	}
 
-	loadView(view, fade, callback) {
+	static loadView(view, fade, callback) {
 		if(this.currentView == view) { 
 			return; 
 		}
@@ -26,7 +26,7 @@ export class ViewLoader {
 		this.currentView = view;
 	}
 
-	removeView(view, fade, callback) {
+	static removeView(view, fade, callback) {
 		if(fade) {
 			$('#' + view).fadeOut(this.fadeOutTime).promise().done(() => {
 				$("#" + view).detach();
@@ -39,7 +39,7 @@ export class ViewLoader {
 		}
 	}
 
-	showView(view, fade, callback) {
+	static showView(view, fade, callback) {
 		if(fade) {
 			$("#" + view).fadeIn(this.fadeInTime).promise().done(function() {
 				if(callback)
@@ -53,7 +53,7 @@ export class ViewLoader {
 		this.currentView = view;
  	}
 
-	hideView(view, fade, callback) {
+	static hideView(view, fade, callback) {
 		if(fade) {
 			$("#" + view).fadeOut(this.fadeOutTime).promise().done(function() {
 				if(callback)

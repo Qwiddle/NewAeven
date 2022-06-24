@@ -1,8 +1,10 @@
 import { global } from '../../client/js/global.mjs';
-import PubManager from '../util/pubManager.js';
-export default class WorldManager {
+import { PubManager } from '../util/pubManager.js';
+
+export class WorldManager {
 	constructor(server) {
 		this.server = server;
+
 		this.pubManager = new PubManager();
 
 		this.initialized = false;
@@ -15,6 +17,7 @@ export default class WorldManager {
 		this.dynamicMapData = [];
 		this.numEnemiesSpawned = 0;
 		this.enemySpawnInterval = {};
+
 		this.messages = {
 			publicMessages: [],
 			globalMessages: []
@@ -47,7 +50,6 @@ export default class WorldManager {
 		//npc spawns
 		//put items in chest
 		//etc
-
 		this.server.start();
 	}
 

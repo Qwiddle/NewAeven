@@ -12,6 +12,12 @@ import { ChatManager } from './util/chatManager.mjs';
 import { PathFinder } from './util/pathFinder.mjs';
 import { global } from './global.mjs';
 
+//actions
+import { PlayerLoginAction } from './actions/player/login.mjs';
+import { PlayerCreateAction } from './actions/player/create.mjs';
+import { AccountRegisterAction } from './actions/account/register.mjs';
+import { AccountLoginAction } from './actions/account/login.mjs';
+
 export class Game {
 	constructor(client) {
 		this.config = {
@@ -42,9 +48,18 @@ export class Game {
 			],
 		};
 
+		this.actions = {
+			accountRegister: AccountRegisterAction.register,
+			accountLogin: AccountLoginAction.login,
+			playerCreate: PlayerCreateAction.create,
+			playerLogin: PlayerLoginAction.login,
+		}
+
 		this.sprites = [];
 
 		this.client = client;
+		this.room = this.client.room;
+
 		this.phaser = new Phaser.Game(this.config);
 		this.uiHandler = new UIHandler(this);
 		this.chatManager = new ChatManager();
@@ -66,6 +81,22 @@ export class Game {
 		} else {
 			this.isFocused = false;
 		}
+	}
+
+	playerLogin(data) {
+		this.actions.playerLogin(this.room, data);
+	}
+
+	playerCreate(data) {
+		this.actions.playerCreate(this.room, data);
+	}
+
+	accountRegister(data) {
+		this.actions.accountRegister(this.room, data);
+	}
+
+	accountLogin(data) {
+		this.actions.accountLogin(this.room, data);
 	}
 
 	playerConnected(packet) {

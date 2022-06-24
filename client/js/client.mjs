@@ -1,6 +1,11 @@
 import { ViewLoader } from './ui/viewLoader.mjs';
 import { Game } from './game.mjs';
 
+import { AccountLoginHandler } from './handlers/account/login.mjs';
+import { AccountRegisterHandler } from './handlers/account/register.mjs';
+import { PlayerLoginHandler } from './handlers/player/login.mjs';
+import { PlayerCreateHandler } from './handlers/player/create.mjs';
+
 export class Client {
 	constructor() {
 		this.ip = {
@@ -8,162 +13,42 @@ export class Client {
 			port: '8443',
 		};
 
-		this.viewLoader = new ViewLoader();
-		this.game = new Game(this);
-
 		this.events = {
-			'connection': (packet) => this.onConnection(packet),
-			'register': (packet) => this.onRegister(packet),
-			'login': (packet) => this.onLogin(packet),
-			'playerCreate': (packet) => this.onPlayerCreate(packet),
-			'playerLogin': (packet) => this.onPlayerLogin(packet),
-			'playerWelcome': (packet) => this.playerWelcome(packet),
-			'serverUpdate': (packet) => this.game.onServerUpdate(packet)
-		};
-	}
-
-	connect() {
-		this.primus = new Primus(this.ip.address + ":" + this.ip.port, {
-			reconnect: {
-		    	maxDelay: Infinity,
-		    	minDelay: 500,
-		    	retries: 10
-			},
-			strategy: ['online', 'timeout'],
-		});
-
-		this.primus.on("open", () => {
-			console.log('successfully connected to the game server.');
-		});
-
-		this.primus.on('data', (data) => {
-			const decodedData = msgpack.decode(data.data);
-			const packet = JSON.parse(decodedData);
-			
-			if (this.events.hasOwnProperty(packet.event)) {
-				this.events[packet.event](packet);
-			};
-		});
-
-		this.primus.on('end', () => {
-			
-			location.reload();
-			alert('disconnected from server.');
-		});
-	}
-
-	login(username, password) {
-		const loginPacket = {
-			'event': 'login',
-			'username': username,
-			'password': password,
+			'register': (packet) => AccountRegisterHandler.onRegister(packet),
+			'login': (packet) => AccountLoginHandler.onLogin(packet),
+			'playerCreate': (packet) => PlayerCreateHandler.onCreate(packet),
+			'playerLogin': (packet) => PlayerLoginHandler.onLogin(packet),
+			'playerWelcome': (packet) => PlayerLoginHandler.onWelcome(packet)
 		};
 
-		this.send(loginPacket);
+		this.connect();
 	}
 
-	onLogin(packet) {
-		if (packet.success) {
-			if(packet.characters == 0) {
-				this.viewLoader.removeView("home", true, () => {
-					this.viewLoader.loadView("charactercreation", true);
-				});
-			} else {
-				this.viewLoader.removeView("home", true, () => {
-					this.viewLoader.loadView("characterselection", true, () => {
-						if(packet.characters.length >= 1 || packet.characters >= 1) {
-							$("#0").children(".create3d").removeClass("create3d").addClass("login3d");
-							$("#0").children(".characterbox").append('<div class="playersprite">');
-						} if(packet.characters.length >= 2 || packet.characters >= 2) {
-							$("#1").children(".create3d").removeClass("create3d").addClass("login3d");
-							$("#1").children(".characterbox").append('<div class="playersprite">');
-						} if(packet.characters.length >= 3 || packet.characters == 3) {
-							$("#2").children(".create3d").removeClass("create3d").addClass("login3d");
-							$("#2").children(".characterbox").append('<div class="playersprite">');
-						}
-					});
-				});
-			}
-		} else {
-			alert('Login failed. Please check your account information and try again.');
-		}
-	}
+	async connect() {
+		this.client = new Colyseus.Client(`ws://${this.ip.address}:${this.ip.port}`);
 
-	register(username, password, passwordConfirm, email) {
-		const registerPacket = {
-			'event': 'register',
-			'username': username,
-			'password': password,
-			'passwordConfirm': passwordConfirm,
-			'email': email,
-		};
+		const relay = await this.client.joinOrCreate("main_room").then( room => {
+			console.log(room.sessionId, "joined", room.name);
+			this.room = room;
 
-		this.send(registerPacket);
-	}
+			this.game = new Game(this);
 
-	onRegister(packet) {
-		if (packet.success) {
-			this.viewLoader.removeView("registration", true, () => {
-				this.viewLoader.showView("home", true);
+			room.onMessage("*", (type, packet) => {
+				console.log(packet);
+				this.handleEvents(type, packet);
 			});
-		} else {
-			alert("registration unsuccessful.");
-		}
+
+		}).catch(e => {
+			console.log(e);
+		});
 	}
 
-	playerCreate(name, sex, race, hair) {
-		const playerCreatePacket = {
-			'event': 'playerCreate',
-			'username': name,
-			'sex': sex,
-			'race': race,
-			'hair': hair
-		}
-
-		this.send(playerCreatePacket);
+	handleEvents(type, packet) {
+		if(Object.prototype.hasOwnProperty.call(this.events, type))
+			this.events[type](packet);
 	}
 
-	onPlayerCreate(packet) {
-		if(packet.success) {
-			this.viewLoader.removeView("charactercreation", true, () => {
-				this.viewLoader.loadView("home", false, () => {
-					this.onLogin(packet);
-				});
-			});
-		}
-	}
-
-	playerLogin(playerID) {
-		const playerLoginPacket = {
-			'event': 'playerLogin',
-			'playerID': playerID
-		};
-
-		this.send(playerLoginPacket);
-	}
-
-	onPlayerLogin(packet) {
-		if(packet.success) {
-			this.viewLoader.removeView("characterselection", true);
-		} else {
-			alert('player login attempt unsuccessful. possible hacking attempt');
-		}
-	}
-
-	playerWelcome(packet) {
-		this.id = packet.id;
-		this.game.playerConnected(packet);
-
-		this.viewLoader.removeView(this.viewLoader.currentView, true, () => {
-			this.viewLoader.loadView("hotkeys", true);
-			this.viewLoader.loadView("chat", true, () => {
-				$("#chatinput").focus();
-			});
-			$('.servertext').hide();
-		});	
-	}
-
-	send(packet) {
-		this.primus.write(msgpack.encode(JSON.stringify(packet)));
+	send(packet, room) {
+		room.send(packet.event, packet);
 	}
 }

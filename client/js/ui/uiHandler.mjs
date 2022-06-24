@@ -1,8 +1,8 @@
+import { ViewLoader } from "./viewLoader.mjs";
+
 export class UIHandler {
 	constructor(game) {
 		this.game = game;
-		this.client = game.client;
-		this.viewLoader = this.client.viewLoader;
 		this.loadHandlers();
 	}
 
@@ -11,13 +11,13 @@ export class UIHandler {
 			const playerID = parseInt(e.target.id);
 
 			if(playerID <= 3) {
-				this.client.playerLogin(playerID);
+				this.game.playerLogin(playerID);
 			}		
 		});
 
 		$('#views').on('click', '.create3d', (e) => {
-			this.viewLoader.removeView("characterselection", true, () => {
-				this.viewLoader.loadView("charactercreation", true);
+			ViewLoader.removeView("characterselection", true, () => {
+				ViewLoader.loadView("charactercreation", true);
 			});
 		});
 
@@ -48,7 +48,7 @@ export class UIHandler {
 
 			const skin = parseInt($('#skinnum')[0].innerHTML);
 
-			this.client.playerCreate(name, 0, skin, hair);
+			this.game.playerCreate(name, 0, skin, hair);
 		});
 
 		$('#views').on('keydown', '#chatinput', (e) => {
@@ -80,8 +80,8 @@ export class UIHandler {
 		});
 
 		$('#views').on('click', '#charactercreation .cancel_button', () => {
-			this.viewLoader.removeView(this.viewLoader.currentView, true, () => {
-				this.viewLoader.showView(this.viewLoader.previousView, true);
+			ViewLoader.removeView(ViewLoader.currentView, true, () => {
+				ViewLoader.showView(ViewLoader.previousView, true);
 			});
 		});
 
@@ -90,15 +90,20 @@ export class UIHandler {
 			const passInput = $("#password").val();
 
 			if(userInput == "" || passInput == "") {
-				this.viewLoader.showView("checkinput", true);
+				ViewLoader.showView("checkinput", true);
 			} else {
-				this.client.login(userInput, passInput);
+				const data = {
+					account: userInput,
+					password: passInput
+				};
+
+				this.game.accountLogin(data);
 			}
 		});
 
 		$('#views').on('click', "#cancelbutton", () => {
-			this.viewLoader.removeView("registration", true, () => {
-				this.viewLoader.showView("home", true);
+			ViewLoader.removeView("registration", true, () => {
+				ViewLoader.showView("home", true);
 			});
 		});
 
@@ -109,15 +114,21 @@ export class UIHandler {
 			const emailInput = $("#regemail").val();
 
 			if(userInput == "" || passInput == "" || passconfirmInput == "" || emailInput == "") {
-				this.viewLoader.showView("checkinput", true);
+				ViewLoader.showView("checkinput", true);
 			} else {
-				this.client.register(userInput, passInput, passconfirmInput, emailInput);
+				const data = {
+					account: userInput,
+					password: passInput,
+					email: emailInput
+				};
+
+				this.game.accountRegister(data);
 			}
 		});
 
 		$('#views').on('click', "#createbutton", () => {
-			this.viewLoader.hideView("home", true, () => {
-				this.viewLoader.loadView("registration", true);
+			ViewLoader.hideView("home", true, () => {
+				ViewLoader.loadView("registration", true);
 			});
 		});
 
