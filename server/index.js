@@ -11,7 +11,7 @@ import msgpack from 'msgpack-lite';
 import { fileURLToPath } from 'url';
 
 import { global } from '../client/js/global.mjs';
-import { Router } from './util/routes/routes.js';
+import { router } from './util/routes/routes.js';
 
 import { WorldManager } from './util/worldManager.js';
 import { DatabaseManager } from './util/databaseManager.js';
@@ -38,7 +38,7 @@ class Server {
 		app.use(express.static(path.join(__dirname, '../client')));
 		app.use(express.json());
 		app.use(express.urlencoded({ extended: true, limit: "10kb" }));
-		app.use("/users", Router.router);
+		app.use("/users", router);
 
 		const server = http.createServer(app);
 		const port = 8443;

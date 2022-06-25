@@ -1,12 +1,11 @@
 import express from "express";
 import { AuthManager } from '../authManager.js';
 
-export class Router {
-	constructor() {
-		this.router = express.Router();
 
-		this.router.post("/register", AuthManager.register);
-		this.router.post("/login", AuthManager.login);
-		this.router.post("/player", AuthManager.player);
-	}
-}
+const router = express.Router();
+
+router.post("/register", AuthManager.register);
+router.post("/login", AuthManager.login);
+router.post("/player", AuthManager.playerLogin);
+
+export { router };
