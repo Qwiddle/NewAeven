@@ -1,5 +1,6 @@
 import { ViewLoader } from "./viewLoader.mjs";
 
+
 export class UIHandler {
 	constructor(game) {
 		this.game = game;
@@ -36,27 +37,6 @@ export class UIHandler {
 					$('#' + id)[0].innerHTML = newValue;
 				}
 			}
-		});
-
-		$('#views').on('click', '#charactercreation .ok_button', () => {
-			const username = $('#name').val();
-			const skin = parseInt($('#skinnum')[0].innerHTML);
-
-			const hair = {
-				style: parseInt($('#hairnum')[0].innerHTML),
-				color: parseInt($('#colornum')[0].innerHTML)
-			}
-
-			const data = {
-				'account': this.game.client.account,
-				'username': username,
-				'sex': 0,
-				'race': skin,
-				'hair': hair
-			}
-
-			this.game.playerCreate(data);
-			console.log(data);
 		});
 
 		$('#views').on('keydown', '#chatinput', (e) => {

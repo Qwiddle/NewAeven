@@ -59,13 +59,13 @@ export class AuthManager {
 
 			const acc = await DatabaseManager.getAccount(req.body.account);
 
-			if(acc !== null) {
+			if(acc) {
 				if (await AuthManager.comparePassword(req.body.password, acc.password)) {					
 
 					const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
 					const players = await DatabaseManager.getPlayers(acc.account);
 
-					AuthManager.updateSession(acc);
+					AuthManager.updateSession(acc, seatReservation.sessionId);
 
 					if(players.length === 0) {
 						res.status(200).json({
@@ -95,6 +95,42 @@ export class AuthManager {
 			}
 		} catch(error) {
 			console.log(error);
+			res.status(400).json({
+				error: true,
+				output: error
+			});
+		}
+	}
+
+	static async playerCreate(req, res) {
+		try {
+			//check to see if account exists & has pending session
+			const account = await DatabaseManager.getAccount(req.body.player.account);
+
+			if(!account) {
+				throw "Account does not exist.";
+			}
+
+			if(!account.pending_session_id) {
+				throw "Request failed.";
+			}
+
+			let player = await DatabaseManager.createPlayer(req.body.player);
+
+			if(!player) {
+				throw "Player not created.";
+			}
+				
+			AuthManager.updateSession(player, account.pending_session_id);
+
+			res.status(200).json({
+				error: false,
+				output: {
+					seatReservation: req.body.seatReservation,
+					player: player
+				}
+			});
+		} catch(error) {
 			res.status(400).json({
 				error: true,
 				output: error

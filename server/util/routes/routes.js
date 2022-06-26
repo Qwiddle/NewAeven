@@ -7,5 +7,6 @@ const router = express.Router();
 router.post("/register", AuthManager.register);
 router.post("/login", AuthManager.login);
 router.post("/player", AuthManager.playerLogin);
+router.post("/create", AuthManager.playerCreate);
 
 export { router };
