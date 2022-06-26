@@ -1,7 +1,6 @@
-import bcrypt from "bcrypt";
+import bcrypt, { compare } from "bcrypt";
 import { matchMaker } from "colyseus";
 import { DatabaseManager } from "./databaseManager.js";
-
 export class AuthManager {
 	static async updateSession(update, sessionId) {
 		update.pending_session_id = sessionId;
@@ -16,7 +15,7 @@ export class AuthManager {
 				throw "Account name, email, or password missing.";
 			}
 
-			const acc = await DatabaseManager.getAccount(account);
+			const acc = await DatabaseManager.getAccount(req.body.account);
 
 			if(!acc) {
 				const hash = await this.hashPassword(req.body.password);
@@ -58,18 +57,17 @@ export class AuthManager {
 				throw "Account name or password missing.";
 			}
 
-			const acc = await DatabaseManager.getAccount(account);
+			const acc = await DatabaseManager.getAccount(req.body.account);
 
 			if(acc !== null) {
-				if (await this.comparePassword(req.body.password, acc.password)) {					
-					//todo: check if user has attempted to sign in recently, block spam
+				if (await AuthManager.comparePassword(req.body.password, acc.password)) {					
 
-					const seatReservation = await matchMaker.matchMakeToRoom("lobby_room", 0);
+					const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
 					const players = await DatabaseManager.getPlayers(acc.account);
 
-					this.updateSession(acc);
+					AuthManager.updateSession(acc);
 
-					if(!players) {
+					if(players.length === 0) {
 						res.status(200).json({
 							error: false,
 							output: {
@@ -79,7 +77,7 @@ export class AuthManager {
 						});
 					} else {
 						let player = players[0];
-						this.updateSession(player);
+						AuthManager.updateSession(player);
 
 						res.status(200).json({
 							error: false,
@@ -96,6 +94,7 @@ export class AuthManager {
 				throw "Account does not exist.";
 			}
 		} catch(error) {
+			console.log(error);
 			res.status(400).json({
 				error: true,
 				output: error

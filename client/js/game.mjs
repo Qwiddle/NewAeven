@@ -18,6 +18,8 @@ import { PlayerCreateAction } from './actions/player/create.mjs';
 import { AccountRegisterAction } from './actions/account/register.mjs';
 import { AccountLoginAction } from './actions/account/login.mjs';
 
+import { AuthAction } from './actions/auth/auth.js';
+
 export class Game {
 	constructor(client) {
 		this.config = {
@@ -96,7 +98,7 @@ export class Game {
 	}
 
 	accountLogin(data) {
-		this.actions.accountLogin(this.client, data);
+		AuthAction.login(data.account, data.password);
 	}
 
 	playerConnected(packet) {
