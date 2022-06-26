@@ -17,9 +17,9 @@ export class AuthAction {
 		const data = await response.json();
 		
 		if(!data.output.player) {
-			return data.output.player;
+			return { account: data.output.account, seatReservation: data.output.seatReservation };
 		} else {
-			return data.output.account;
+			return { player: data.output.player, seatReservation: data.output.seatReservation };
 		}
 	}
 
@@ -27,10 +27,10 @@ export class AuthAction {
 		const params = {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ account: account, password: password })
+			body: JSON.stringify({ account: account, password: password, email: email })
 		};
 
-		const response = await fetch('/user/login', params);
+		const response = await fetch('/user/register', params);
 
 		if(!response.ok) {
 			//temporary alert, should be handled by ui
@@ -40,10 +40,10 @@ export class AuthAction {
 
 		const data = await response.json();
 		
-		if(!data.output.player) {
-			return data.output.player;
+		if(!data.output.account) {
+			return false;
 		} else {
-			return data.output.account;
+			return { account: data.output.account, seatReservation: data.output.seatReservation };
 		}
 	}
 }
