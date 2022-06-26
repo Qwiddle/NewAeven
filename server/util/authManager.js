@@ -1,4 +1,4 @@
-import bcrypt, { compare } from "bcrypt";
+import bcrypt from "bcrypt";
 import { matchMaker } from "colyseus";
 import { DatabaseManager } from "./databaseManager.js";
 export class AuthManager {
@@ -18,7 +18,7 @@ export class AuthManager {
 			const acc = await DatabaseManager.getAccount(req.body.account);
 
 			if(!acc) {
-				const hash = await this.hashPassword(req.body.password);
+				const hash = await AuthManager.hashPassword(req.body.password);
 
 				const data = {
 					account: req.body.account,
@@ -30,7 +30,7 @@ export class AuthManager {
 				let newAcc = await DatabaseManager.createAccount(data);
 				const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
 				
-				this.updateSession(newAcc, seatReservation.sessionId);
+				AuthManager.updateSession(newAcc, seatReservation.sessionId);
 
 				res.status(200).json({
 					error: false,
