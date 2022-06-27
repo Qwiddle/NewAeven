@@ -7,7 +7,7 @@ export class ViewLoader {
 	}
 
 	static loadView(view, fade, callback) {
-		if(this.currentView == view) { 
+		if(ViewLoader.currentView == view) { 
 			return; 
 		}
 
@@ -22,8 +22,8 @@ export class ViewLoader {
 				callback();
 		});
 
-		this.previousView = this.currentView;
-		this.currentView = view;
+		ViewLoader.previousView = ViewLoader.currentView;
+		ViewLoader.currentView = view;
 	}
 
 	static removeView(view, fade, callback) {
@@ -49,8 +49,8 @@ export class ViewLoader {
 			$("#" + view).show();
 		}
 
-		this.previousView = this.currentView;
-		this.currentView = view;
+		ViewLoader.previousView = ViewLoader.currentView;
+		ViewLoader.currentView = view;
  	}
 
 	static hideView(view, fade, callback) {

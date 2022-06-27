@@ -69,7 +69,7 @@ export class UIHandler {
 
 		$('#views').on('click', '#charactercreation .cancel_button', () => {
 			ViewLoader.removeView(ViewLoader.currentView, true, () => {
-				ViewLoader.showView(ViewLoader.previousView, true);
+				ViewLoader.showView("home", true);
 			});
 		});
 
