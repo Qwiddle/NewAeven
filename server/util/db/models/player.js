@@ -11,12 +11,9 @@ const playerSchema = new Schema({
 	},
 	sex: Number,
 	race: Number,
-	hairColor: Number,
-	hairStyle: Number,
+	hair: {},
 	dir: Number,
-	map: Number,
-	x: Number,
-	y: Number,
+	pos: {},
 	stats: { 
 		level: { 
 			type: Number, 

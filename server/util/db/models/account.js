@@ -7,11 +7,18 @@ const accountSchema = new Schema({
 	password: String,
 	email: String,
 	ip: String,
+	last_online: Date,
+	pending_session_timestamp: Date,
+	pending_session_id: String,
+	active_session_id: String,
 	created: {
 		type: Date,
 		default: Date.now
 	},
-	last_online: Date
+	updated_at: {
+		type: Date,
+		default: Date.now
+	}
 });
 
 export const Account = model('Account', accountSchema);

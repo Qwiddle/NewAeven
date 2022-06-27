@@ -7,15 +7,29 @@ export class Player {
 		this.initMessageMetadata();
 
 		this.username = username;
-		this.accountname = "";
-		this.prevPos = {x: 0, y: 0};
-		this.pos = {x: 0, y: 0};
-		this.targetPos = {x: 0, y: 0};
+		this.account = '';
+		this.admin = 0;
 
 		this.stats = { 
 			hp: 30,
 			maxhp: 30,
 			level: 0
+		};
+
+		this.pos = {
+			map: 0,
+			x: 0,
+			y: 0,
+		}
+
+		this.prevPos = {
+			x: 0, 
+			y: 0
+		};
+		
+		this.targetPos = {
+			x: 0, 
+			y: 0
 		};
 
 		this.map = 0;

@@ -1,10 +1,16 @@
+import { ViewLoader } from "../../ui/viewLoader.mjs";
+
 export class PlayerLoginAction {
-	static login(client, data) {
-		const packet = {
-			'event': 'playerLogin',
-			'playerID': data.id
-		};
-	
-		client.send(packet.event, packet);
+	static async login(player, client, seatReservation) {
+		try {
+			const room = await client.consumeReservation(seatReservation);
+			player.room = room;
+
+			console.log(player);
+
+			return { player: player };
+		} catch(error) {
+			console.log('join error', error);
+		}
 	}
 }

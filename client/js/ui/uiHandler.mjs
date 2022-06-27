@@ -1,4 +1,5 @@
 import { ViewLoader } from "./viewLoader.mjs";
+import { global } from "../global.mjs";
 
 export class UIHandler {
 	constructor(game) {
@@ -11,7 +12,7 @@ export class UIHandler {
 			const playerID = parseInt(e.target.id);
 
 			if(playerID <= 3) {
-				this.game.playerLogin(playerID);
+				this.game.playerLogin({ id: playerID});
 			}		
 		});
 
@@ -36,19 +37,6 @@ export class UIHandler {
 					$('#' + id)[0].innerHTML = newValue;
 				}
 			}
-		});
-
-		$('#views').on('click', '#charactercreation .ok_button', () => {
-			const name = $('#name').val();
-
-			const hair = {
-				style: parseInt($('#hairnum')[0].innerHTML),
-				color: parseInt($('#colornum')[0].innerHTML)
-			}
-
-			const skin = parseInt($('#skinnum')[0].innerHTML);
-
-			this.game.playerCreate(name, 0, skin, hair);
 		});
 
 		$('#views').on('keydown', '#chatinput', (e) => {
@@ -81,7 +69,7 @@ export class UIHandler {
 
 		$('#views').on('click', '#charactercreation .cancel_button', () => {
 			ViewLoader.removeView(ViewLoader.currentView, true, () => {
-				ViewLoader.showView(ViewLoader.previousView, true);
+				ViewLoader.showView("home", true);
 			});
 		});
 
@@ -97,7 +85,37 @@ export class UIHandler {
 					password: passInput
 				};
 
-				this.game.accountLogin(data);
+				this.game.accountLogin(data).then(res => {
+					if(res) {
+						this.game.seatReservation = res.seatReservation;
+					
+						if(res.player) {
+							this.game.playerLogin(res).then(r => {
+								if(r) {
+									ViewLoader.removeView(ViewLoader.currentView, true, () => {
+										ViewLoader.loadView("hotkeys", true);
+							
+										ViewLoader.loadView("chat", true, () => {
+											$("#chatinput").focus();
+										});
+							
+										$('.servertext').hide();
+							
+										//welcome player into the game
+									});
+								}
+							});
+						} else if(res.account) {
+							this.game.account = res.account;
+							console.log('hi');
+							ViewLoader.removeView(ViewLoader.currentView, true, () => {
+								ViewLoader.loadView("charactercreation", true);
+							});
+						} else {
+							console.log('failed');
+						}
+					}
+				});
 			}
 		});
 
@@ -122,8 +140,65 @@ export class UIHandler {
 					email: emailInput
 				};
 
-				this.game.accountRegister(data);
+				this.game.accountRegister(data).then(res => {
+					if(res) {
+						ViewLoader.removeView("registration");
+						ViewLoader.showView("home");
+	
+						this.game.account = data.account;
+						this.game.seatReservation = data.seatReservation;
+					} else {
+						alert('failed');
+					}
+				});
 			}
+		});
+
+		$('#views').on('click', '#charactercreation .ok_button', () => {
+			const username = $('#name').val();
+			const skin = parseInt($('#skinnum')[0].innerHTML);
+
+			const hair = {
+				style: parseInt($('#hairnum')[0].innerHTML),
+				color: parseInt($('#colornum')[0].innerHTML)
+			}
+
+			console.log(this.game.seatReservation);
+
+			const data = {
+				seatReservation: this.game.seatReservation,
+				player: {
+					account: this.game.account,
+					username: username,
+					sex: 0,
+					race: skin,
+					hair: hair,
+					pos: global.defaultPosition,
+					dir: global.defaultDir
+				}
+			}
+
+			this.game.playerCreate(data).then(res => {
+				if(res) {
+					this.game.playerLogin(res).then(r => {
+						if(r) {
+							ViewLoader.removeView(ViewLoader.currentView, true, () => {
+								ViewLoader.loadView("hotkeys", true);
+					
+								ViewLoader.loadView("chat", true, () => {
+									$("#chatinput").focus();
+								});
+					
+								$('.servertext').hide();
+					
+								//welcome player into the game
+							});
+						}
+					});
+				} else {
+					alert('failed');
+				}
+			});
 		});
 
 		$('#views').on('click', "#createbutton", () => {

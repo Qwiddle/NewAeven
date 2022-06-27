@@ -18,6 +18,8 @@ import { PlayerCreateAction } from './actions/player/create.mjs';
 import { AccountRegisterAction } from './actions/account/register.mjs';
 import { AccountLoginAction } from './actions/account/login.mjs';
 
+import { AuthAction } from './actions/auth/auth.js';
+
 export class Game {
 	constructor(client) {
 		this.config = {
@@ -84,19 +86,19 @@ export class Game {
 	}
 
 	playerLogin(data) {
-		this.actions.playerLogin(this.room, data);
+		return PlayerLoginAction.login(data.player, this.client, data.seatReservation);
 	}
 
 	playerCreate(data) {
-		this.actions.playerCreate(this.room, data);
+		return PlayerCreateAction.create(data.player, data.seatReservation);
 	}
 
 	accountRegister(data) {
-		this.actions.accountRegister(this.room, data);
+		return AuthAction.register(data.account, data.password, data.email);
 	}
 
 	accountLogin(data) {
-		this.actions.accountLogin(this.room, data);
+		return AuthAction.login(data.account, data.password);
 	}
 
 	playerConnected(packet) {

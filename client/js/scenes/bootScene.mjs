@@ -13,5 +13,6 @@ export class BootScene extends Phaser.Scene {
 
 	create() {
 		this.scene.start('load', {client: this.client});
+	
 	}
 }

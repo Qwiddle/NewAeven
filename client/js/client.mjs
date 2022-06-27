@@ -14,33 +14,29 @@ export class Client {
 		};
 
 		this.events = {
-			'register': (packet) => AccountRegisterHandler.onRegister(packet),
-			'login': (packet) => AccountLoginHandler.onLogin(packet),
-			'playerCreate': (packet) => PlayerCreateHandler.onCreate(packet),
-			'playerLogin': (packet) => PlayerLoginHandler.onLogin(packet),
-			'playerWelcome': (packet) => PlayerLoginHandler.onWelcome(packet)
+			'account_register': (packet) => AccountRegisterHandler.onRegister(packet),
+			'account_login': (packet) => AccountLoginHandler.onLogin(packet),
+			'player_create': (packet) => PlayerCreateHandler.onCreate(packet),
+			'player_login': (packet) => PlayerLoginHandler.onLogin(packet),
+			'player_welcome': (packet) => PlayerLoginHandler.onWelcome(packet)
 		};
 
-		this.connect();
+		this.colyseus = new Colyseus.Client(`ws://${this.ip.address}:${this.ip.port}`);
+		this.game = new Game(this);
 	}
 
-	async connect() {
-		this.client = new Colyseus.Client(`ws://${this.ip.address}:${this.ip.port}`);
+	async consumeReservation(reservation) {
+		const room = await this.colyseus.consumeSeatReservation(reservation);
+		this.room = room;
 
-		const relay = await this.client.joinOrCreate("main_room").then( room => {
-			console.log(room.sessionId, "joined", room.name);
-			this.room = room;
+		console.log(room.sessionId, "joined", room.name);
 
-			this.game = new Game(this);
-
-			room.onMessage("*", (type, packet) => {
-				console.log(packet);
-				this.handleEvents(type, packet);
-			});
-
-		}).catch(e => {
-			console.log(e);
+		room.onMessage("*", (type, packet) => {
+			console.log(packet);
+			this.handleEvents(type, packet);
 		});
+
+		return room;
 	}
 
 	handleEvents(type, packet) {

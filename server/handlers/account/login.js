@@ -5,18 +5,15 @@ export class LoginHandler {
 	static async isValidLoginAttempt(client, account, password) {
 		const acc = await DatabaseManager.getAccount(account);
 
-		console.log(acc);
-
 		if(acc !== null) {
-
 			if (await this.comparePassword(password, acc.password)) {
-				const characters = await DatabaseManager.getPlayers(acc.account);
+				const players = await DatabaseManager.getPlayers(acc.account);
 
-				if(characters !== null) {
+				if(players !== null) {
 					const packet = {
-						event: 'login',
+						event: 'account_login',
 						success: true,
-						characters: characters,
+						players: players,
 					}
 
 					client.send(packet.event, packet); 
@@ -24,7 +21,7 @@ export class LoginHandler {
 
 				} else { 
 					const packet = {
-						event: 'login',
+						event: 'account_login',
 						success: true,
 						characters: 0,
 					}
@@ -33,7 +30,7 @@ export class LoginHandler {
 				}
 			} else {
 				const packet = {
-					event: 'login',
+					event: 'account_login',
 					success: false,
 				}
 
@@ -43,7 +40,6 @@ export class LoginHandler {
 	}
 
 	static onLogin(packet, client) {
-		console.log(packet);
 		this.isValidLoginAttempt(client, packet.account, packet.password);
 	}
 
