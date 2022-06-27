@@ -86,29 +86,19 @@ export class Game {
 	}
 
 	playerLogin(data) {
-		PlayerLoginAction.login(data.player, data.seatReservation);
+		return PlayerLoginAction.login(data.player, this.client, data.seatReservation);
 	}
 
 	playerCreate(data) {
-		PlayerCreateAction.create(data).then(res => {
-			PlayerLoginAction.login(res.player. res.seatReservation);
-		});
+		return PlayerCreateAction.create(data.player, data.seatReservation);
 	}
 
 	accountRegister(data) {
-		AuthAction.register(data.account, data.password, data.email).then(res => {
-			PlayerCreateAction.init(res, res.seatReservation);
-		});
+		return AuthAction.register(data.account, data.password, data.email);
 	}
 
 	accountLogin(data) {
-		AuthAction.login(data.account, data.password).then(res => { 
-			if(res.player) {
-				PlayerLoginAction.init(res.player, res.seatReservation);
-			} else {
-				PlayerCreateAction.init(data.account, res.seatReservation);
-			}
-		});
+		return AuthAction.login(data.account, data.password);
 	}
 
 	playerConnected(packet) {

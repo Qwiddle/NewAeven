@@ -1,12 +1,13 @@
 import bcrypt from "bcrypt";
 import { matchMaker } from "colyseus";
 import { DatabaseManager } from "./databaseManager.js";
+import { Player } from "../../client/js/entity/player.mjs";
 export class AuthManager {
 	static async updateSession(update, sessionId) {
 		update.pending_session_id = sessionId;
 		update.pending_session_timestamp = Date.now();
 		update.updated_at = Date.now();
-		await update.save();
+		update.save();
 	}
 
 	static async register(req, res) {
@@ -30,7 +31,7 @@ export class AuthManager {
 				let newAcc = await DatabaseManager.createAccount(data);
 				const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
 				
-				AuthManager.updateSession(newAcc, seatReservation.sessionId);
+				await AuthManager.updateSession(newAcc, seatReservation.sessionId);
 
 				res.status(200).json({
 					error: false,
@@ -65,7 +66,7 @@ export class AuthManager {
 					const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
 					const players = await DatabaseManager.getPlayers(acc.account);
 
-					AuthManager.updateSession(acc, seatReservation.sessionId);
+					await AuthManager.updateSession(acc, seatReservation.sessionId);
 
 					if(players.length === 0) {
 						res.status(200).json({
@@ -77,13 +78,30 @@ export class AuthManager {
 						});
 					} else {
 						let player = players[0];
-						AuthManager.updateSession(player);
+						const newPlayer = new Player();
+
+						await AuthManager.updateSession(player, seatReservation.sessionId);
+
+						newPlayer.id = seatReservation.sessionId;
+						newPlayer.username = player.username;
+						newPlayer.admin = player.admin;
+						newPlayer.pos = player.pos;
+						newPlayer.dir = player.dir;
+						/*todo: need to refactor WorldManager first.
+						newPlayer.mapData = this.worldManager.mapData[player.pos.map];*/
+						newPlayer.sex = player.sex;
+						newPlayer.race = player.race;
+						newPlayer.hair = player.hair;
+						newPlayer.equipment = player.equipment;
+						newPlayer.stats = player.stats;
+
+						console.log(newPlayer);
 
 						res.status(200).json({
 							error: false,
 							output: {
 								seatReservation,
-								player: player
+								player: newPlayer
 							}
 						});
 					}	
@@ -115,19 +133,36 @@ export class AuthManager {
 				throw "Request failed.";
 			}
 
+			if(await DatabaseManager.getPlayer(req.body.player.username)) {
+				throw "Username already exists.";
+			}
+
 			let player = await DatabaseManager.createPlayer(req.body.player);
 
 			if(!player) {
 				throw "Player not created.";
 			}
-				
-			AuthManager.updateSession(player, account.pending_session_id);
+
+			await AuthManager.updateSession(player, account.pending_session_id);
+
+			const newPlayer = new Player();
+
+			newPlayer.id = player.pending_session_id;
+			newPlayer.username = player.username;
+			newPlayer.admin = player.admin;
+			newPlayer.pos = player.pos;
+			newPlayer.dir = player.dir;
+			newPlayer.sex = player.sex;
+			newPlayer.race = player.race;
+			newPlayer.hair = player.hair;
+			newPlayer.equipment = player.equipment;
+			newPlayer.stats = player.stats;
 
 			res.status(200).json({
 				error: false,
 				output: {
 					seatReservation: req.body.seatReservation,
-					player: player
+					player: newPlayer
 				}
 			});
 		} catch(error) {
@@ -138,8 +173,15 @@ export class AuthManager {
 		}
 	}
 
-	static async playerLogin(acc) {
-	//todo
+	static async playerLogin(req, res) {
+		try {
+			const player = req.body.player;
+			const reservation = req.body.seatReservation;
+
+
+		} catch(error) {
+
+		}
 	}
 
 	static comparePassword(password, hash) {

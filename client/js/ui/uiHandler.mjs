@@ -1,5 +1,5 @@
 import { ViewLoader } from "./viewLoader.mjs";
-
+import { global } from "../global.mjs";
 
 export class UIHandler {
 	constructor(game) {
@@ -85,7 +85,37 @@ export class UIHandler {
 					password: passInput
 				};
 
-				this.game.accountLogin(data);
+				this.game.accountLogin(data).then(res => {
+					if(res) {
+						this.game.seatReservation = res.seatReservation;
+					
+						if(res.player) {
+							this.game.playerLogin(res).then(r => {
+								if(r) {
+									ViewLoader.removeView(ViewLoader.currentView, true, () => {
+										ViewLoader.loadView("hotkeys", true);
+							
+										ViewLoader.loadView("chat", true, () => {
+											$("#chatinput").focus();
+										});
+							
+										$('.servertext').hide();
+							
+										//welcome player into the game
+									});
+								}
+							});
+						} else if(res.account) {
+							this.game.account = res.account;
+							console.log('hi');
+							ViewLoader.removeView(ViewLoader.currentView, true, () => {
+								ViewLoader.loadView("charactercreation", true);
+							});
+						} else {
+							console.log('failed');
+						}
+					}
+				});
 			}
 		});
 
@@ -110,8 +140,65 @@ export class UIHandler {
 					email: emailInput
 				};
 
-				this.game.accountRegister(data);
+				this.game.accountRegister(data).then(res => {
+					if(res) {
+						ViewLoader.removeView("registration");
+						ViewLoader.showView("home");
+	
+						this.game.account = data.account;
+						this.game.seatReservation = data.seatReservation;
+					} else {
+						alert('failed');
+					}
+				});
 			}
+		});
+
+		$('#views').on('click', '#charactercreation .ok_button', () => {
+			const username = $('#name').val();
+			const skin = parseInt($('#skinnum')[0].innerHTML);
+
+			const hair = {
+				style: parseInt($('#hairnum')[0].innerHTML),
+				color: parseInt($('#colornum')[0].innerHTML)
+			}
+
+			console.log(this.game.seatReservation);
+
+			const data = {
+				seatReservation: this.game.seatReservation,
+				player: {
+					account: this.game.account,
+					username: username,
+					sex: 0,
+					race: skin,
+					hair: hair,
+					pos: global.defaultPosition,
+					dir: global.defaultDir
+				}
+			}
+
+			this.game.playerCreate(data).then(res => {
+				if(res) {
+					this.game.playerLogin(res).then(r => {
+						if(r) {
+							ViewLoader.removeView(ViewLoader.currentView, true, () => {
+								ViewLoader.loadView("hotkeys", true);
+					
+								ViewLoader.loadView("chat", true, () => {
+									$("#chatinput").focus();
+								});
+					
+								$('.servertext').hide();
+					
+								//welcome player into the game
+							});
+						}
+					});
+				} else {
+					alert('failed');
+				}
+			});
 		});
 
 		$('#views').on('click', "#createbutton", () => {
