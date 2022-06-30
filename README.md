@@ -1,12 +1,15 @@
 # NewAeven
-![New Aeven MMORPG](https://cdn.discordapp.com/attachments/666281546722050058/699024683764285542/inventory_mockup.png)
+## Installation:
 
-Installation:
+1. run `npm install`
+2. add environment variables through .env in /server 
+3. setup mongodb server
+4. change websocket connection info in client/js/client.js if needed
 
-Clone the repository, and run npm install.
+## Dev:
 
-Add environment variables for database username and password or change server/util/db/databaseManager.js
+run `npm run dev`
 
-Navigate to client/js/client.js and change the settings accordingly.
+## Prod:
 
-run server/index.js with "node index" 
+run `npm start`
