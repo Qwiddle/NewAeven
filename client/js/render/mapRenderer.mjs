@@ -3,8 +3,8 @@ export class MapRenderer {
 		this.tileWidth = 64;
 		this.tileHeight = 32;
 		this.tiles = [];
-        this.walls = [];
-        this.objects = [];
+		this.walls = [];
+		this.objects = [];
 		this.scene = scene;
 		this.load(json)
 	}
@@ -12,7 +12,7 @@ export class MapRenderer {
 	load(json) {
 		this.map = json;
 		this.mapWidth = json.width;
-        this.mapHeight = json.height;
+		this.mapHeight = json.height;
 		
 		this.tileGroup = this.scene.add.group();
 		this.objectGroup = this.scene.add.group();
@@ -128,20 +128,20 @@ export class MapRenderer {
 	}
 
 	destroyMap() {
-        for (let i = 0; i < this.tiles.length; i++) {
-            this.tiles[i].destroy();
-        }
+		for (let i = 0; i < this.tiles.length; i++) {
+			this.tiles[i].destroy();
+		}
 
-        for (let i = 0; i < this.walls.length; i++) {
-            this.walls[i].destroy();
-        }
+		for (let i = 0; i < this.walls.length; i++) {
+			this.walls[i].destroy();
+		}
 
-        for (let i = 0; i < this.objects.length; i++) {
-            this.objects[i].destroy();
-        }
+		for (let i = 0; i < this.objects.length; i++) {
+			this.objects[i].destroy();
+		}
         
-        this.walls = [];
-        this.objects = [];
+		this.walls = [];
+		this.objects = [];
 	}
 	
 
@@ -183,9 +183,9 @@ export class MapRenderer {
 
 		sprite.on('pointerout', (pointer) => {
 			if(this.tileHover != null) {  
-                this.tileHover.visible = false;
-                this.tileHover.setAlpha(0);
-            }
+				this.tileHover.visible = false;
+				this.tileHover.setAlpha(0);
+			}
 		});
 
 		sprite.on('pointerdown', (pointer) => {

@@ -85,8 +85,12 @@ export class Game {
 		}
 	}
 
+	connect(seatReservation) {
+		return AuthAction.connect(this.client, seatReservation);
+	}
+
 	playerLogin(data) {
-		return PlayerLoginAction.login(data.player, this.client, data.seatReservation);
+		return PlayerLoginAction.login(data.id, this.account, this.room);
 	}
 
 	playerCreate(data) {
@@ -112,31 +116,18 @@ export class Game {
 		this.initialized = true;
 	}
 
-	initWorld(packet) {
-		this.mapData = packet.mapData;
+	initWorld(player) {
+		this.mapData = player.mapData;
 		this.player.mapData = this.mapData;
-		this.player.mapJson = packet.mapJson;
+		this.player.mapJson = player.mapJson;
 
 		this.pathFinder = new PathFinder(this.mapData);
 		this.pathStack = [];
 	}
 
-	initPlayer(packet) {
-		this.player = new Player();
-		this.player.username = packet.username;
-		this.player.sex = packet.sex;
-		this.player.race = packet.race;
-		this.player.map = packet.map;
-		this.player.prevPos.x = packet.pos.x;
-		this.player.prevPos.y = packet.pos.y;
-		this.player.pos.x = packet.pos.x;
-		this.player.pos.y = packet.pos.y;
-		this.player.dir = packet.dir;
-		this.player.equipment = packet.equipment;
-		this.player.hair = packet.hair;
-		this.player.stats = packet.stats;
+	initPlayer(player) {
+		this.player = player;
 		PlayerController.updateTargetPos(this.player);
-
 	}
 
 	initPhysicsTick() {

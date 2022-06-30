@@ -3,8 +3,6 @@ import { PubManager } from '../util/pubManager.js';
 
 export class WorldManager {
 	constructor(server) {
-		this.server = server;
-
 		this.pubManager = new PubManager();
 
 		this.initialized = false;
@@ -25,6 +23,7 @@ export class WorldManager {
 
 		this.reset();
 		this.loadData();
+		server.start();
 	}
 
 	loadData() {
@@ -40,17 +39,8 @@ export class WorldManager {
 				this.mapJson = this.pubManager.mapJson;
 				
 				console.log(Object.keys(this.mapData).length + " maps loaded.");
-
-				this.initializeWorld();
 			});
 		});
-	}
-
-	initializeWorld() {
-		//npc spawns
-		//put items in chest
-		//etc
-		this.server.start();
 	}
 
 	clearMessages() { 

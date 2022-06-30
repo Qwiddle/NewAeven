@@ -16,11 +16,7 @@ export class AuthAction {
 
 		const data = await response.json();
 		
-		if(!data.output.player) {
-			return { account: data.output.account, seatReservation: data.output.seatReservation };
-		} else {
-			return { player: data.output.player, seatReservation: data.output.seatReservation };
-		}
+		return { players: data.output.players, account: data.output.account, seatReservation: data.output.seatReservation }
 	}
 
 	static async register(account, password, email) {
@@ -44,6 +40,15 @@ export class AuthAction {
 			return false;
 		} else {
 			return { account: data.output.account, seatReservation: data.output.seatReservation };
+		}
+	}
+
+	static async connect(client, seatReservation) {
+		try {
+			const room = await client.consumeReservation(seatReservation);
+			return room;
+		} catch(error) {
+			console.log('join error', error);
 		}
 	}
 }

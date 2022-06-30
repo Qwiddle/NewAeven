@@ -1,7 +1,14 @@
-import { GetController } from './db/getController.js';
-import { SaveController } from './db/saveController.js';
+import "dotenv/config.js";
+import mongoose from "mongoose";
+import { GetController } from './getController.js';
+import { SaveController } from './saveController.js';
 
 export class DatabaseManager {
+	static async connect() {
+		console.log('hi');
+		return mongoose.connect(`mongodb://${process.env.DBHOST || '127.0.0.1'}/${process.env.DB || 'new_aeven'}`);
+	}
+	
 	static async createAccount (data) {
 		return await SaveController.createAccount(data);
 	}

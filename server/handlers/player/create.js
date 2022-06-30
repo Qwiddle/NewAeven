@@ -1,4 +1,4 @@
-import { DatabaseManager } from "../../util/databaseManager.js";
+import { DatabaseManager } from "../../util/db/databaseManager.js";
 import { global } from "../../../client/js/global.mjs";
 
 export class PlayerCreateHandler {

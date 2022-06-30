@@ -11,16 +11,30 @@ export class ViewLoader {
 			return; 
 		}
 
-		$("<div>").load("views/" + view + ".html", function() {
+		if($("#" + view).length) {
 			if(fade) {
-				$("#views").append($(this).html()).hide().fadeIn(this.fadeInTime);
+				$("#" + view).fadeIn(this.fadeInTime).promise().done(function() {
+					if(callback)
+						callback();
+				});
 			} else {
-				$("#views").append($(this).html());
-			}
+				$("#" + view).show();
 
-			if(callback)
-				callback();
-		});
+				if(callback)
+					callback();
+			}
+		} else {
+			$("<div>").load("views/" + view + ".html", function() {
+				if(fade) {
+					$("#views").append($(this).html()).hide().fadeIn(this.fadeInTime);
+				} else {
+					$("#views").append($(this).html());
+				}
+	
+				if(callback)
+					callback();
+			});
+		}
 
 		ViewLoader.previousView = ViewLoader.currentView;
 		ViewLoader.currentView = view;
@@ -36,6 +50,9 @@ export class ViewLoader {
 			});
 		} else {
 			$("#" + view).detach();
+
+			if(callback)
+				callback();
 		}
 	}
 
@@ -47,6 +64,9 @@ export class ViewLoader {
 			});
 		} else {
 			$("#" + view).show();
+
+			if(callback)
+				callback();
 		}
 
 		ViewLoader.previousView = ViewLoader.currentView;
@@ -58,9 +78,12 @@ export class ViewLoader {
 			$("#" + view).fadeOut(this.fadeOutTime).promise().done(function() {
 				if(callback)
 					callback();
-			});
+			});	
 		} else {
-			$("#" + view).hide();	
+			$("#" + view).hide();
+
+			if(callback)
+					callback();
 		}
 	}
 }

@@ -12,13 +12,14 @@ export class UIHandler {
 			const playerID = parseInt(e.target.id);
 
 			if(playerID <= 3) {
-				this.game.playerLogin({ id: playerID});
+				this.game.playerLogin({ id: playerID });
 			}		
 		});
 
 		$('#views').on('click', '.create3d', (e) => {
-			ViewLoader.removeView("characterselection", true, () => {
-				ViewLoader.loadView("charactercreation", true);
+			console.log(ViewLoader.currentView);
+			ViewLoader.hideView(ViewLoader.currentView, false, () => {
+				ViewLoader.loadView("charactercreation");
 			});
 		});
 
@@ -67,9 +68,11 @@ export class UIHandler {
 
 		});
 
-		$('#views').on('click', '#charactercreation .cancel_button', () => {
-			ViewLoader.removeView(ViewLoader.currentView, true, () => {
-				ViewLoader.showView("home", true);
+		$('#views').on('click', '.cancel_button', () => {
+			console.log(ViewLoader.previousView);
+			ViewLoader.hideView(ViewLoader.currentView, false, () => {
+				console.log(ViewLoader.previousView);
+				ViewLoader.loadView(ViewLoader.previousView, false);
 			});
 		});
 
@@ -78,7 +81,7 @@ export class UIHandler {
 			const passInput = $("#password").val();
 
 			if(userInput == "" || passInput == "") {
-				ViewLoader.showView("checkinput", true);
+				ViewLoader.showView("checkinput", false);
 			} else {
 				const data = {
 					account: userInput,
@@ -87,41 +90,35 @@ export class UIHandler {
 
 				this.game.accountLogin(data).then(res => {
 					if(res) {
-						this.game.seatReservation = res.seatReservation;
-					
-						if(res.player) {
-							this.game.playerLogin(res).then(r => {
-								if(r) {
-									ViewLoader.removeView(ViewLoader.currentView, true, () => {
-										ViewLoader.loadView("hotkeys", true);
-							
-										ViewLoader.loadView("chat", true, () => {
-											$("#chatinput").focus();
-										});
-							
-										$('.servertext').hide();
-							
-										//welcome player into the game
-									});
+						this.game.account = res.account;
+						
+						this.game.connect(res.seatReservation).then(room => {
+							this.game.room = room;
+
+							ViewLoader.removeView(ViewLoader.currentView);
+
+							ViewLoader.loadView("characterselection", false, () => {
+								if(res.players >= 1) {
+									console.log($("#0"));
+									$("#0").children(".create3d").removeClass("create3d").addClass("login3d");
+									$("#0").children(".characterbox").append('<div class="playersprite">');
+								} if(res.players >= 2) {
+									$("#1").children(".create3d").removeClass("create3d").addClass("login3d");
+									$("#1").children(".characterbox").append('<div class="playersprite">');
+								} if(res.players >= 3) {
+									$("#2").children(".create3d").removeClass("create3d").addClass("login3d");
+									$("#2").children(".characterbox").append('<div class="playersprite">');
 								}
 							});
-						} else if(res.account) {
-							this.game.account = res.account;
-							console.log('hi');
-							ViewLoader.removeView(ViewLoader.currentView, true, () => {
-								ViewLoader.loadView("charactercreation", true);
-							});
-						} else {
-							console.log('failed');
-						}
+						})
 					}
 				});
 			}
 		});
 
 		$('#views').on('click', "#cancelbutton", () => {
-			ViewLoader.removeView("registration", true, () => {
-				ViewLoader.showView("home", true);
+			ViewLoader.hideView(ViewLoader.currentView, false, () => {
+				ViewLoader.showView(ViewLoader.previousView, false);
 			});
 		});
 
@@ -132,7 +129,7 @@ export class UIHandler {
 			const emailInput = $("#regemail").val();
 
 			if(userInput == "" || passInput == "" || passconfirmInput == "" || emailInput == "") {
-				ViewLoader.showView("checkinput", true);
+				ViewLoader.showView("checkinput", false);
 			} else {
 				const data = {
 					account: userInput,
@@ -182,16 +179,16 @@ export class UIHandler {
 				if(res) {
 					this.game.playerLogin(res).then(r => {
 						if(r) {
-							ViewLoader.removeView(ViewLoader.currentView, true, () => {
-								ViewLoader.loadView("hotkeys", true);
+							ViewLoader.removeView(ViewLoader.currentView, false, () => {
+								ViewLoader.loadView("hotkeys", false);
 					
-								ViewLoader.loadView("chat", true, () => {
+								ViewLoader.loadView("chat", false, () => {
 									$("#chatinput").focus();
 								});
 					
 								$('.servertext').hide();
-					
-								//welcome player into the game
+								console.log(r);
+								this.game.playerConnected(r);
 							});
 						}
 					});
@@ -202,8 +199,8 @@ export class UIHandler {
 		});
 
 		$('#views').on('click', "#createbutton", () => {
-			ViewLoader.hideView("home", true, () => {
-				ViewLoader.loadView("registration", true);
+			ViewLoader.hideView("home", false, () => {
+				ViewLoader.loadView("registration", false);
 			});
 		});
 

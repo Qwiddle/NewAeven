@@ -1,5 +1,5 @@
 import bcrypt from 'bcrypt';
-import { DatabaseManager } from "../../util/databaseManager.js";
+import { DatabaseManager } from "../../util/db/databaseManager.js";
 
 export class RegisterHandler {
 	static onRegister(packet, client) {

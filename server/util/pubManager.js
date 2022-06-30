@@ -52,13 +52,6 @@ export class PubManager {
 			mapData[i].fill(0);
 		}
 
-		/*for(let i = 0; i < width; i++) {
-			for(let j = 0; j < height; j++) {
-				//check for specs
-
-			}
-		}*/
-
 		return mapData;
 	}
 }

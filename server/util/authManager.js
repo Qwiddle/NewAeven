@@ -1,6 +1,6 @@
 import bcrypt from "bcrypt";
 import { matchMaker } from "colyseus";
-import { DatabaseManager } from "./databaseManager.js";
+import { DatabaseManager } from "./db/databaseManager.js";
 import { Player } from "../../client/js/entity/player.mjs";
 export class AuthManager {
 	static async updateSession(update, sessionId) {
@@ -68,43 +68,14 @@ export class AuthManager {
 
 					await AuthManager.updateSession(acc, seatReservation.sessionId);
 
-					if(players.length === 0) {
-						res.status(200).json({
-							error: false,
-							output: {
-								seatReservation,
-								account: acc.account
-							}
-						});
-					} else {
-						let player = players[0];
-						const newPlayer = new Player();
-
-						await AuthManager.updateSession(player, seatReservation.sessionId);
-
-						newPlayer.id = seatReservation.sessionId;
-						newPlayer.username = player.username;
-						newPlayer.admin = player.admin;
-						newPlayer.pos = player.pos;
-						newPlayer.dir = player.dir;
-						/*todo: need to refactor WorldManager first.
-						newPlayer.mapData = this.worldManager.mapData[player.pos.map];*/
-						newPlayer.sex = player.sex;
-						newPlayer.race = player.race;
-						newPlayer.hair = player.hair;
-						newPlayer.equipment = player.equipment;
-						newPlayer.stats = player.stats;
-
-						console.log(newPlayer);
-
-						res.status(200).json({
-							error: false,
-							output: {
-								seatReservation,
-								player: newPlayer
-							}
-						});
-					}	
+					res.status(200).json({
+						error: false,
+						output: {
+							seatReservation,
+							players: players.length,
+							account: req.body.account
+						}
+					});	
 				} else {
 					throw "Incorrect password.";
 				}
@@ -170,17 +141,6 @@ export class AuthManager {
 				error: true,
 				output: error
 			});
-		}
-	}
-
-	static async playerLogin(req, res) {
-		try {
-			const player = req.body.player;
-			const reservation = req.body.seatReservation;
-
-
-		} catch(error) {
-
 		}
 	}
 

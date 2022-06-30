@@ -1,5 +1,5 @@
 import { Player } from '../../../client/js/entity/player.mjs';
-import { DatabaseManager } from '../../util/databaseManager.js';
+import { DatabaseManager } from '../../util/db/databaseManager.js';
 
 export class PlayerLoginHandler {
 	static async onLogin(packet, client) {

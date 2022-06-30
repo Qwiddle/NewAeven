@@ -12,7 +12,7 @@ export class MainRoom extends Colyseus.Room {
 		this.events = {
 			'account_login': (packet, client) => LoginHandler.onLogin(packet, client),
 			'account_register': (packet, client) => RegisterHandler.onRegister(packet, client),
-			'player_login': (packet, client) => PlayerLoginHandler.onLogin(packet, client),
+			'player_login': (packet, client, world) => PlayerLoginHandler.onLogin(packet, client),
 			'player_create': (packet, client) => PlayerCreateHandler.onCreate(packet, client),
 		};
 	}
@@ -23,7 +23,7 @@ export class MainRoom extends Colyseus.Room {
 			console.log(packet);
 		});
 	}
-	
+
 	onJoin(client, options) {
 		console.log(`[GameServer] - ${client.sessionId}`);
 	}

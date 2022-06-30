@@ -5,8 +5,7 @@ import { WebSocketTransport } from "@colyseus/ws-transport"
 import http from 'http';
 import path from 'path';
 import * as uuid from 'uuid';
-
-import msgpack from 'msgpack-lite';
+import "dotenv/config.js";
 
 import { fileURLToPath } from 'url';
 
@@ -14,7 +13,7 @@ import { global } from '../client/js/global.mjs';
 import { router } from './util/routes/routes.js';
 
 import { WorldManager } from './util/worldManager.js';
-import { DatabaseManager } from './util/databaseManager.js';
+import { DatabaseManager } from './util/db/databaseManager.js';
 import CombatManager from './util/combatManager.js';
 
 import { Enemy } from '../client/js/entity/enemy.mjs';
@@ -26,7 +25,6 @@ import { MainRoom } from './rooms/mainRoom.js';
 class Server {
 	constructor() {
 		this.worldManager = new WorldManager(this);
-		this.databaseManager = new DatabaseManager();
 	}
 
 	start() {
@@ -52,9 +50,9 @@ class Server {
 		gameServer.listen(port);
 		gameServer.define("main_room", MainRoom).filterBy(["map"]);
 
-		mongoose.connect('mongodb://localhost/new_aeven');
-
 		console.log(`Listening on port: ${port}`);
+
+		return DatabaseManager.connect();
 	}
 
 	registerAccount(packet, createAccount, registrationFailed) {
@@ -264,8 +262,6 @@ class Server {
 				globalMessages: this.worldManager.messages.globalMessages,
 				time: Date.now(),
 			};
-
-			this.send(bundledPacket, socket);
 		});
 
 		this.worldManager.clearMessages();
@@ -355,6 +351,7 @@ class Server {
 
 		if(coord != undefined) {
 			let enemy = this.findEnemyAtCoord(coord, player.map);
+
 			if (enemy != null) {
 				CombatManager.attack(player, enemy);
 				EnemyController.setTarget(enemy, player, id);
@@ -369,7 +366,7 @@ class Server {
 				let enemy = this.worldManager.enemies[i][j];
 
 				if(CombatManager.isDead(enemy)) {
-					//drop item
+					//drop item and handle death
 					this.worldManager.enemies[i].splice(j, 1);
 				}
 			}
@@ -408,10 +405,6 @@ class Server {
 
 	hasMetaData(update, key) {
 		return Object.prototype.hasOwnProperty.call(update, key) && !this.isJsonObjectEmpty(update[key]);
-	}
-
-	send(packet, socket) {
-		socket.write(msgpack.encode(JSON.stringify(packet)));
 	}
 }
 
