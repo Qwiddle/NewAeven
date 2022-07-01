@@ -3,30 +3,35 @@ import { global } from "../../../client/js/global.mjs";
 
 export class PlayerCreateHandler {
 	static async onCreate(packet, client) {
-		packet.username = packet.username.charAt(0).toUpperCase() + packet.username.slice(1);
+		const players = await DatabaseManager.getPlayers(acc.account);
 
-		const data = {
-			account: packet.account,
-			username: packet.username,
-			sex: packet.sex, 
-			race: packet.race,
-			hair: packet.hair,
-			pos: global.defaultPosition,
-			dir: global.defaultDir
-		}
+		if(players.length >= 3) {
+			packet.username = packet.username.charAt(0).toUpperCase() + packet.username.slice(1);
 
-		const exist = await DatabaseManager.getPlayer(packet.username);
-
-		if(exist === null) {
-			const player = await DatabaseManager.createPlayer(data);
-
-			const packet = {
-				event: 'player_create',
-				success: true,
-				player: player,
+			const data = {
+				account: packet.account,
+				username: packet.username,
+				sex: packet.sex, 
+				race: packet.race,
+				hair: packet.hair,
+				pos: global.defaultPosition,
+				dir: global.defaultDir
 			}
-
-			client.send(packet.event, packet);
+	
+			const exist = await DatabaseManager.getPlayer(packet.username);
+	
+			if(exist === null) {
+				const player = await DatabaseManager.createPlayer(data);
+	
+				const packet = {
+					event: 'player_create',
+					success: true,
+					player: player,
+					players: players.length
+				};
+	
+				client.send(packet.event, packet);
+			}
 		} else {
 			const packet = {
 				event: 'player_create',

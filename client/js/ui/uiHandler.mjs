@@ -69,9 +69,7 @@ export class UIHandler {
 		});
 
 		$('#views').on('click', '.cancel_button', () => {
-			console.log(ViewLoader.previousView);
 			ViewLoader.hideView(ViewLoader.currentView, false, () => {
-				console.log(ViewLoader.previousView);
 				ViewLoader.loadView(ViewLoader.previousView, false);
 			});
 		});
@@ -96,20 +94,7 @@ export class UIHandler {
 							this.game.room = room;
 
 							ViewLoader.removeView(ViewLoader.currentView);
-
-							ViewLoader.loadView("characterselection", false, () => {
-								if(res.players >= 1) {
-									console.log($("#0"));
-									$("#0").children(".create3d").removeClass("create3d").addClass("login3d");
-									$("#0").children(".characterbox").append('<div class="playersprite">');
-								} if(res.players >= 2) {
-									$("#1").children(".create3d").removeClass("create3d").addClass("login3d");
-									$("#1").children(".characterbox").append('<div class="playersprite">');
-								} if(res.players >= 3) {
-									$("#2").children(".create3d").removeClass("create3d").addClass("login3d");
-									$("#2").children(".characterbox").append('<div class="playersprite">');
-								}
-							});
+							this.loadPlayers(res);
 						})
 					}
 				});
@@ -177,21 +162,8 @@ export class UIHandler {
 
 			this.game.playerCreate(data).then(res => {
 				if(res) {
-					this.game.playerLogin(res).then(r => {
-						if(r) {
-							ViewLoader.removeView(ViewLoader.currentView, false, () => {
-								ViewLoader.loadView("hotkeys", false);
-					
-								ViewLoader.loadView("chat", false, () => {
-									$("#chatinput").focus();
-								});
-					
-								$('.servertext').hide();
-								console.log(r);
-								this.game.playerConnected(r);
-							});
-						}
-					});
+					ViewLoader.removeView(ViewLoader.currentView);
+					this.loadPlayers(res);
 				} else {
 					alert('failed');
 				}
@@ -203,7 +175,21 @@ export class UIHandler {
 				ViewLoader.loadView("registration", false);
 			});
 		});
+	}
 
-
+	loadPlayers(res) {
+		ViewLoader.loadView("characterselection", false, () => {
+			if(res.players >= 1) {
+				console.log($("#0"));
+				$("#0").children(".create3d").removeClass("create3d").addClass("login3d");
+				$("#0").children(".characterbox").append('<div class="playersprite">');
+			} if(res.players >= 2) {
+				$("#1").children(".create3d").removeClass("create3d").addClass("login3d");
+				$("#1").children(".characterbox").append('<div class="playersprite">');
+			} if(res.players >= 3) {
+				$("#2").children(".create3d").removeClass("create3d").addClass("login3d");
+				$("#2").children(".characterbox").append('<div class="playersprite">');
+			}
+		});
 	}
 }

@@ -24,7 +24,7 @@ export class PlayerCreateAction {
 			alert(`HTTP error! status: ${response.status}`);
 			return false;
 		} else {
-			return { player: data.output.player, seatReservation: reservation };
+			return { player: data.output.player, players: data.output.players, seatReservation: reservation };
 		}
 	}
 }

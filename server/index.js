@@ -25,6 +25,7 @@ import { MainRoom } from './rooms/mainRoom.js';
 class Server {
 	constructor() {
 		this.worldManager = new WorldManager(this);
+		this.start();
 	}
 
 	start() {
@@ -48,10 +49,12 @@ class Server {
 		});
 
 		gameServer.listen(port);
-		gameServer.define("main_room", MainRoom).filterBy(["map"]);
+		gameServer.define("main_room", MainRoom, { world: this.worldManager }).filterBy(["map"]);
 
 		console.log(`Listening on port: ${port}`);
 
+		this.worldManager.loadData();
+		
 		return DatabaseManager.connect();
 	}
 

@@ -12,12 +12,14 @@ export class MainRoom extends Colyseus.Room {
 		this.events = {
 			'account_login': (packet, client) => LoginHandler.onLogin(packet, client),
 			'account_register': (packet, client) => RegisterHandler.onRegister(packet, client),
-			'player_login': (packet, client, world) => PlayerLoginHandler.onLogin(packet, client),
+			'player_login': (packet, client) => PlayerLoginHandler.onLogin(packet, client, this.world),
 			'player_create': (packet, client) => PlayerCreateHandler.onCreate(packet, client),
 		};
 	}
 
 	onCreate(options) {
+		this.world = options.world
+
 		this.onMessage("*", (client, type, packet) => {
 			this.handleEvents(client, type, packet);
 			console.log(packet);

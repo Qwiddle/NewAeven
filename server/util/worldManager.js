@@ -5,7 +5,6 @@ export class WorldManager {
 	constructor(server) {
 		this.pubManager = new PubManager();
 
-		this.initialized = false;
 		this.items = [];
 		this.npcs = [];
 		this.players = {};
@@ -20,13 +19,10 @@ export class WorldManager {
 			publicMessages: [],
 			globalMessages: []
 		};
-
-		this.reset();
-		this.loadData();
-		server.start();
 	}
 
 	loadData() {
+		this.reset();
 		this.pubManager.read('./data/pub/', () => {
 			this.items = this.pubManager.items;
 			this.npcs = this.pubManager.npcs;

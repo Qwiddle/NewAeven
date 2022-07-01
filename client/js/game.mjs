@@ -105,24 +105,24 @@ export class Game {
 		return AuthAction.login(data.account, data.password);
 	}
 
-	playerConnected(packet) {
+	playerConnected(player, mapJson) {
 		this.players = {};
 		this.enemies = {};
 
-		this.initPlayer(packet);
-		this.initWorld(packet);
+		this.initPlayer(player);
+		this.initWorld(player, mapJson);
 		this.initPhysicsTick();
-
-		this.initialized = true;
 	}
 
-	initWorld(player) {
+	initWorld(player, mapJson) {
 		this.mapData = player.mapData;
 		this.player.mapData = this.mapData;
-		this.player.mapJson = player.mapJson;
+		this.player.mapJson = mapJson;
 
 		this.pathFinder = new PathFinder(this.mapData);
 		this.pathStack = [];
+
+		this.initialized = true;
 	}
 
 	initPlayer(player) {

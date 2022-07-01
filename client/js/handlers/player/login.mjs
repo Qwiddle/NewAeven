@@ -7,9 +7,11 @@ export class PlayerLoginHandler {
 		} else {
 			alert('player login attempt unsuccessful. possible hacking attempt');
 		}
+
+		playerConnected(packet.player);
 	}
 
-	static onWelcome(packet) {
+	static onWelcome(packet, game) {
 		ViewLoader.removeView(ViewLoader.currentView, true, () => {
 			ViewLoader.loadView("hotkeys", true);
 
@@ -19,7 +21,7 @@ export class PlayerLoginHandler {
 
 			$('.servertext').hide();
 
-			//welcome player into the game
+			game.playerConnected(packet.player, packet.mapJson);
 		});
 	}
 }

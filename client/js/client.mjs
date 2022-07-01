@@ -18,7 +18,7 @@ export class Client {
 			'account_login': (packet) => AccountLoginHandler.onLogin(packet),
 			'player_create': (packet) => PlayerCreateHandler.onCreate(packet),
 			'player_login': (packet) => PlayerLoginHandler.onLogin(packet),
-			'player_welcome': (packet) => PlayerLoginHandler.onWelcome(packet)
+			'player_welcome': (packet) => PlayerLoginHandler.onWelcome(packet, this.game)
 		};
 
 		this.colyseus = new Colyseus.Client(`ws://${this.ip.address}:${this.ip.port}`);

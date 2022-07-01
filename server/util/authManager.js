@@ -107,6 +107,12 @@ export class AuthManager {
 			if(await DatabaseManager.getPlayer(req.body.player.username)) {
 				throw "Username already exists.";
 			}
+		
+			const players = await DatabaseManager.getPlayers(req.body.player.account);
+
+			if(players.length == 3) {
+				throw "Max player count reached.";
+			} 
 
 			let player = await DatabaseManager.createPlayer(req.body.player);
 
@@ -116,24 +122,12 @@ export class AuthManager {
 
 			await AuthManager.updateSession(player, account.pending_session_id);
 
-			const newPlayer = new Player();
-
-			newPlayer.id = player.pending_session_id;
-			newPlayer.username = player.username;
-			newPlayer.admin = player.admin;
-			newPlayer.pos = player.pos;
-			newPlayer.dir = player.dir;
-			newPlayer.sex = player.sex;
-			newPlayer.race = player.race;
-			newPlayer.hair = player.hair;
-			newPlayer.equipment = player.equipment;
-			newPlayer.stats = player.stats;
-
 			res.status(200).json({
 				error: false,
 				output: {
 					seatReservation: req.body.seatReservation,
-					player: newPlayer
+					player: true,
+					players: (players.length + 1)
 				}
 			});
 		} catch(error) {
