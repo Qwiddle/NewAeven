@@ -10,6 +10,15 @@ export class AuthManager {
 		update.save();
 	}
 
+	static async disconnect(client) {
+		let account = await DatabaseManager.getAccountBySession(client.id);
+
+		account.active_session_id = "";
+		account.pending_session_timestamp = "";
+		account.updated_at = Date.now();
+		await account.save();
+	}
+
 	static async register(req, res) {
 		try {
 			if(!req.body.email || !req.body.account || !req.body.password) {
@@ -61,23 +70,27 @@ export class AuthManager {
 			const acc = await DatabaseManager.getAccount(req.body.account);
 
 			if(acc) {
-				if (await AuthManager.comparePassword(req.body.password, acc.password)) {					
+				if(!acc.active_session_id) {
+					if (await AuthManager.comparePassword(req.body.password, acc.password)) {					
 
-					const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
-					const players = await DatabaseManager.getPlayers(acc.account);
+						const seatReservation = await matchMaker.joinOrCreate("main_room", 0);
+						const players = await DatabaseManager.getPlayers(acc.account);
 
-					await AuthManager.updateSession(acc, seatReservation.sessionId);
+						await AuthManager.updateSession(acc, seatReservation.sessionId);
 
-					res.status(200).json({
-						error: false,
-						output: {
-							seatReservation,
-							players: players.length,
-							account: req.body.account
-						}
-					});	
+						res.status(200).json({
+							error: false,
+							output: {
+								seatReservation,
+								players: players.length,
+								account: req.body.account
+							}
+						});	
+					} else {
+						throw "Incorrect password.";
+					}
 				} else {
-					throw "Incorrect password.";
+					throw "Already logged in";
 				}
 			} else {
 				throw "Account does not exist.";

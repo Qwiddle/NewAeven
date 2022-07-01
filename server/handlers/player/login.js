@@ -3,11 +3,11 @@ import { DatabaseManager } from '../../util/db/databaseManager.js';
 
 export class PlayerLoginHandler {
 	static async onLogin(packet, client, world) {
-
 		const players = await DatabaseManager.getPlayers(packet.account);
-		const select  = players[packet.id];
+		let account = await DatabaseManager.getAccount(packet.account);
 
-		const player = new Player();
+		const select  = players[packet.id];
+		let player = new Player();
 
 		player.id = client.id;
 		player.username = select.username;
@@ -26,6 +26,11 @@ export class PlayerLoginHandler {
 		};
 
 		world.players[client.id] = player;
+
+		account.active_session_id = client.id;
+		account.pending_session_id = "";
+		account.updated_at = Date.now();
+		await account.save();
 
 		client.send(initPacket.event, initPacket);
 	}

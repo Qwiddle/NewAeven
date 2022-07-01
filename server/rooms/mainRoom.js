@@ -4,6 +4,7 @@ import { LoginHandler } from '../handlers/account/login.js';
 import { RegisterHandler } from '../handlers/account/register.js';
 import { PlayerCreateHandler } from '../handlers/player/create.js';
 import { PlayerLoginHandler } from '../handlers/player/login.js';
+import { AuthManager } from '../util/authManager.js';
 
 export class MainRoom extends Colyseus.Room {
 	constructor() {
@@ -27,7 +28,12 @@ export class MainRoom extends Colyseus.Room {
 	}
 
 	onJoin(client, options) {
-		console.log(`[GameServer] - ${client.sessionId}`);
+		console.log(`[GameServer] - ${client.sessionId} connected.`);
+	}
+
+	async onLeave(client) {
+		console.log(`[GameServer] - ${client.sessionId} disconnected.`);
+		AuthManager.disconnect(client);
 	}
 
 	handleEvents(client, type, packet) {

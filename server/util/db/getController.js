@@ -6,6 +6,10 @@ export class GetController {
 		return Account.findOne({ account: accountName });
 	}
 
+	static getAccountBySession(session) {
+		return Account.findOne({ active_session_id: session });
+	}
+
 	static getPlayers(accountName) {
 		return Player.find({ account: accountName });
 	}

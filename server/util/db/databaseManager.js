@@ -21,6 +21,10 @@ export class DatabaseManager {
 		return await GetController.getAccount(account);
 	}
 
+	static async getAccountBySession (session) {
+		return await GetController.getAccountBySession(session);
+	}
+
 	static async getPlayer (username) {
 		return await GetController.getPlayer(username);        
 	}
